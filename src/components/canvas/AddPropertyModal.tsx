@@ -7,7 +7,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Button } from '@/components/ui/button'
 import { useProjectStore } from '@/store/project-store'
-import { addAttributeWithName, updateAttribute, toggleIdentifierAttribute } from '@/editor'
+import {
+  addAttributeWithName,
+  updateAttribute,
+  toggleIdentifierAttribute,
+  addAssociationAttribute,
+  updateAssociationAttribute,
+} from '@/editor'
 import { cn } from '@/lib/utils'
 import type { ConceptualType } from '@/domain'
 
@@ -61,7 +67,7 @@ function toConceptualType(cat: Category, sub: string): ConceptualType {
  * identifiant) sont réellement appliqués pour l'instant.
  */
 export function AddPropertyModal() {
-  const entityId = useProjectStore((s) => s.addPropertyEntityId)
+  const target = useProjectStore((s) => s.addPropertyTarget)
   const project = useProjectStore((s) => s.project)
   const apply = useProjectStore((s) => s.apply)
   const close = useProjectStore((s) => s.closeAddProperty)
@@ -81,9 +87,11 @@ export function AddPropertyModal() {
   const [comment, setComment] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Réinitialise tous les champs à chaque ouverture (nouvelle entité).
+  const isEntity = target?.kind === 'entity'
+
+  // Réinitialise tous les champs à chaque ouverture (nouvelle cible).
   useEffect(() => {
-    if (!entityId) return
+    if (!target) return
     setNom('')
     setLogical('')
     setLogicalTouched(false)
@@ -98,30 +106,46 @@ export function AddPropertyModal() {
     setComplement('')
     setComment('')
     setError(null)
-  }, [entityId])
+  }, [target])
 
   // Nom logique dérivé en live du nom (majuscules + snake_case).
   useEffect(() => {
     if (!logicalTouched) setLogical(nom.toUpperCase().replace(/\s+/g, '_'))
   }, [nom, logicalTouched])
 
-  if (!entityId) return null
+  if (!target) return null
 
   const onOk = () => {
     if (!nom.trim()) return
     const ct = toConceptualType(category, subType)
-    const res = addAttributeWithName(project, entityId, nom.trim(), ct)
-    if (res.attributeId === '') {
-      setError('Cette propriété existe déjà dans l’entité.')
-      return
+    if (target.kind === 'entity') {
+      const res = addAttributeWithName(project, target.id, nom.trim(), ct)
+      if (res.attributeId === '') {
+        setError('Cette propriété existe déjà dans l’entité.')
+        return
+      }
+      let next = res.project
+      if (notNull) next = updateAttribute(next, target.id, res.attributeId, { nullable: false })
+      if (unique) next = updateAttribute(next, target.id, res.attributeId, { unique: true })
+      if (complement.trim())
+        next = updateAttribute(next, target.id, res.attributeId, { description: complement.trim() })
+      if (identifier) next = toggleIdentifierAttribute(next, target.id, res.attributeId)
+      apply(next)
+    } else {
+      const res = addAssociationAttribute(project, target.id, nom.trim(), ct)
+      if (res.attributeId === '') {
+        setError('Cette propriété existe déjà dans l’association.')
+        return
+      }
+      let next = res.project
+      if (notNull) next = updateAssociationAttribute(next, target.id, res.attributeId, { nullable: false })
+      if (unique) next = updateAssociationAttribute(next, target.id, res.attributeId, { unique: true })
+      if (complement.trim())
+        next = updateAssociationAttribute(next, target.id, res.attributeId, {
+          description: complement.trim(),
+        })
+      apply(next)
     }
-    let next = res.project
-    if (notNull) next = updateAttribute(next, entityId, res.attributeId, { nullable: false })
-    if (unique) next = updateAttribute(next, entityId, res.attributeId, { unique: true })
-    if (complement.trim())
-      next = updateAttribute(next, entityId, res.attributeId, { description: complement.trim() })
-    if (identifier) next = toggleIdentifierAttribute(next, entityId, res.attributeId)
-    apply(next)
     close()
   }
 
@@ -232,10 +256,12 @@ export function AddPropertyModal() {
             Propriétés
           </h3>
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex cursor-pointer items-center gap-2 text-sm">
-              <Checkbox checked={identifier} onCheckedChange={(c) => setIdentifier(c === true)} />
-              <span>Identifiant</span>
-            </label>
+            {isEntity && (
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <Checkbox checked={identifier} onCheckedChange={(c) => setIdentifier(c === true)} />
+                <span>Identifiant</span>
+              </label>
+            )}
             <label className="flex cursor-pointer items-center gap-2 text-sm">
               <Checkbox checked={notNull} onCheckedChange={(c) => setNotNull(c === true)} />
               <span>NOT NULL</span>

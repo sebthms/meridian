@@ -7,6 +7,8 @@ Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → ML
 ### Édition inline dans le canevas (remplace l'inspector)
 - **Rename associations** : unifié sur le hook `useRename` partagé ; la pastille entière est double-cliquable et `zoomOnDoubleClick` est désactivé sur le canevas (le double-clic sert à éditer, pas à zoomer).
 - **shadcn/ui** : ajout des composants manquants `label`, `textarea`, `checkbox` (`@radix-ui/react-checkbox`), `radio-group` (`@radix-ui/react-radio-group`) ; le `AddPropertyModal` utilise désormais `Input`/`Label`/`Textarea`/`Checkbox`/`RadioGroup`/`Button`.
+- **Suppression d'association** : icône corbeille en bout de ligne (space-between), masquée pendant le renommage, comme pour les entités.
+- **Propriétés sur les associations** : bouton « + » ouvrant le même `AddPropertyModal` (cible `addPropertyTarget` générique entité/association). Nouvelles commandes `addAssociationAttribute` / `updateAssociationAttribute` ; les propriétés portées par une association (non table) sont listées dans la pastille.
 - **Suppression de l'inspector** (`src/components/inspector/Inspector.tsx`) : l'édition se fait désormais directement dans les nœuds.
 - **Entité** : double-clic sur le nom → renommage inline (✓/✕, icônes). Quand l'entité est sélectionnée, la ligne d'en-tête passe en `space-between` avec une icône « + » (ajout de propriété) et une icône corbeille (suppression) ; pendant le renommage, ces icônes disparaissent.
 - **Association** : double-clic sur la pastille → renommage inline (✓/✕) ; le popover de cardinalité est rendu dans l'arête et suit le déplacement/zoom.

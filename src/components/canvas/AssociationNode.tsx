@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Check, KeyRound, RefreshCw, X } from 'lucide-react'
+import { Check, KeyRound, Plus, RefreshCw, Trash2, X } from 'lucide-react'
 import {
   DatabaseSchemaNode,
   DatabaseSchemaNodeHeader,
@@ -11,13 +11,17 @@ import {
 import { cn } from '@/lib/utils'
 import type { AssociationNodeData } from '@/editor/nodes/adapter'
 import { useProjectStore } from '@/store/project-store'
-import { updateAssociationName } from '@/editor/commands'
+import { updateAssociationName, deleteAssociation } from '@/editor/commands'
 import { useRename } from './useRename'
+import { TypeIcon } from './type-icon'
 
 /**
  * Nœud d'association.
- * - N:N : la pastille se transforme en TABLE associative (colonnes = clés).
- * - Sinon : simple pastille renommable (double-clic pour éditer le nom).
+ * - N:N : la pastille se transforme en TABLE associative (colonnes = clés + propriétés).
+ * - Sinon : simple pastille renommable + propriétés portées.
+ * Double-clic sur le nom → renommage inline (✓/✕). Quand l'association est
+ * sélectionnée : icônes « + » (ajout de propriété) et « corbeille » (suppression)
+ * en bout de ligne (space-between), masquées pendant le renommage.
  * Les arêtes arrivent via le handle gauche et partent via le handle droite.
  */
 function AssociationNode({ data, selected }: NodeProps) {
@@ -25,8 +29,42 @@ function AssociationNode({ data, selected }: NodeProps) {
   const isTable = (d.columns?.length ?? 0) > 0
   const project = useProjectStore((s) => s.project)
   const apply = useProjectStore((s) => s.apply)
+  const select = useProjectStore((s) => s.select)
+  const openAddProperty = useProjectStore((s) => s.openAddProperty)
   const rename = useRename(d.label, (name) =>
     apply(updateAssociationName(project, d.id, name)),
+  )
+
+  const handleDelete = () => {
+    apply(deleteAssociation(project, d.id))
+    select(undefined)
+  }
+
+  const actions = selected && !rename.editing && (
+    <span className="flex shrink-0 items-center gap-0.5">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          openAddProperty({ kind: 'association', id: d.id })
+        }}
+        className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        title="Ajouter une propriété"
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          handleDelete()
+        }}
+        className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
+        title="Supprimer l'association"
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
+    </span>
   )
 
   return (
@@ -49,12 +87,17 @@ function AssociationNode({ data, selected }: NodeProps) {
       {isTable ? (
         <DatabaseSchemaNode className={cn('min-w-[170px]', selected && 'shadow-lg')}>
           <DatabaseSchemaNodeHeader>
-            <RenameView rename={rename} label={d.label} />
-            {!rename.editing && (
-              <span className="ml-2 text-[9px] uppercase tracking-wide text-muted-foreground">
-                table
+            <div className="flex w-full items-center justify-between gap-2 px-1">
+              <span className="flex min-w-0 items-center gap-1">
+                <RenameView rename={rename} label={d.label} />
+                {!rename.editing && (
+                  <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
+                    table
+                  </span>
+                )}
               </span>
-            )}
+              {actions}
+            </div>
           </DatabaseSchemaNodeHeader>
           <DatabaseSchemaNodeBody>
             {d.columns!.map((c) => (
@@ -90,7 +133,23 @@ function AssociationNode({ data, selected }: NodeProps) {
             selected ? 'border-primary shadow-lg ring-2 ring-primary/30' : 'border-border',
           )}
         >
-          <RenameView rename={rename} label={d.label} />
+          <div className="flex w-full items-center justify-between gap-2">
+            <RenameView rename={rename} label={d.label} />
+            {actions}
+          </div>
+          {d.attributes && d.attributes.length > 0 && (
+            <div className="mt-1 w-full space-y-0.5 border-t border-border/60 pt-1">
+              {d.attributes.map((at) => (
+                <div
+                  key={at.id}
+                  className="flex items-center gap-1 text-[10px] text-muted-foreground"
+                >
+                  <span className="truncate">{at.name || '…'}</span>
+                  <TypeIcon type={at.conceptualType} className="ml-auto shrink-0" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
