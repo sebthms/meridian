@@ -11,9 +11,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // base is overridden to '/<REPO>/' via the GITHUB_PAGES environment variable
-  // during the deploy workflow (see .github/workflows).
-  base: process.env.GITHUB_PAGES === 'true' ? '/merise-diagrams/' : '/',
+  // En production (GitHub Pages), on utilise un base relatif ('./') afin que
+  // les assets se résolvent quel que soit le sous-chemin du dépôt
+  // (projet GitHub Pages servi sous /<repo>/). Le base est donc indépendant
+  // du nom du dépôt.
+  base: process.env.GITHUB_PAGES === 'true' ? './' : '/',
   server: {
     port: 5173,
   },
