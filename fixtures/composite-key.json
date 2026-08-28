@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "name": "composite-key",
+  "entities": [
+    {
+      "id": "e_palmares",
+      "name": "PALMARES",
+      "attributes": [
+        { "id": "a1", "name": "id_annee", "conceptualType": "INTEGER", "nullable": false },
+        { "id": "a2", "name": "id_discipline", "conceptualType": "INTEGER", "nullable": false }
+      ],
+      "identifiers": [{ "id": "i1", "attributeIds": ["a1", "a2"] }],
+      "position": { "x": 100, "y": 100 }
+    }
+  ],
+  "associations": [],
+  "ignoredRules": [],
+  "ignoredIssueIds": []
+}

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "name": "many-to-many",
+  "entities": [
+    {
+      "id": "e_etudiant",
+      "name": "ETUDIANT",
+      "attributes": [
+        { "id": "a1", "name": "id_etudiant", "conceptualType": "INTEGER", "nullable": false }
+      ],
+      "identifiers": [{ "id": "i1", "attributeIds": ["a1"] }],
+      "position": { "x": 100, "y": 100 }
+    },
+    {
+      "id": "e_cours",
+      "name": "COURS",
+      "attributes": [
+        { "id": "a2", "name": "id_cours", "conceptualType": "INTEGER", "nullable": false }
+      ],
+      "identifiers": [{ "id": "i2", "attributeIds": ["a2"] }],
+      "position": { "x": 400, "y": 100 }
+    }
+  ],
+  "associations": [
+    {
+      "id": "a_inscription",
+      "name": "INSCRIPTION",
+      "participants": [
+        { "entityId": "e_etudiant", "cardinality": { "min": 0, "max": "N" } },
+        { "entityId": "e_cours", "cardinality": { "min": 0, "max": "N" } }
+      ],
+      "attributes": []
+    }
+  ],
+  "ignoredRules": [],
+  "ignoredIssueIds": []
+}

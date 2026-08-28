@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "name": "invalid-model",
+  "entities": [
+    {
+      "id": "e_cli",
+      "name": "",
+      "attributes": [
+        { "id": "a1", "name": "", "conceptualType": "TEXT", "nullable": false },
+        { "id": "a2", "name": "nom", "conceptualType": "TEXT", "nullable": false },
+        { "id": "a3", "name": "nom", "conceptualType": "TEXT", "nullable": false }
+      ],
+      "identifiers": [],
+      "position": { "x": 100, "y": 100 }
+    }
+  ],
+  "associations": [],
+  "ignoredRules": [],
+  "ignoredIssueIds": []
+}

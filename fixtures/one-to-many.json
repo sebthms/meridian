@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "name": "one-to-many",
+  "entities": [
+    {
+      "id": "e_client",
+      "name": "CLIENT",
+      "attributes": [
+        { "id": "a1", "name": "id_client", "conceptualType": "INTEGER", "nullable": false }
+      ],
+      "identifiers": [{ "id": "i1", "attributeIds": ["a1"] }],
+      "position": { "x": 100, "y": 100 }
+    },
+    {
+      "id": "e_commande",
+      "name": "COMMANDE",
+      "attributes": [
+        { "id": "a2", "name": "id_commande", "conceptualType": "INTEGER", "nullable": false }
+      ],
+      "identifiers": [{ "id": "i2", "attributeIds": ["a2"] }],
+      "position": { "x": 400, "y": 100 }
+    }
+  ],
+  "associations": [
+    {
+      "id": "a_passer",
+      "name": "PASSER",
+      "participants": [
+        { "entityId": "e_client", "cardinality": { "min": 0, "max": "N" } },
+        { "entityId": "e_commande", "cardinality": { "min": 1, "max": 1 } }
+      ],
+      "attributes": []
+    }
+  ],
+  "ignoredRules": [],
+  "ignoredIssueIds": []
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "name": "reflexive",
+  "entities": [
+    {
+      "id": "e_employe",
+      "name": "EMPLOYE",
+      "attributes": [
+        { "id": "a1", "name": "id_employe", "conceptualType": "INTEGER", "nullable": false }
+      ],
+      "identifiers": [{ "id": "i1", "attributeIds": ["a1"] }],
+      "position": { "x": 100, "y": 100 }
+    }
+  ],
+  "associations": [
+    {
+      "id": "a_gerer",
+      "name": "GERER",
+      "participants": [
+        { "entityId": "e_employe", "role": "manager", "cardinality": { "min": 0, "max": "N" } },
+        { "entityId": "e_employe", "role": "subordonne", "cardinality": { "min": 0, "max": 1 } }
+      ],
+      "attributes": []
+    }
+  ],
+  "ignoredRules": [],
+  "ignoredIssueIds": []
+}

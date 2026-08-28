@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "name": "simple-entity",
+  "entities": [
+    {
+      "id": "e_client",
+      "name": "CLIENT",
+      "attributes": [
+        { "id": "a_client_id", "name": "id_client", "conceptualType": "INTEGER", "nullable": false },
+        { "id": "a_client_nom", "name": "nom", "conceptualType": "TEXT", "nullable": false }
+      ],
+      "identifiers": [{ "id": "i_client", "attributeIds": ["a_client_id"] }],
+      "position": { "x": 100, "y": 100 }
+    }
+  ],
+  "associations": [],
+  "ignoredRules": [],
+  "ignoredIssueIds": []
+}
