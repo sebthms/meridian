@@ -19,6 +19,7 @@ type ProjectStore = {
   selectedElementId?: string
   // UI transitoire : cible (entité ou association) du modal d'ajout de propriété.
   addPropertyTarget?: { kind: 'entity' | 'association'; id: string } | null
+  showTypeLabels: boolean
   issues: ValidationIssue[]
   past: Project[]
   future: Project[]
@@ -27,6 +28,7 @@ type ProjectStore = {
   select: (id?: string) => void
   openAddProperty: (target: { kind: 'entity' | 'association'; id: string }) => void
   closeAddProperty: () => void
+  toggleTypeLabels: () => void
   undo: () => void
   redo: () => void
   reset: () => void
@@ -46,6 +48,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   project: loadProjectFromStorage() ?? createProject(),
   selectedElementId: undefined,
   addPropertyTarget: null,
+  showTypeLabels: true,
   issues: [],
   past: [],
   future: [],
@@ -66,6 +69,8 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   openAddProperty: (target) => set({ addPropertyTarget: target }),
 
   closeAddProperty: () => set({ addPropertyTarget: null }),
+
+  toggleTypeLabels: () => set((state) => ({ showTypeLabels: !state.showTypeLabels })),
 
   undo: () => {
     set((state) => {

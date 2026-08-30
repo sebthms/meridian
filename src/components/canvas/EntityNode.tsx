@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Check, Circle, KeyRound, Plus, RefreshCw, Trash2, X } from 'lucide-react'
+import { Check, KeyRound, Pencil, Plus, Trash2, X } from 'lucide-react'
 import {
   DatabaseSchemaNode,
   DatabaseSchemaNodeHeader,
@@ -9,7 +9,7 @@ import {
   DatabaseSchemaTableCell,
 } from '@/components/database-schema-node'
 import { cn } from '@/lib/utils'
-import { TypeIcon } from './type-icon'
+import { TypeIcon, TypeLabel } from './type-icon'
 import type { EntityNodeData } from '@/editor/nodes/adapter'
 import type { ConceptualType } from '@/domain'
 import { useProjectStore } from '@/store/project-store'
@@ -18,9 +18,8 @@ import { useRename } from './useRename'
 
 /**
  * Nœud Entité au style « table de schéma » (DatabaseSchemaNode).
- * - Double-clic sur le nom → renommage inline (✓/✕).
- * - Quand l'entité est sélectionnée : icônes « + » (ajout de propriété)
- *   et « corbeille » (suppression) en bout de ligne (space-between).
+ * - Quand l'entité est sélectionnée : icônes « crayon » (renommer),
+ *   « + » (ajout de propriété) et « corbeille » (suppression) en bout de ligne.
  * Le handle source (en haut) sert au drag & drop vers une association.
  * Le handle cible (à gauche) reçoit les arêtes mais reste masqué.
  */
@@ -30,6 +29,7 @@ function EntityNode({ data, selected }: NodeProps) {
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
+  const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
 
   const rename = useRename(d.label, (name) => {
     const next = renameEntity(project, d.id, name)
@@ -93,21 +93,24 @@ function EntityNode({ data, selected }: NodeProps) {
               </button>
             </span>
           ) : (
-            <span
-              onDoubleClick={(e) => {
-                e.stopPropagation()
-                rename.start()
-              }}
-              className="cursor-text truncate text-sm font-semibold text-foreground"
-              title="Double-cliquez pour renommer"
-            >
+            <span className="cursor-default truncate text-sm font-semibold text-foreground">
               {d.label || 'Sans nom'}
             </span>
           )}
 
-
           {selected && !rename.editing && (
             <span className="flex shrink-0 items-center gap-0.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  rename.start()
+                }}
+                className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                title="Renommer"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
               <button
                 type="button"
                 onClick={(e) => {
@@ -131,7 +134,7 @@ function EntityNode({ data, selected }: NodeProps) {
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </span>
-            )}
+          )}
           </div>
 
       </DatabaseSchemaNodeHeader>
@@ -143,7 +146,7 @@ function EntityNode({ data, selected }: NodeProps) {
               {a.isIdentifier ? (
                 <KeyRound className="h-2.5 w-2.5 shrink-0 text-yellow-300" aria-hidden />
               ) : (
-                <Circle className="h-2 w-2 shrink-0 text-muted-foreground/60" aria-hidden />
+                <TypeIcon type={a.conceptualType as ConceptualType} className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
               )}
               <span
                 className={cn(
@@ -153,7 +156,9 @@ function EntityNode({ data, selected }: NodeProps) {
               >
                 {a.name || '…'}
               </span>
-              <TypeIcon type={a.conceptualType as ConceptualType} className="ml-auto text-muted-foreground" />
+              {showTypeLabels && (
+                <TypeLabel type={a.conceptualType as ConceptualType} className="ml-auto" />
+              )}
             </DatabaseSchemaTableCell>
           </DatabaseSchemaTableRow>
         ))}
@@ -161,11 +166,13 @@ function EntityNode({ data, selected }: NodeProps) {
         {d.foreignKeys.map((fk) => (
           <DatabaseSchemaTableRow key={fk.name}>
             <DatabaseSchemaTableCell className="flex items-center gap-1.5 py-1.5 pl-2 pr-2">
-              {fk.reflexive ? (
-                <RefreshCw className="h-2.5 w-2.5 shrink-0 text-emerald-600" aria-hidden />
-              ) : (
-                <Circle className="h-2.5 w-2.5 shrink-0 text-muted-foreground/50" aria-hidden />
-              )}
+              <KeyRound
+                className={cn(
+                  'h-2.5 w-2.5 shrink-0',
+                  fk.reflexive ? 'text-emerald-600' : 'text-blue-500',
+                )}
+                aria-hidden
+              />
               <span
                 className={cn(
                   'truncate',
@@ -173,9 +180,6 @@ function EntityNode({ data, selected }: NodeProps) {
                 )}
               >
                 {fk.name}
-              </span>
-              <span className="ml-auto shrink-0 rounded-sm bg-muted px-1 text-[9px] uppercase tracking-wide text-muted-foreground">
-                FK
               </span>
             </DatabaseSchemaTableCell>
           </DatabaseSchemaTableRow>

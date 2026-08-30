@@ -1,9 +1,7 @@
 import type { Edge, Node } from '@xyflow/react'
 import type { Project } from '@/domain'
-import { isIdentifierAttribute, isReflexive, associationMidpoint, type ConceptualType } from '@/domain'
+import { isIdentifierAttribute, isReflexive, associationMidpoint, cardinalityToString, type ConceptualType, type Cardinality } from '@/domain'
 import { generateMld } from '@/mld'
-import { deriveAssociationType, type AssociationType } from '@/editor/commands'
-import type { Cardinality } from '@/domain'
 
 export type EntityNodeData = {
   id: string
@@ -41,7 +39,8 @@ export type AssociationNodeData = {
 export type AssocEdgeData = {
   associationId: string
   participantIndex: number
-  type: AssociationType
+  type: string
+  otherCardinality: Cardinality | null
   isOpen: boolean
   onOpen: (associationId: string, participantIndex: number) => void
   onPick: (cardinality: Cardinality) => void
@@ -138,27 +137,26 @@ export function projectToEdges(
 ): Edge[] {
   const edges: Edge[] = []
   for (const association of project.associations) {
-    const type = deriveAssociationType(association.participants)
-
     for (const [index, participant] of association.participants.entries()) {
-      // 1ʳᵉ entité → handle gauche de la pastille ;
-      // 2ᵉ entité ← handle droite de la pastille.
       const fromPastille = index === 1
+      const otherIndex = index === 0 ? 1 : 0
+      const otherParticipant = association.participants[otherIndex]
       const isOpen =
         opts.openTarget?.associationId === association.id &&
         opts.openTarget?.participantIndex === index
       edges.push({
-        id: `${association.id}__${participant.entityId}`,
+        id: `${association.id}__${participant.entityId}__${index}`,
         source: fromPastille ? association.id : participant.entityId,
         target: fromPastille ? participant.entityId : association.id,
         sourceHandle: fromPastille ? 'right' : 'source',
         targetHandle: fromPastille ? 'target' : 'left',
         type: 'assoc',
-        label: type,
+        label: cardinalityToString(participant.cardinality),
         data: {
           associationId: association.id,
           participantIndex: index,
-          type,
+          type: cardinalityToString(participant.cardinality),
+          otherCardinality: otherParticipant?.cardinality ?? null,
           isOpen,
           onOpen: opts.onOpen,
           onPick: (c) => opts.onPick(association.id, index, c),

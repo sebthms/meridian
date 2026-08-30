@@ -9,6 +9,9 @@ Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → ML
 - **shadcn/ui** : ajout des composants manquants `label`, `textarea`, `checkbox` (`@radix-ui/react-checkbox`), `radio-group` (`@radix-ui/react-radio-group`) ; le `AddPropertyModal` utilise désormais `Input`/`Label`/`Textarea`/`Checkbox`/`RadioGroup`/`Button`.
 - **Suppression d'association** : icône corbeille en bout de ligne (space-between), masquée pendant le renommage, comme pour les entités.
 - **Propriétés sur les associations** : bouton « + » ouvrant le même `AddPropertyModal` (cible `addPropertyTarget` générique entité/association). Nouvelles commandes `addAssociationAttribute` / `updateAssociationAttribute` ; les propriétés portées par une association (non table) sont listées dans la pastille.
+- **Renommage par icône** : le renommage s'effectue via un icône crayon dans la barre d'actions (+ / 🗑 / ✏️), au lieu du double-clic. S'applique aux entités et aux associations (table + pastille).
+- **Corrigé** : les propriétés d'association 1:N migrent désormais dans la table côté « n » (max=N) au lieu du côté « 1 » (correction de la règle de passage MLD).
+- **Règle de validation W005** : avertissement pour les associations ternaires ou de dimension supérieure (non supportées en MVP).
 - **Suppression de l'inspector** (`src/components/inspector/Inspector.tsx`) : l'édition se fait désormais directement dans les nœuds.
 - **Entité** : double-clic sur le nom → renommage inline (✓/✕, icônes). Quand l'entité est sélectionnée, la ligne d'en-tête passe en `space-between` avec une icône « + » (ajout de propriété) et une icône corbeille (suppression) ; pendant le renommage, ces icônes disparaissent.
 - **Association** : double-clic sur la pastille → renommage inline (✓/✕) ; le popover de cardinalité est rendu dans l'arête et suit le déplacement/zoom.

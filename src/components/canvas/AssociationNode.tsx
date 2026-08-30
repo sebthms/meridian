@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Check, KeyRound, Plus, RefreshCw, Trash2, X } from 'lucide-react'
+import { Check, KeyRound, Pencil, Plus, Trash2, X } from 'lucide-react'
 import {
   DatabaseSchemaNode,
   DatabaseSchemaNodeHeader,
@@ -13,15 +13,15 @@ import type { AssociationNodeData } from '@/editor/nodes/adapter'
 import { useProjectStore } from '@/store/project-store'
 import { updateAssociationName, deleteAssociation } from '@/editor/commands'
 import { useRename } from './useRename'
-import { TypeIcon } from './type-icon'
+import { TypeIcon, TypeLabel, GenericPropertyIcon } from './type-icon'
 
 /**
  * Nœud d'association.
  * - N:N : la pastille se transforme en TABLE associative (colonnes = clés + propriétés).
- * - Sinon : simple pastille renommable + propriétés portées.
- * Double-clic sur le nom → renommage inline (✓/✕). Quand l'association est
- * sélectionnée : icônes « + » (ajout de propriété) et « corbeille » (suppression)
- * en bout de ligne (space-between), masquées pendant le renommage.
+ * - Sinon : simple pastille avec propriétés portées.
+ * Quand l'association est sélectionnée : icônes « crayon » (renommer),
+ * « + » (ajout de propriété) et « corbeille » (suppression) en bout de ligne,
+ * masquées pendant le renommage.
  * Les arêtes arrivent via le handle gauche et partent via le handle droite.
  */
 function AssociationNode({ data, selected }: NodeProps) {
@@ -31,6 +31,7 @@ function AssociationNode({ data, selected }: NodeProps) {
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
+  const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
   const rename = useRename(d.label, (name) =>
     apply(updateAssociationName(project, d.id, name)),
   )
@@ -42,6 +43,17 @@ function AssociationNode({ data, selected }: NodeProps) {
 
   const actions = selected && !rename.editing && (
     <span className="flex shrink-0 items-center gap-0.5">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          rename.start()
+        }}
+        className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        title="Renommer"
+      >
+        <Pencil className="h-3.5 w-3.5" />
+      </button>
       <button
         type="button"
         onClick={(e) => {
@@ -90,11 +102,7 @@ function AssociationNode({ data, selected }: NodeProps) {
             <div className="flex w-full items-center justify-between gap-2 px-1">
               <span className="flex min-w-0 items-center gap-1">
                 <RenameView rename={rename} label={d.label} />
-                {!rename.editing && (
-                  <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
-                    table
-                  </span>
-                )}
+
               </span>
               {actions}
             </div>
@@ -102,18 +110,24 @@ function AssociationNode({ data, selected }: NodeProps) {
           <DatabaseSchemaNodeBody>
             {d.columns!.map((c) => (
               <DatabaseSchemaTableRow key={c.name}>
-                <DatabaseSchemaTableCell className="flex items-center gap-1.5 py-0.5 pl-2 pr-2">
-                  {c.reflexive ? (
-                    <RefreshCw className="h-3 w-3 shrink-0 text-emerald-600" aria-hidden />
-                  ) : c.isPrimaryKey ? (
-                    <KeyRound className="h-3 w-3 shrink-0 text-amber-600" aria-hidden />
+                <DatabaseSchemaTableCell className="flex items-center gap-1.5 py-1.5 pl-2 pr-2 ">
+                  {c.isPrimaryKey ? (
+                    <KeyRound className="h-3 w-3 shrink-0 text-blue-500" aria-hidden />
+                  ) : c.isForeignKey ? (
+                    <KeyRound
+                      className={cn(
+                        'h-3 w-3 shrink-0',
+                        c.reflexive ? 'text-emerald-600' : 'text-blue-500',
+                      )}
+                      aria-hidden
+                    />
                   ) : (
-                    <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" aria-hidden />
+                    <GenericPropertyIcon />
                   )}
                   <span
                     className={cn(
                       'truncate',
-                      c.reflexive ? 'font-semibold text-emerald-600' : 'text-foreground',
+                      c.reflexive ? 'font-semibold text-blue-500' : 'text-foreground',
                     )}
                   >
                     {c.name}
@@ -125,9 +139,6 @@ function AssociationNode({ data, selected }: NodeProps) {
         </DatabaseSchemaNode>
       ) : (
         <div
-          onDoubleClick={() => {
-            if (!rename.editing) rename.start()
-          }}
           className={cn(
             'flex min-w-[90px] flex-col items-center rounded-full border-2 bg-card px-3 py-1 text-center shadow-sm transition-shadow',
             selected ? 'border-primary shadow-lg ring-2 ring-primary/30' : 'border-border',
@@ -142,10 +153,13 @@ function AssociationNode({ data, selected }: NodeProps) {
               {d.attributes.map((at) => (
                 <div
                   key={at.id}
-                  className="flex items-center gap-1 text-[10px] text-muted-foreground"
+                  className="flex items-center gap-1  text-[10px] text-muted-foreground"
                 >
+                  <TypeIcon type={at.conceptualType} className="shrink-0" />
                   <span className="truncate">{at.name || '…'}</span>
-                  <TypeIcon type={at.conceptualType} className="ml-auto shrink-0" />
+                  {showTypeLabels && (
+                    <TypeLabel type={at.conceptualType} className="ml-auto" />
+                  )}
                 </div>
               ))}
             </div>
@@ -163,7 +177,7 @@ function RenameView({
   rename: ReturnType<typeof useRename>
   label: string
 }) {
-  const { editing, draft, setDraft, inputRef, start, commit, cancel } = rename
+  const { editing, draft, setDraft, inputRef, commit, cancel } = rename
 
   if (editing) {
     return (
@@ -200,14 +214,7 @@ function RenameView({
   }
 
   return (
-    <span
-      onDoubleClick={(e) => {
-        e.stopPropagation()
-        start()
-      }}
-      className="cursor-text text-xs font-semibold"
-      title="Double-cliquez pour renommer"
-    >
+    <span className="cursor-default text-xs font-semibold">
       {label || 'Association'}
     </span>
   )

@@ -31,6 +31,14 @@ export const RULE_W004: RuleDefinition = {
     'Cet attribut semble dépendre d\u2019un autre attribut plutôt que de l\u2019identifiant. Vérifiez qu\u2019il n\u2019existe pas une dépendance transitive.',
 }
 
+export const RULE_W005: RuleDefinition = {
+  id: 'MERISE-W005',
+  severity: 'warning',
+  title: 'Association ternaire ou de dimension supérieure',
+  explanation:
+    'Les associations à 3 participations ou plus ne sont pas prises en charge dans cette version. En MERISE, on peut les décomposer en transformant l\u2019association en entité et les liens en associations binaires.',
+}
+
 export type SemanticRule = (
   project: import('@/domain').Project,
   issues: import('../../types').ValidationIssue[],

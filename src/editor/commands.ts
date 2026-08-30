@@ -76,6 +76,13 @@ export function moveEntity(project: Project, entityId: string, position: { x: nu
   }
 }
 
+export function moveAssociation(project: Project, associationId: string, position: { x: number; y: number }): Project {
+  return {
+    ...project,
+    associations: project.associations.map((a) => (a.id === associationId ? { ...a, position } : a)),
+  }
+}
+
 export function addAttribute(project: Project, entityId: string): Project {
   return {
     ...project,

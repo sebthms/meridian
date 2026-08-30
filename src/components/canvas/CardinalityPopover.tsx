@@ -8,20 +8,27 @@ import {
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
 
+const ONE_ONE: Cardinality = { min: 1, max: 1 }
+
 /**
  * Popover de choix de cardinalité. Rendu dans un `EdgeLabelRenderer` (couche
  * transformée par le viewport React Flow) afin de suivre le déplacement et le
  * zoom du canevas, ainsi que le déplacement des nœuds reliés à l'arête.
+ *
+ * Si l'autre participant a déjà `1,1`, l'option `1,1` est grisée (interdite
+ * par MERISE).
  */
 export function CardinalityPopover({
   associationId,
   participantIndex,
+  otherCardinality,
   anchor,
   onPick,
   onClose,
 }: {
   associationId: string
   participantIndex: number
+  otherCardinality: Cardinality | null
   anchor: { x: number; y: number }
   onPick: (cardinality: Cardinality) => void
   onClose: () => void
@@ -30,6 +37,7 @@ export function CardinalityPopover({
     s.project.associations.find((a) => a.id === associationId),
   )
   const current = association?.participants[participantIndex]?.cardinality
+  const isOtherOneOne = otherCardinality !== null && areCardinalitiesEqual(otherCardinality, ONE_ONE)
 
   return (
     <div
@@ -57,21 +65,28 @@ export function CardinalityPopover({
         </div>
 
         <div className="flex gap-1">
-          {CARDINALITIES.map((c) => (
-            <button
-              key={cardinalityToString(c)}
-              type="button"
-              onClick={() => onPick(c)}
-              className={cn(
-                'rounded-md px-3 border border-gray-200 dark:border-gray-800 py-1.5 text-xs font-semibold transition-colors',
-                current && areCardinalitiesEqual(c, current)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-accent',
-              )}
-            >
-              {cardinalityToString(c)}
-            </button>
-          ))}
+          {CARDINALITIES.map((c) => {
+            const disabled = isOtherOneOne && areCardinalitiesEqual(c, ONE_ONE)
+            return (
+              <button
+                key={cardinalityToString(c)}
+                type="button"
+                disabled={disabled}
+                onClick={() => onPick(c)}
+                className={cn(
+                  'rounded-md px-3 border border-gray-200 dark:border-gray-800 py-1.5 text-xs font-semibold transition-colors',
+                  current && areCardinalitiesEqual(c, current)
+                    ? 'bg-primary text-primary-foreground'
+                    : disabled
+                      ? 'cursor-not-allowed text-muted-foreground/40'
+                      : 'text-foreground hover:bg-accent',
+                )}
+                title={disabled ? '1,1 de chaque côté est interdit' : undefined}
+              >
+                {cardinalityToString(c)}
+              </button>
+            )
+          })}
         </div>
 
       </div>

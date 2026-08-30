@@ -49,6 +49,7 @@ function AssociationEdge(props: EdgeProps) {
           <CardinalityPopover
             associationId={d.associationId}
             participantIndex={d.participantIndex}
+            otherCardinality={d.otherCardinality}
             anchor={{ x: labelX, y: labelY }}
             onPick={d.onPick}
             onClose={d.onClose}

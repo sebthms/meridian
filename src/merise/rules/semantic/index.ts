@@ -1,5 +1,5 @@
 import { makeIssue } from '../../types'
-import { RULE_W001, RULE_W002, RULE_W003, RULE_W004, type SemanticRule } from './definitions'
+import { RULE_W001, RULE_W002, RULE_W003, RULE_W004, RULE_W005, type SemanticRule } from './definitions'
 
 const SUSPICIOUS_NAME_PATTERN = /^(entit[ée][0-9]*|table_temp|objet|entity[0-9]*)$/i
 const SPLITTER_PATTERNS: Array<RegExp> = [
@@ -94,9 +94,18 @@ export const warnSuspiciousFunctionalDependency: SemanticRule = (project, issues
   }
 }
 
+export const warnTernaryAssociation: SemanticRule = (project, issues) => {
+  for (const association of project.associations) {
+    if (association.participants.length > 2) {
+      issues.push(makeIssue(RULE_W005, [association.id]))
+    }
+  }
+}
+
 export const semanticRules: SemanticRule[] = [
   warnSuspiciousName,
   warnNonAtomicAttribute,
   warnRepeatedStructure,
   warnSuspiciousFunctionalDependency,
+  warnTernaryAssociation,
 ]

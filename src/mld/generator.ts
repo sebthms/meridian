@@ -138,7 +138,7 @@ function fkPlacement(
   association: Association,
   entityA: Entity,
   entityB: Entity,
-): { childRelationId: string; fkColumns: MldColumn[] } | null {
+): { childRelationId: string; parentRelationId: string; fkColumns: MldColumn[] } | null {
   const [a, b] = association.participants
   const aIsN = a.cardinality.max === 'N'
   const bIsN = b.cardinality.max === 'N'
@@ -164,6 +164,7 @@ function fkPlacement(
   const fkName = fkBaseName(parentEntity)
   return {
     childRelationId: childEntity.id,
+    parentRelationId: parentEntity.id,
     fkColumns: [
       makeFkColumn(fkName, { table: parentEntity.name, column: primaryKeyName(parentEntity) || `${parentEntity.name}_id` }, child.cardinality.min === 1),
     ],
@@ -224,18 +225,23 @@ export function generateMld(project: Project): MldModel {
     if (reflexive) {
       // Réflexive 1:N — FK autoréférentielle dans l'entité (côté enfant).
       const existing = relations.get(entityA.id)
-      if (existing) existing.columns.push(...reflexiveFkPlacement(association, entityA))
+      if (existing) {
+        existing.columns.push(...reflexiveFkPlacement(association, entityA))
+        // Les propriétés de l'association migrent dans la table de l'entité.
+        existing.columns.push(...associationPropertyColumns(association))
+      }
       continue
     }
 
     // Règle 2/4 — 1:N ou 1:1 : la FK migre dans la table du côté « 1 ».
     const placement = fkPlacement(association, entityA, entityB)
     if (!placement) continue // 1,1 ↔ 1,1 : deux tables conservées, pas de FK
-    const target = relations.get(placement.childRelationId)
-    if (!target) continue
-    target.columns.push(...placement.fkColumns)
+    const childTarget = relations.get(placement.childRelationId)
+    if (!childTarget) continue
+    childTarget.columns.push(...placement.fkColumns)
     // Règle 2 : les propriétés de l'association migrent dans la table côté « n ».
-    target.columns.push(...associationPropertyColumns(association))
+    const parentTarget = relations.get(placement.parentRelationId)
+    if (parentTarget) parentTarget.columns.push(...associationPropertyColumns(association))
   }
 
   return {

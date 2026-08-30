@@ -34,6 +34,7 @@ import {
   createAssociationBetween,
   addAssociationParticipant,
   moveEntity,
+  moveAssociation,
   updateCardinality,
 } from '@/editor'
 import type { Project } from '@/domain'
@@ -104,6 +105,8 @@ export function Canvas({
   const redo = useProjectStore((s) => s.redo)
   const past = useProjectStore((s) => s.past)
   const future = useProjectStore((s) => s.future)
+  const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
+  const toggleTypeLabels = useProjectStore((s) => s.toggleTypeLabels)
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
@@ -148,7 +151,7 @@ export function Canvas({
       }
       // cas 3 : entité → entité → création directe d'une association binaire
       if (sourceEntity && targetEntity) {
-        apply(createAssociationBetween(project, sourceEntity.id, targetEntity.id, '1:N'))
+        apply(createAssociationBetween(project, sourceEntity.id, targetEntity.id, 'N:N'))
         return
       }
     },
@@ -183,10 +186,10 @@ export function Canvas({
         }}
         onNodeDragStop={(_, node) => {
           if (node.type === 'entity') apply(moveEntity(project, node.id, node.position))
+          if (node.type === 'association') apply(moveAssociation(project, node.id, node.position))
         }}
         onConnect={onConnect}
         connectionMode={ConnectionMode.Loose}
-        zoomOnDoubleClick={false}
         proOptions={{ hideAttribution: true }}
       >
         <Background />
@@ -238,6 +241,23 @@ export function Canvas({
                 <Moon className="h-4 w-4" aria-hidden />
               )}
             </DockButton>
+            <button
+              type="button"
+              onClick={toggleTypeLabels}
+              className={cn(
+                'inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-medium transition-colors hover:bg-accent',
+                showTypeLabels ? 'text-foreground' : 'text-muted-foreground',
+              )}
+              title={showTypeLabels ? 'Masquer les types' : 'Afficher les types'}
+            >
+              <span className="flex h-4 w-4 items-center justify-center rounded border border-current text-[9px] font-bold">
+                {showTypeLabels ? 'T' : '–'}
+              </span>
+              <span className="hidden xl:inline">Types</span>
+            </button>
+
+            <DockSeparator />
+
             <DockButton title="Exporter .json" onClick={() => downloadProject(project)}>
               <Download className="h-4 w-4" aria-hidden />
             </DockButton>
