@@ -15,7 +15,7 @@ export default defineConfig({
   // les assets se résolvent quel que soit le sous-chemin du dépôt
   // (projet GitHub Pages servi sous /<repo>/). Le base est donc indépendant
   // du nom du dépôt.
-  base: process.env.GITHUB_PAGES === 'true' ? './' : '/',
+  base: './',
   server: {
     port: 5173,
   },

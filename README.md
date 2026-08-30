@@ -1,6 +1,6 @@
 # MERISE Diagrams
 
-Modélisateur de bases de données **MCD → MLD → SQL** basé sur MERISE, entièrement client-side (aucun backend, aucun compte).
+Modélisateur de bases de donnée basé sur MERISE, entièrement client-side (aucun backend, aucun compte).
 
 ## Chaîne fonctionnelle
 
@@ -30,7 +30,7 @@ React · TypeScript · Vite · Tailwind CSS · shadcn/ui · Zustand · @xyflow/r
 
 ## Architecture
 
-Le moteur métier est **indépendant de React Flow** (règle d'or du projet) :
+Le moteur métier est **indépendant de React Flow** :
 
 ```
 domain model (MERISE)
