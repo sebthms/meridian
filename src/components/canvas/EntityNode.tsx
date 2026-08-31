@@ -31,6 +31,9 @@ function EntityNode({ data, selected }: NodeProps) {
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
   const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
 
+  const isUML = d.viewMode === 'UML'
+  const isMLD = d.viewMode === 'MLD'
+
   const rename = useRename(d.label, (name) => {
     const next = renameEntity(project, d.id, name)
     if (next !== project) apply(next)
@@ -42,15 +45,24 @@ function EntityNode({ data, selected }: NodeProps) {
   }
 
   return (
-    <DatabaseSchemaNode className={cn('min-w-[170px]', selected && 'shadow-lg')}>
+    <DatabaseSchemaNode
+      className={cn(
+        'min-w-[170px]',
+        selected && 'shadow-lg',
+        isUML && 'border-blue-400/50 shadow-blue-500/10',
+        isMLD && 'border-slate-400/50 shadow-slate-500/10',
+      )}
+    >
       {/* Handle source : en haut de l'en-tête → tirez vers une association */}
-      <Handle
-        type="source"
-        id="source"
-        position={Position.Top}
-        title="Relier à une association"
-        className="!h-2.5 !w-2.5 !border-2 !border-background !bg-primary"
-      />
+      {!isMLD && (
+        <Handle
+          type="source"
+          id="source"
+          position={Position.Top}
+          title="Relier à une association"
+          className="!h-2.5 !w-2.5 !border-2 !border-background !bg-primary"
+        />
+      )}
       {/* Handle cible (gauche) : reçoit l'arête, invisible mais fonctionnel */}
       <Handle
         type="target"
@@ -60,7 +72,7 @@ function EntityNode({ data, selected }: NodeProps) {
         className="!h-2.5 !w-2.5 !opacity-0"
       />
 
-      <DatabaseSchemaNodeHeader>
+      <DatabaseSchemaNodeHeader className={cn(isUML && 'bg-blue-50/50 dark:bg-blue-950/20')}>
         <div className="flex w-full items-center justify-between gap-2 px-1">
           {rename.editing ? (
             <span className="flex items-center gap-1">

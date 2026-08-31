@@ -7,6 +7,7 @@ import {
   renameEntity,
   deleteEntity,
   moveEntity,
+  moveAssociation,
   addAttribute,
   addAttributeWithName,
   updateAttribute,
@@ -16,6 +17,9 @@ import {
   createAssociationBetween,
   ASSOCIATION_PRESETS,
   addAssociationParticipant,
+  addAssociationAttribute,
+  updateAssociationAttribute,
+  deleteAssociation,
 } from './commands'
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -202,5 +206,84 @@ describe('Commandes de formulaire et drag & drop', () => {
 
   it('ASSOCIATION_PRESETS liste les 4 types d’association', () => {
     expect(ASSOCIATION_PRESETS.map((p) => p.id)).toEqual(['1:N', 'N:N', '1:1', 'REFLEXIVE'])
+  })
+
+  it('createAssociationBetween N:N place 0,N des deux côtés', () => {
+    const base = projectWithTwoEntities()
+    const [a, b] = base.entities
+    const p = createAssociationBetween(base, a.id, b.id, 'N:N')
+    expect(p.associations[0].participants[0].cardinality).toEqual({ min: 0, max: 'N' })
+    expect(p.associations[0].participants[1].cardinality).toEqual({ min: 0, max: 'N' })
+  })
+
+  it('createAssociationBetween 1:1 place 0,1 et 1,1', () => {
+    const base = projectWithTwoEntities()
+    const [a, b] = base.entities
+    const p = createAssociationBetween(base, a.id, b.id, '1:1')
+    expect(p.associations[0].participants[0].cardinality).toEqual({ min: 0, max: 1 })
+    expect(p.associations[0].participants[1].cardinality).toEqual({ min: 1, max: 1 })
+  })
+})
+
+describe('Commandes d\u2019association avancées', () => {
+  it('moveAssociation met à jour la position', () => {
+    let p = createAssociationCommand(createProject())
+    const assoc = p.associations[0]
+    p = moveAssociation(p, assoc.id, { x: 100, y: 200 })
+    expect(p.associations[0].position).toEqual({ x: 100, y: 200 })
+  })
+
+  it('moveAssociation est immuable', () => {
+    const p = createAssociationCommand(createProject())
+    const assoc = p.associations[0]
+    const next = moveAssociation(p, assoc.id, { x: 999, y: 999 })
+    expect(next.associations[0].position).toEqual({ x: 999, y: 999 })
+    expect(p.associations[0].position).toEqual({ x: 200, y: 200 })
+  })
+
+  it('addAssociationAttribute ajoute une propriété à une association', () => {
+    let p = projectWithTwoEntities()
+    p = createAssociationBetween(p, p.entities[0].id, p.entities[1].id, 'N:N')
+    const assocId = p.associations[0].id
+    const res = addAssociationAttribute(p, assocId, 'date', 'DATE')
+    expect(res.attributeId).not.toBe('')
+    expect(res.project.associations[0].attributes).toHaveLength(1)
+    expect(res.project.associations[0].attributes[0].name).toBe('date')
+    expect(res.project.associations[0].attributes[0].conceptualType).toBe('DATE')
+  })
+
+  it('addAssociationAttribute refuse un nom dupliqué', () => {
+    let p = projectWithTwoEntities()
+    p = createAssociationBetween(p, p.entities[0].id, p.entities[1].id, 'N:N')
+    const assocId = p.associations[0].id
+    const { project: p2 } = addAssociationAttribute(p, assocId, 'date', 'DATE')
+    const res = addAssociationAttribute(p2, assocId, 'date', 'TEXT')
+    expect(res.attributeId).toBe('')
+    expect(res.project).toBe(p2)
+  })
+
+  it('addAssociationAttribute ignore une association inexistante', () => {
+    const p = projectWithTwoEntities()
+    const res = addAssociationAttribute(p, 'fake_id', 'date', 'DATE')
+    expect(res.attributeId).toBe('')
+  })
+
+  it('updateAssociationAttribute modifie une propriété d\u2019association', () => {
+    let p = projectWithTwoEntities()
+    p = createAssociationBetween(p, p.entities[0].id, p.entities[1].id, 'N:N')
+    const assocId = p.associations[0].id
+    const { project, attributeId } = addAssociationAttribute(p, assocId, 'date', 'DATE')
+    p = updateAssociationAttribute(project, assocId, attributeId, { name: 'date_implantation', nullable: true })
+    const attr = p.associations[0].attributes.find((a) => a.id === attributeId)!
+    expect(attr.name).toBe('date_implantation')
+    expect(attr.nullable).toBe(true)
+  })
+
+  it('deleteAssociation supprime l\u2019association', () => {
+    let p = projectWithTwoEntities()
+    p = createAssociationBetween(p, p.entities[0].id, p.entities[1].id, 'N:N')
+    expect(p.associations).toHaveLength(1)
+    p = deleteAssociation(p, p.associations[0].id)
+    expect(p.associations).toHaveLength(0)
   })
 })

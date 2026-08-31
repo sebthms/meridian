@@ -14,8 +14,11 @@ export type HistoryState = {
   future: Project[]
 }
 
+export type ViewMode = 'MCD' | 'UML' | 'MLD'
+
 type ProjectStore = {
   project: Project
+  viewMode: ViewMode
   selectedElementId?: string
   // UI transitoire : cible (entité ou association) du modal d'ajout de propriété.
   addPropertyTarget?: { kind: 'entity' | 'association'; id: string } | null
@@ -33,6 +36,7 @@ type ProjectStore = {
   redo: () => void
   reset: () => void
   load: (project: Project) => void
+  setViewMode: (mode: ViewMode) => void
   ignoreIssue: (issueId: string) => void
   ignoreRule: (ruleId: string) => void
   unignoreRule: (ruleId: string) => void
@@ -46,6 +50,7 @@ const MAX_HISTORY = 100
 
 export const useProjectStore = create<ProjectStore>((set, get) => ({
   project: loadProjectFromStorage() ?? createProject(),
+  viewMode: 'MCD',
   selectedElementId: undefined,
   addPropertyTarget: null,
   showTypeLabels: true,
@@ -117,6 +122,8 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     })
     saveProjectToStorage(next)
   },
+
+  setViewMode: (viewMode) => set({ viewMode }),
 
   ignoreIssue: (issueId) => {
     const { project } = get()

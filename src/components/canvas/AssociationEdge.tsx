@@ -18,16 +18,46 @@ function AssociationEdge(props: EdgeProps) {
     sourcePosition,
     targetPosition,
     data,
+    type,
   } = props
-  const [edgePath, labelX, labelY] = getBezierPath({
-    sourceX,
-    sourceY,
-    sourcePosition,
-    targetX,
-    targetY,
-    targetPosition,
-  })
+
+  const isLoop = type === 'loop'
+
+  const getLoopPath = () => {
+    const radius = 40
+    const x = sourceX
+    const y = sourceY - radius
+    const edgePath = `M ${sourceX} ${sourceY} C ${x - radius} ${y - radius}, ${x + radius} ${y - radius}, ${sourceX} ${sourceY}`
+    const labelX = sourceX
+    const labelY = sourceY - radius * 2
+    return [edgePath, labelX, labelY] as const
+  }
+
+  const [edgePath, labelX, labelY] = isLoop
+    ? getLoopPath()
+    : getBezierPath({
+        sourceX,
+        sourceY,
+        sourcePosition,
+        targetX,
+        targetY,
+        targetPosition,
+      })
+
   const d = data as AssocEdgeData
+
+  const isMLDForeignKey = d.viewMode === 'MLD' && d.type === 'MLD'
+
+  if (isMLDForeignKey) {
+    return (
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        markerEnd={props.markerEnd}
+        className="stroke-current stroke-2 text-primary"
+      />
+    )
+  }
 
   return (
     <>

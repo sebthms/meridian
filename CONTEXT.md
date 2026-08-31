@@ -39,7 +39,7 @@ MLD generator → SQL generator
 domain model ──→ React Flow (vue)
 ```
 
-Le moteur métier est indépendant de React. Les nœuds/arêtes React Flow sont dérivés du modèle via un adapter (`src/editor/nodes/adapter.ts`).
+Le moteur métier est indépendant de React. Les nœuds/arêtes React Flow sont dérivés du modèle via un adaptateur (`src/editor/nodes/adapter.ts`).
 
 ## Structure du dépôt
 ```
@@ -100,7 +100,7 @@ Le MCD n'expose **jamais** de types SQL physiques (`VARCHAR(255)`, `SERIAL`, `DE
 ## Commandes
 ```bash
 pnpm dev           # http://localhost:5173
-pnpm test          # 96 tests (Vitest)
+pnpm test          # 114 tests (Vitest)
 pnpm typecheck     # tsc --noEmit
 pnpm build         # dist/
 pnpm preview       # prévisualiser le build

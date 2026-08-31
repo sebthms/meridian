@@ -130,4 +130,43 @@ describe('MERISE structural validation', () => {
     const { errors } = validateProject(createProject())
     expect(errors).toHaveLength(0)
   })
+
+  it('MERISE-W005: ternary association warning', () => {
+    const e1 = makeEntity('A', { attrs: [['id_a', 'INTEGER']], identifierAttrNames: ['id_a'], id: 'ea' })
+    const e2 = makeEntity('B', { attrs: [['id_b', 'INTEGER']], identifierAttrNames: ['id_b'], id: 'eb' })
+    const e3 = makeEntity('C', { attrs: [['id_c', 'INTEGER']], identifierAttrNames: ['id_c'], id: 'ec' })
+    const assoc = {
+      id: 'a_tri',
+      name: 'TRI',
+      participants: [
+        { entityId: 'ea', cardinality: { min: 0 as const, max: 'N' as const } },
+        { entityId: 'eb', cardinality: { min: 0 as const, max: 'N' as const } },
+        { entityId: 'ec', cardinality: { min: 0 as const, max: 'N' as const } },
+      ],
+      attributes: [],
+    }
+    const project = buildProject({ entities: [e1, e2, e3], associations: [assoc] })
+    const { warnings } = validateProject(project)
+    expect(warnings.some((w) => w.ruleId === 'MERISE-W005')).toBe(true)
+  })
+
+  it('MERISE-W005: binary association does not trigger ternary warning', () => {
+    const project = buildProject({
+      entities: [
+        makeEntity('A', { attrs: [['id_a', 'INTEGER']], identifierAttrNames: ['id_a'], id: 'ea' }),
+        makeEntity('B', { attrs: [['id_b', 'INTEGER']], identifierAttrNames: ['id_b'], id: 'eb' }),
+      ],
+      associations: [{
+        id: 'a_bin',
+        name: 'BIN',
+        participants: [
+          { entityId: 'ea', cardinality: { min: 0 as const, max: 'N' as const } },
+          { entityId: 'eb', cardinality: { min: 0 as const, max: 'N' as const } },
+        ],
+        attributes: [],
+      }],
+    })
+    const { warnings } = validateProject(project)
+    expect(warnings.some((w) => w.ruleId === 'MERISE-W005')).toBe(false)
+  })
 })

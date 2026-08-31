@@ -26,7 +26,7 @@ import { TypeIcon, TypeLabel, GenericPropertyIcon } from './type-icon'
  */
 function AssociationNode({ data, selected }: NodeProps) {
   const d = data as AssociationNodeData
-  const isTable = (d.columns?.length ?? 0) > 0
+  const isTable = (d.columns?.length ?? 0) > 0 && d.viewMode === 'MLD'
   const project = useProjectStore((s) => s.project)
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
@@ -35,6 +35,8 @@ function AssociationNode({ data, selected }: NodeProps) {
   const rename = useRename(d.label, (name) =>
     apply(updateAssociationName(project, d.id, name)),
   )
+
+  const isUML = d.viewMode === 'UML'
 
   const handleDelete = () => {
     apply(deleteAssociation(project, d.id))
@@ -124,14 +126,26 @@ function AssociationNode({ data, selected }: NodeProps) {
                   ) : (
                     <GenericPropertyIcon />
                   )}
-                  <span
-                    className={cn(
-                      'truncate',
-                      c.reflexive ? 'font-semibold text-blue-500' : 'text-foreground',
-                    )}
-                  >
-                    {c.name}
-                  </span>
+
+                  {c.isForeignKey ? (
+                    <span
+                      className={cn(
+                        'truncate',
+                        'font-semibold text-blue-500',
+                      )}
+                    >
+                      {c.name}
+                    </span>
+                  ) : (
+                    <span
+                      className={cn(
+                        'truncate',
+                        c.reflexive ? 'font-semibold text-blue-500' : 'text-foreground',
+                      )}
+                    >
+                      {c.name}
+                    </span>
+                  )}
                 </DatabaseSchemaTableCell>
               </DatabaseSchemaTableRow>
             ))}
@@ -139,12 +153,15 @@ function AssociationNode({ data, selected }: NodeProps) {
         </DatabaseSchemaNode>
       ) : (
         <div
-          className={cn(
-            'flex min-w-[90px] flex-col items-center rounded-full border-2 bg-card px-3 py-1 text-center shadow-sm transition-shadow',
-            selected ? 'border-primary shadow-lg ring-2 ring-primary/30' : 'border-border',
-          )}
-        >
-          <div className="flex w-full items-center justify-between gap-2">
+        className={cn(
+          'flex min-w-[90px] flex-col items-center rounded-full border-2 bg-card px-3 py-1 text-center shadow-sm transition-shadow',
+          selected ? 'border-primary shadow-lg ring-2 ring-primary/30' : 'border-border',
+          isUML &&
+            'rounded-md border-blue-400/50 shadow-blue-500/10'
+        )}
+
+      >
+        <div className="flex w-full items-center justify-between gap-2">
             <RenameView rename={rename} label={d.label} />
             {actions}
           </div>

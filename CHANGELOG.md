@@ -147,3 +147,30 @@ Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → ML
 ### Associations : pas de panneau, édition par l'arête
 - **Plus de panneau de propriétés pour les pastilles** (associations) : l'inspector ne s'affiche que pour une entité sélectionnée.
 - Les cardinalités se règlent en **cliquant sur l'arête** : un popover affiche les **4 formes** (`0,1` · `1,1` · `0,N` · `1,N`), le choix applique la cardinalité à cette extrémité ; le type de l'association (1:N, N:N…) est dérivé des deux extrémités.
+
+---
+
+## v0.1.3 — Corrections cardinalités, icônes, positions libres
+
+### Cardinalités
+- **Par défaut N:N** : le drag-and-drop entité→entité crée maintenant une association `N:N` (les deux côtés en `0,N`) au lieu de `1:N`.
+- **Arêtes indépendantes** : chaque arête affiche sa propre chaîne de cardinalité (`0,N`, `1,1`, etc.) au lieu du type d'association (`1:N`).
+- **Verrou 1,1** : quand un participant a déjà `1,1`, l'option `1,1` de l'autre participant est grisée et non cliquable.
+
+### Icônes de propriétés
+- **Clés étrangères** : `KeyRound` bleu pour les FK normales, `KeyRound` vert pour les FK réflexives (remplace le badge texte « FK » et le cercle).
+- **Propriétés d'entité** : les cercles sont remplacés par des `TypeIcon` (Hash, Percent, Calendar, Binary, Type) — chaque propriété affiche l'icône de son type conceptuel.
+- **Association pastille** : les propriétés affichent `TypeIcon` devant le nom.
+- **Association table** (N:N) : PK = `KeyRound` amber, FK = `KeyRound` bleu, FK réflexive = `KeyRound` vert, colonnes non-clé = `TableProperties`.
+- **Label type** : à droite du nom de propriété, le type est affiché en texte (`Texte`, `Entier`, `Décimal`, `Date`, `Booléen`) au lieu d'une icône.
+- **Checkbox Types** dans le dock : bouton « T » pour afficher/masquer les labels de type.
+
+### Positions libres des associations
+- Nouvelle commande `moveAssociation` : les positions des associations glissées sont maintenant sauvegardées dans le modèle domaine.
+- `onNodeDragStop` gère désormais les associations en plus des entités.
+
+### Arêtes réflexives
+- Correction : les deux arêtes d'une association réflexive ont des IDs uniques (`__0` / `__1`) pour que React Flow n'en supprime pas une.
+
+### Tests
+- 114 tests (Vitest) : +13 tests pour `moveAssociation`, `addAssociationAttribute`, `updateAssociationAttribute`, `deleteAssociation`, cardinalités N:N/1:1, migration MLD des propriétés 1:N, propriétés sur association réflexive, règle W005 (associations ternaires).

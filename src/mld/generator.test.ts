@@ -139,4 +139,50 @@ describe('MLD generator', () => {
     const rel = mld.relations.find((r) => r.name === 'PALMARES')!
     expect(rel.columns.filter((c) => c.isPrimaryKey)).toHaveLength(2)
   })
+
+  it('1:N with association properties places properties on the N side', () => {
+    const client = makeEntity('CLIENT', {
+      attrs: [['id_client', 'INTEGER']],
+      identifierAttrNames: ['id_client'],
+    })
+    const commande = makeEntity('COMMANDE', {
+      attrs: [['id_commande', 'INTEGER']],
+      identifierAttrNames: ['id_commande'],
+    })
+    const assoc = makeAssociation(
+      'PASSER',
+      { entityId: client.id, cardinality: { min: 0, max: 'N' } },
+      { entityId: commande.id, cardinality: { min: 1, max: 1 } },
+    )
+    assoc.attributes = [{ id: 'p_date', name: 'date_passe', conceptualType: 'DATE' }]
+    const project = buildProject({ entities: [client, commande], associations: [assoc] })
+    const mld = generateMld(project)
+    const cmd = mld.relations.find((r) => r.name === 'COMMANDE')!
+    const cli = mld.relations.find((r) => r.name === 'CLIENT')!
+    // la FK est dans le côté 1,1 (COMMANDE)
+    expect(cmd.columns.some((c) => c.isForeignKey && c.references?.table === 'CLIENT')).toBe(true)
+    // la propriété migre dans le côté N (CLIENT), pas dans COMMANDE
+    expect(cli.columns.some((c) => c.name === 'date_passe')).toBe(true)
+    expect(cmd.columns.some((c) => c.name === 'date_passe')).toBe(false)
+  })
+
+  it('reflexive 1:N with association properties adds properties to the entity table', () => {
+    const employe = makeEntity('EMPLOYE', {
+      attrs: [['id_employe', 'INTEGER']],
+      identifierAttrNames: ['id_employe'],
+    })
+    const assoc = makeAssociation(
+      'GERER',
+      { entityId: employe.id, role: 'manager', cardinality: { min: 0, max: 'N' } },
+      { entityId: employe.id, role: 'subordonne', cardinality: { min: 0, max: 1 } },
+    )
+    assoc.attributes = [{ id: 'p_depuis', name: 'depuis', conceptualType: 'DATE' }]
+    const project = buildProject({ entities: [employe], associations: [assoc] })
+    const mld = generateMld(project)
+    const table = mld.relations.find((r) => r.name === 'EMPLOYE')!
+    // FK autoréférentielle
+    expect(table.columns.some((c) => c.isForeignKey && c.references?.table === 'EMPLOYE')).toBe(true)
+    // la propriété de l'association est dans la table
+    expect(table.columns.some((c) => c.name === 'depuis')).toBe(true)
+  })
 })

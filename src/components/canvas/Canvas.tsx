@@ -105,6 +105,8 @@ export function Canvas({
   const redo = useProjectStore((s) => s.redo)
   const past = useProjectStore((s) => s.past)
   const future = useProjectStore((s) => s.future)
+  const viewMode = useProjectStore((s) => s.viewMode)
+  const setViewMode = useProjectStore((s) => s.setViewMode)
   const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
   const toggleTypeLabels = useProjectStore((s) => s.toggleTypeLabels)
 
@@ -118,9 +120,10 @@ export function Canvas({
 
   // nœuds/arêtes dérivés du modèle métier (adapter), jamais l'inverse.
   useEffect(() => {
-    setNodes(projectToNodes(project, selectedId))
+    setNodes(projectToNodes(project, { selectedId, viewMode }))
     setEdges(
       projectToEdges(project, {
+        viewMode,
         onOpen: (associationId, participantIndex) =>
           setCardinalityTarget({ associationId, participantIndex }),
         onPick: onPickCardinality,
@@ -128,7 +131,7 @@ export function Canvas({
         openTarget: cardinalityTarget,
       }),
     )
-  }, [project, selectedId, cardinalityTarget, setNodes, setEdges])
+  }, [project, selectedId, viewMode, cardinalityTarget, setNodes, setEdges])
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -198,6 +201,47 @@ export function Canvas({
         {/* Dock intégré au canvas (remplace la topbar) */}
         <Panel position="bottom-center" className="!m-4">
           <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
+            <div className="flex items-center gap-0.5 rounded-lg bg-muted/50 p-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode('MCD')}
+                className={cn(
+                  'px-2 py-1 text-[10px] font-bold uppercase transition-all',
+                  viewMode === 'MCD'
+                    ? 'rounded-md bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                MCD
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('UML')}
+                className={cn(
+                  'px-2 py-1 text-[10px] font-bold uppercase transition-all',
+                  viewMode === 'UML'
+                    ? 'rounded-md bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                UML
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('MLD')}
+                className={cn(
+                  'px-2 py-1 text-[10px] font-bold uppercase transition-all',
+                  viewMode === 'MLD'
+                    ? 'rounded-md bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                MLD
+              </button>
+            </div>
+
+            <DockSeparator />
+
             <DockButton title="Ajouter une entité" onClick={() => apply(createEntityCommand(project))}>
               <Plus className="h-4 w-4" aria-hidden />
             </DockButton>
