@@ -1,5 +1,6 @@
 import type { Project } from '@/domain'
 import { createProject } from '@/domain'
+import { parseProject } from './project-file'
 
 const STORAGE_KEY = 'merise:project:last-opened'
 
@@ -7,7 +8,7 @@ export function loadProjectFromStorage(): Project | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    return JSON.parse(raw) as Project
+    return parseProject(raw)
   } catch {
     return null
   }

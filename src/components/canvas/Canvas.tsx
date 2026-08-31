@@ -3,9 +3,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Database,
-  Download,
-  FileCode2,
   Link2,
+  ListTree,
   Moon,
   Plus,
   Redo2,
@@ -40,12 +39,10 @@ import {
 import { type Cardinality } from '@/domain'
 import type { ValidationIssue } from '@/merise'
 import { cn } from '@/lib/utils'
-import { downloadProject, downloadText } from '@/persistence'
-import { generateMld } from '@/mld'
-import { generateSql } from '@/sql'
 import EntityNode from './EntityNode'
 import AssociationNode from './AssociationNode'
 import AssociationEdge from './AssociationEdge'
+import { ProjectTreePanel } from './ProjectTreePanel'
 
 const nodeTypes = { entity: EntityNode, association: AssociationNode }
 const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge }
@@ -94,7 +91,7 @@ export function Canvas({
 }: {
   colorMode: 'light' | 'dark'
   onToggleTheme: () => void
-  onOpenModal: (view: 'issues' | 'mld' | 'sql') => void
+  onOpenModal: (view: 'issues' | 'sql') => void
 }) {
   const project = useProjectStore((s) => s.project)
   const issues = useProjectStore((s) => s.issues)
@@ -107,9 +104,6 @@ export function Canvas({
   const future = useProjectStore((s) => s.future)
   const viewMode = useProjectStore((s) => s.viewMode)
   const setViewMode = useProjectStore((s) => s.setViewMode)
-  const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
-  const toggleTypeLabels = useProjectStore((s) => s.toggleTypeLabels)
-
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
@@ -117,6 +111,7 @@ export function Canvas({
     associationId: string
     participantIndex: number
   } | null>(null)
+  const [treeOpen, setTreeOpen] = useState(false)
 
   const onPickCardinality = useCallback(
     (associationId: string, participantIndex: number, cardinality: Cardinality) => {
@@ -189,11 +184,8 @@ export function Canvas({
         edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onSelectionChange={(params) => {
-          const first = params.nodes[0]
-          if (first) select(first.id)
-          else if (params.edges.length === 0) select(undefined)
-        }}
+        onNodeClick={(_, node) => select(node.id)}
+        onPaneClick={() => select(undefined)}
         onNodeDragStop={(_, node) => {
           if (node.type === 'entity') apply(moveEntity(project, node.id, node.position))
           if (node.type === 'association') apply(moveAssociation(project, node.id, node.position))
@@ -203,6 +195,30 @@ export function Canvas({
       >
         <Background />
         <Controls />
+        {treeOpen && <Panel position="top-left" className="!m-4"><ProjectTreePanel /></Panel>}
+
+        <Panel position="top-right" className="!m-4">
+          <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
+            <DockButton title={statusLabel(status)} onClick={() => onOpenModal('issues')}>
+              <StatusIcon status={status} />
+            </DockButton>
+            <DockSeparator />
+            <DockButton title="Ouvrir le SQL" onClick={() => onOpenModal('sql')}>
+              <Database className="h-4 w-4" aria-hidden />
+            </DockButton>
+            <DockSeparator />
+            <DockButton
+              title={colorMode === 'dark' ? 'Mode clair' : 'Mode sombre'}
+              onClick={onToggleTheme}
+            >
+              {colorMode === 'dark' ? (
+                <Sun className="h-4 w-4" aria-hidden />
+              ) : (
+                <Moon className="h-4 w-4" aria-hidden />
+              )}
+            </DockButton>
+          </div>
+        </Panel>
 
         {/* Dock intégré au canvas (remplace la topbar) */}
         <Panel position="bottom-center" className="!m-4">
@@ -248,6 +264,12 @@ export function Canvas({
 
             <DockSeparator />
 
+            <DockButton title="Arborescence" onClick={() => setTreeOpen((open) => !open)} className={treeOpen ? 'bg-accent text-primary' : undefined}>
+              <ListTree className="h-4 w-4" aria-hidden />
+            </DockButton>
+
+            <DockSeparator />
+
             <DockButton title="Ajouter une entité" onClick={() => apply(createEntityCommand(project))}>
               <Plus className="h-4 w-4" aria-hidden />
             </DockButton>
@@ -267,62 +289,6 @@ export function Canvas({
               <Redo2 className="h-4 w-4" aria-hidden />
             </DockButton>
 
-            <DockSeparator />
-
-            <DockButton title={statusLabel(status)} onClick={() => onOpenModal('issues')}>
-              <StatusIcon status={status} />
-            </DockButton>
-            <DockButton title="Aperçu MLD" onClick={() => onOpenModal('mld')}>
-              <FileCode2 className="h-4 w-4" aria-hidden />
-            </DockButton>
-            <DockButton title="Aperçu SQL" onClick={() => onOpenModal('sql')}>
-              <Database className="h-4 w-4" aria-hidden />
-            </DockButton>
-
-            <DockSeparator />
-
-            <DockButton
-              title={colorMode === 'dark' ? 'Mode clair' : 'Mode sombre'}
-              onClick={onToggleTheme}
-            >
-              {colorMode === 'dark' ? (
-                <Sun className="h-4 w-4" aria-hidden />
-              ) : (
-                <Moon className="h-4 w-4" aria-hidden />
-              )}
-            </DockButton>
-            <button
-              type="button"
-              onClick={toggleTypeLabels}
-              className={cn(
-                'inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-medium transition-colors hover:bg-accent',
-                showTypeLabels ? 'text-foreground' : 'text-muted-foreground',
-              )}
-              title={showTypeLabels ? 'Masquer les types' : 'Afficher les types'}
-            >
-              <span className="flex h-4 w-4 items-center justify-center rounded border border-current text-[9px] font-bold">
-                {showTypeLabels ? 'T' : '–'}
-              </span>
-              <span className="hidden xl:inline">Types</span>
-            </button>
-
-            <DockSeparator />
-
-            <DockButton title="Exporter .json" onClick={() => downloadProject(project)}>
-              <Download className="h-4 w-4" aria-hidden />
-            </DockButton>
-            <DockButton
-              title="Exporter .sql"
-              onClick={() =>
-                downloadText(
-                  generateSql(generateMld(project)),
-                  `${project.name || 'modele'}.sql`,
-                  'text/sql',
-                )
-              }
-            >
-              <Database className="h-4 w-4" aria-hidden />
-            </DockButton>
           </div>
         </Panel>
       </ReactFlow>

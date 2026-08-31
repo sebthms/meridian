@@ -4,16 +4,16 @@ import type {
   Entity,
   Project,
 } from '@/domain'
-import { isReflexive } from '@/domain'
+import { getAlternateIdentifiers, getPrimaryIdentifier, isReflexive } from '@/domain'
 import { conceptualToSql } from '@/sql/model'
 import type { MldColumn, MldModel, MldRelation } from './model'
 
-/** Nom de la colonne PK d'une entité (identifiant simple), ou '' si aucun. */
-function primaryKeyName(entity: Entity): string {
-  const id = entity.identifiers.find((i) => i.attributeIds.length > 0)
-  if (!id) return ''
-  const attr = entity.attributes.find((a) => a.id === id.attributeIds[0])
-  return attr ? attr.name : ''
+function primaryKeyAttributes(entity: Entity) {
+  const id = getPrimaryIdentifier(entity)
+  if (!id) return []
+  return id.attributeIds
+    .map((attributeId) => entity.attributes.find((attribute) => attribute.id === attributeId))
+    .filter((attribute): attribute is Entity['attributes'][number] => Boolean(attribute))
 }
 
 /**
@@ -35,21 +35,21 @@ function dedupeColumns(columns: MldColumn[]): MldColumn[] {
 }
 
 function primaryKeyColumns(entity: Entity): MldColumn[] {
-  const id = entity.identifiers.find((i) => i.attributeIds.length > 0)
-  if (!id) return []
-  const attrs = entity.attributes.filter((a) => id.attributeIds.includes(a.id))
-  return attrs.map((a) => ({
+  return primaryKeyAttributes(entity).map((a) => ({
     name: a.name,
     isPrimaryKey: true,
     isForeignKey: false,
     partOfPrimaryKey: true,
     sqlType: conceptualToSql(a.conceptualType),
     notNull: true,
+    unique: Boolean(a.unique),
   }))
 }
 
 function entityRelation(entity: Entity): MldRelation {
   const pkNames = new Set(primaryKeyColumns(entity).map((c) => c.name))
+  const alternateIdentifiers = getAlternateIdentifiers(entity).filter((identifier) => identifier.attributeIds.length > 0)
+  const alternateSingleIds = new Set(alternateIdentifiers.filter((identifier) => identifier.attributeIds.length === 1).flatMap((identifier) => identifier.attributeIds))
   const columns: MldColumn[] = entity.attributes.map((a) => ({
     name: a.name,
     isPrimaryKey: pkNames.has(a.name),
@@ -57,35 +57,66 @@ function entityRelation(entity: Entity): MldRelation {
     partOfPrimaryKey: pkNames.has(a.name),
     sqlType: conceptualToSql(a.conceptualType),
     notNull: Boolean(a.nullable) === false && pkNames.has(a.name) ? true : !a.nullable,
+    unique: Boolean(a.unique) || alternateSingleIds.has(a.id),
   }))
-  return { name: entity.name, columns, source: 'entity', sourceId: entity.id }
+  const uniqueConstraints = alternateIdentifiers
+    .filter((identifier) => identifier.attributeIds.length > 1)
+    .map((identifier) => identifier.attributeIds.map((attributeId) => entity.attributes.find((attribute) => attribute.id === attributeId)?.name).filter((name): name is string => Boolean(name)))
+  return { name: entity.name, columns, uniqueConstraints, source: 'entity', sourceId: entity.id }
 }
 
-function makeFkColumn(name: string, references: { table: string; column: string }, notNull: boolean): MldColumn {
-  return {
-    name,
-    isPrimaryKey: false,
-    isForeignKey: true,
-    references,
-    partOfPrimaryKey: false,
-    sqlType: 'INTEGER',
-    notNull,
-  }
-}
-
-function makeAssociativeFkColumn(
+function makeFkColumn(
   name: string,
   references: { table: string; column: string },
+  sqlType: MldColumn['sqlType'],
+  notNull: boolean,
+  unique: boolean,
+  foreignKeyGroup: string,
+  partOfPrimaryKey = false,
 ): MldColumn {
   return {
     name,
-    isPrimaryKey: true,
+    isPrimaryKey: partOfPrimaryKey,
     isForeignKey: true,
     references,
-    partOfPrimaryKey: true,
-    sqlType: 'INTEGER',
-    notNull: true,
+    partOfPrimaryKey,
+    sqlType,
+    notNull,
+    unique,
+    foreignKeyGroup,
   }
+}
+
+function foreignKeyColumns(
+  entity: Entity,
+  options: {
+    group: string
+    role?: string
+    notNull: boolean
+    unique?: boolean
+    partOfPrimaryKey?: boolean
+  },
+): MldColumn[] {
+  const primaryAttributes = primaryKeyAttributes(entity)
+  const attributes = primaryAttributes.length > 0
+    ? primaryAttributes
+    : [{ name: `${entity.name}_id`, conceptualType: 'INTEGER' as const }]
+  const composite = attributes.length > 1
+
+  return attributes.map((attribute) => {
+    const name = composite
+      ? [options.role, entity.name, attribute.name].filter(Boolean).join('_').toLowerCase()
+      : fkBaseName(entity, options.role)
+    return makeFkColumn(
+      name,
+      { table: entity.name, column: attribute.name },
+      conceptualToSql(attribute.conceptualType),
+      options.notNull,
+      Boolean(options.unique),
+      options.group,
+      Boolean(options.partOfPrimaryKey),
+    )
+  })
 }
 
 /**
@@ -102,6 +133,7 @@ function associationPropertyColumns(association: Association): MldColumn[] {
     partOfPrimaryKey: false,
     sqlType: conceptualToSql(a.conceptualType),
     notNull: !a.nullable,
+    unique: Boolean(a.unique),
   }))
 }
 
@@ -111,14 +143,15 @@ function associationPropertyColumns(association: Association): MldColumn[] {
  */
 function buildAssociativeTable(association: Association, entities: Entity[]): MldRelation {
   const cols: MldColumn[] = []
-  for (const participant of association.participants) {
+  for (const [index, participant] of association.participants.entries()) {
     const entity = entities.find((e) => e.id === participant.entityId)
     if (!entity) continue
-    const pkName = primaryKeyName(entity) || `${entity.name}_id`
-    const name = fkBaseName(entity, participant.role)
-    cols.push(
-      makeAssociativeFkColumn(name, { table: entity.name, column: pkName }),
-    )
+    cols.push(...foreignKeyColumns(entity, {
+      group: `${association.id}:${index}`,
+      role: participant.role,
+      notNull: true,
+      partOfPrimaryKey: true,
+    }))
   }
   return {
     name: association.name,
@@ -132,13 +165,13 @@ function buildAssociativeTable(association: Association, entities: Entity[]): Ml
  * Placement de la FK pour une association non-réflexive 1:N ou 1:1 :
  *  - 1:N : la FK migre dans le côté max = 1, référençant le côté max = 'N'.
  *  - 1:1 (0,1 ↔ 1,1) : la FK migre dans le côté min = 1.
- *  - 1,1 ↔ 1,1 : null (deux tables conservées, pas de FK).
+ *  - 1,1 ↔ 1,1 : deux tables conservées et FK UNIQUE déterministe dans la seconde.
  */
 function fkPlacement(
   association: Association,
   entityA: Entity,
   entityB: Entity,
-): { childRelationId: string; parentRelationId: string; fkColumns: MldColumn[] } | null {
+): { childRelationId: string; fkColumns: MldColumn[] } {
   const [a, b] = association.participants
   const aIsN = a.cardinality.max === 'N'
   const bIsN = b.cardinality.max === 'N'
@@ -147,27 +180,28 @@ function fkPlacement(
   let parentEntity: Entity
   let childEntity: Entity
 
-  if (aIsN !== bIsN) {
+  const oneToOne = !aIsN && !bIsN
+
+  if (!oneToOne) {
     // 1:N → child = côté max = 1, parent = côté max = 'N'
     child = aIsN ? b : a
     childEntity = aIsN ? entityB : entityA
     parentEntity = aIsN ? entityA : entityB
   } else {
     // 1:1 → FK dans le côté min = 1
-    if (a.cardinality.min === 1 && b.cardinality.min === 1) return null
-    const childIsB = b.cardinality.min === 1
+    const childIsB = b.cardinality.min === 1 || a.cardinality.min === b.cardinality.min
     child = childIsB ? b : a
     childEntity = childIsB ? entityB : entityA
     parentEntity = childIsB ? entityA : entityB
   }
 
-  const fkName = fkBaseName(parentEntity)
   return {
     childRelationId: childEntity.id,
-    parentRelationId: parentEntity.id,
-    fkColumns: [
-      makeFkColumn(fkName, { table: parentEntity.name, column: primaryKeyName(parentEntity) || `${parentEntity.name}_id` }, child.cardinality.min === 1),
-    ],
+    fkColumns: foreignKeyColumns(parentEntity, {
+      group: association.id,
+      notNull: child.cardinality.min === 1,
+      unique: oneToOne,
+    }),
   }
 }
 
@@ -181,15 +215,16 @@ function reflexiveFkPlacement(
   entity: Entity,
 ): MldColumn[] {
   const [a, b] = association.participants
-  const pkName = primaryKeyName(entity) || `${entity.name}_id`
   const aIsN = a.cardinality.max === 'N'
   // parent = côté max = 'N', enfant = côté max = 1
   const parent = aIsN ? a : b
   const child = aIsN ? b : a
-  const roleName = fkBaseName(entity, parent.role || 'parent')
-  return [
-    makeFkColumn(roleName, { table: entity.name, column: pkName }, child.cardinality.min === 1),
-  ]
+  return foreignKeyColumns(entity, {
+    group: association.id,
+    role: parent.role || 'parent',
+    notNull: child.cardinality.min === 1,
+    unique: a.cardinality.max === 1 && b.cardinality.max === 1,
+  })
 }
 
 /**
@@ -235,13 +270,11 @@ export function generateMld(project: Project): MldModel {
 
     // Règle 2/4 — 1:N ou 1:1 : la FK migre dans la table du côté « 1 ».
     const placement = fkPlacement(association, entityA, entityB)
-    if (!placement) continue // 1,1 ↔ 1,1 : deux tables conservées, pas de FK
     const childTarget = relations.get(placement.childRelationId)
     if (!childTarget) continue
     childTarget.columns.push(...placement.fkColumns)
-    // Règle 2 : les propriétés de l'association migrent dans la table côté « n ».
-    const parentTarget = relations.get(placement.parentRelationId)
-    if (parentTarget) parentTarget.columns.push(...associationPropertyColumns(association))
+    // Les propriétés de l'association suivent la FK dans la relation réceptrice.
+    childTarget.columns.push(...associationPropertyColumns(association))
   }
 
   return {

@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Check, KeyRound, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { Check, KeyRound, Plus, Trash2, X } from 'lucide-react'
 import {
   DatabaseSchemaNode,
   DatabaseSchemaNodeHeader,
@@ -9,12 +9,17 @@ import {
   DatabaseSchemaTableCell,
 } from '@/components/database-schema-node'
 import { cn } from '@/lib/utils'
-import { TypeIcon, TypeLabel } from './type-icon'
+import { PropertyRow } from './PropertyRow'
 import type { EntityNodeData } from '@/editor/nodes/adapter'
 import type { ConceptualType } from '@/domain'
 import { useProjectStore } from '@/store/project-store'
-import { renameEntity, deleteEntity } from '@/editor'
+import { renameEntity, deleteEntity, removeAttribute } from '@/editor'
 import { useRename } from './useRename'
+
+const sourceHandleClass =
+  '!h-3 !w-3 !opacity-0'
+const targetHandleClass =
+  '!h-3 !w-3 !opacity-0'
 
 /**
  * Nœud Entité au style « table de schéma » (DatabaseSchemaNode).
@@ -29,7 +34,6 @@ function EntityNode({ data, selected }: NodeProps) {
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
-  const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
 
   const isUML = d.viewMode === 'UML'
   const isMLD = d.viewMode === 'MLD'
@@ -47,8 +51,8 @@ function EntityNode({ data, selected }: NodeProps) {
   return (
     <DatabaseSchemaNode
       className={cn(
-        'min-w-[170px]',
-        selected && 'shadow-lg',
+        'group min-w-[190px]',
+        selected && 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg',
         isUML && 'border-blue-400/50 shadow-blue-500/10',
         isMLD && 'border-slate-400/50 shadow-slate-500/10',
       )}
@@ -60,33 +64,56 @@ function EntityNode({ data, selected }: NodeProps) {
         id="source"
         position={Position.Top}
         title="Relier à une association"
-        className={cn(
-          '!h-2.5 !w-2.5 !border-2 !border-background !bg-primary',
-          isMLD && '!opacity-0',
-        )}
+        className={sourceHandleClass}
       />
       {/* Handle cible (gauche) : reçoit l'arête, invisible mais fonctionnel */}
       <Handle
         type="target"
         id="target"
         position={Position.Left}
-        title="Relier à une association"
-        className="!h-2.5 !w-2.5 !opacity-0"
+        title="Point de réception"
+        className={targetHandleClass}
       />
       <Handle
         type="source"
         id="right"
         position={Position.Right}
-        className="!h-2.5 !w-2.5 !opacity-0"
+        title="Point de départ réflexif"
+        className={sourceHandleClass}
       />
       <Handle
         type="target"
         id="bottom"
         position={Position.Bottom}
-        className="!h-2.5 !w-2.5 !opacity-0"
+        title="Point de réception réflexif"
+        className={targetHandleClass}
+      />
+      <Handle
+        type="source"
+        id="reflexive-source"
+        position={Position.Bottom}
+        style={{ left: '30%' }}
+        title="Point de départ réflexif"
+        className={sourceHandleClass}
+      />
+      <Handle
+        type="target"
+        id="reflexive-target-0"
+        position={Position.Bottom}
+        style={{ left: '42%' }}
+        title="Premier point de réception réflexif"
+        className={targetHandleClass}
+      />
+      <Handle
+        type="target"
+        id="reflexive-target-1"
+        position={Position.Bottom}
+        style={{ left: '70%' }}
+        title="Second point de réception réflexif"
+        className={targetHandleClass}
       />
 
-      <DatabaseSchemaNodeHeader className={cn(isUML && 'bg-blue-50/50 dark:bg-blue-950/20')}>
+      <DatabaseSchemaNodeHeader className={cn('group/header', isUML && 'bg-blue-50/50 dark:bg-blue-950/20')}>
         <div className="flex w-full items-center justify-between gap-2 px-1">
           {rename.editing ? (
             <span className="flex items-center gap-1">
@@ -119,24 +146,13 @@ function EntityNode({ data, selected }: NodeProps) {
               </button>
             </span>
           ) : (
-            <span className="cursor-default truncate text-sm font-semibold text-foreground">
+            <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} title="Double-cliquer pour renommer" className="cursor-text truncate text-sm font-semibold text-foreground">
               {d.label || 'Sans nom'}
             </span>
           )}
 
-          {selected && !rename.editing && (
-            <span className="flex shrink-0 items-center gap-0.5">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  rename.start()
-                }}
-                className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                title="Renommer"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </button>
+          {!rename.editing && (
+            <span className="flex max-w-0 -translate-x-1 items-center gap-0.5 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover/header:max-w-14 group-hover/header:translate-x-0 group-hover/header:opacity-100">
               <button
                 type="button"
                 onClick={(e) => {
@@ -168,23 +184,8 @@ function EntityNode({ data, selected }: NodeProps) {
       <DatabaseSchemaNodeBody>
         {d.attributes.map((a) => (
           <DatabaseSchemaTableRow key={a.id}>
-            <DatabaseSchemaTableCell className="flex items-center gap-1.5 py-1.5 pl-2 pr-2 pt-2.5">
-              {a.isIdentifier ? (
-                <KeyRound className="h-2.5 w-2.5 shrink-0 text-yellow-300" aria-hidden />
-              ) : (
-                <TypeIcon type={a.conceptualType as ConceptualType} className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
-              )}
-              <span
-                className={cn(
-                  'truncate',
-                  a.isIdentifier && 'font-semibold text-amber-600',
-                )}
-              >
-                {a.name || '…'}
-              </span>
-              {showTypeLabels && (
-                <TypeLabel type={a.conceptualType as ConceptualType} className="ml-auto" />
-              )}
+            <DatabaseSchemaTableCell className="p-0">
+              <PropertyRow name={a.name} type={a.conceptualType as ConceptualType} isIdentifier={a.isIdentifier} nullable={a.nullable} unique={a.unique} onEdit={() => openAddProperty({ kind: 'entity', id: d.id, attributeId: a.id })} onDelete={() => apply(removeAttribute(project, d.id, a.id))} />
             </DatabaseSchemaTableCell>
           </DatabaseSchemaTableRow>
         ))}

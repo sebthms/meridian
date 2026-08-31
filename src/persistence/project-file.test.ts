@@ -25,6 +25,13 @@ function sampleProject(): Project {
         identifiers: [{ id: 'i1', attributeIds: ['a1'] }],
         position: { x: 500, y: 300 },
       },
+      {
+        id: 'e2',
+        name: 'ADHERENT',
+        attributes: [{ id: 'a3', name: 'id_adherent', conceptualType: 'INTEGER', nullable: false }],
+        identifiers: [{ id: 'i2', attributeIds: ['a3'] }],
+        position: { x: 800, y: 300 },
+      },
     ],
     associations: [
       {
@@ -63,6 +70,28 @@ describe('Persistance .merise.json', () => {
     expect(() => parseProject('{ "version": 2 }')).toThrow()
     expect(() => parseProject('{ "entities": [], "associations": [] }')).toThrow() // version manquante
     expect(() => parseProject('pas du json')).toThrow()
+  })
+
+  it('valide profondément les propriétés et positions', () => {
+    const base = {
+      version: 1,
+      entities: [{ id: 'e1', name: 'CLIENT', attributes: [{ id: 'a1', name: 'id', conceptualType: 'INTEGER' }], identifiers: [{ id: 'i1', attributeIds: ['a1'] }], position: { x: 0, y: 0 } }],
+      associations: [],
+    }
+    expect(() => parseProject(JSON.stringify({ ...base, entities: [{ ...base.entities[0], position: { x: '0', y: 0 } }] }))).toThrow(/coordonnées/)
+    expect(() => parseProject(JSON.stringify({ ...base, entities: [{ ...base.entities[0], attributes: [{ id: 'a1', name: 'id', conceptualType: 'VARCHAR' }] }] }))).toThrow(/type conceptuel/)
+    expect(() => parseProject(JSON.stringify({ ...base, entities: [{ ...base.entities[0], identifiers: [{ id: 'i1', attributeIds: ['missing'] }] }] }))).toThrow(/référence/)
+  })
+
+  it('rejette les références orphelines et cardinalités absentes', () => {
+    const entity = { id: 'e1', name: 'CLIENT', attributes: [{ id: 'a1', name: 'id', conceptualType: 'INTEGER' }], identifiers: [{ id: 'i1', attributeIds: ['a1'] }], position: { x: 0, y: 0 } }
+    const association = { id: 'as1', name: 'PASSER', participants: [{ entityId: 'missing', cardinality: { min: 0, max: 'N' } }, { entityId: 'e1' }], attributes: [] }
+    expect(() => parseProject(JSON.stringify({ version: 1, entities: [entity], associations: [association] }))).toThrow()
+  })
+
+  it('migre une version historique compatible vers la version courante', () => {
+    const migrated = parseProject(JSON.stringify({ version: 0, entities: [], associations: [] }))
+    expect(migrated.version).toBe(1)
   })
 
   it('parseProject remplit les valeurs manquantes avec des défauts sûrs', () => {

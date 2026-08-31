@@ -175,19 +175,63 @@ export function toggleIdentifierAttribute(
   project: Project,
   entityId: string,
   attributeId: string,
+  identifierId?: string,
 ): Project {
   return {
     ...project,
     entities: project.entities.map((e) => {
       if (e.id !== entityId) return e
-      const current = e.identifiers[0]
+      const current = identifierId
+        ? e.identifiers.find((identifier) => identifier.id === identifierId)
+        : e.identifiers[0]
+      if (identifierId && !current) return e
       const isIn = current?.attributeIds.includes(attributeId)
       const nextIds = isIn
         ? current!.attributeIds.filter((id) => id !== attributeId)
         : [...(current?.attributeIds ?? []), attributeId]
-      const identifiers =
-        nextIds.length === 0 ? [] : [createIdentifier(current?.id ?? uid('i'), nextIds)]
+      const identifiers = current
+        ? nextIds.length === 0
+          ? e.identifiers.filter((identifier) => identifier.id !== current.id)
+          : e.identifiers.map((identifier) => identifier.id === current.id ? { ...identifier, attributeIds: nextIds } : identifier)
+        : [createIdentifier(uid('i'), nextIds)]
       return { ...e, identifiers }
+    }),
+  }
+}
+
+export function addIdentifier(project: Project, entityId: string, name?: string): Project {
+  return {
+    ...project,
+    entities: project.entities.map((entity) => entity.id === entityId
+      ? { ...entity, identifiers: [...entity.identifiers, createIdentifier(uid('i'), [], name)] }
+      : entity),
+  }
+}
+
+export function updateIdentifier(project: Project, entityId: string, identifierId: string, patch: { name?: string; attributeIds?: string[]; isPrimary?: boolean }): Project {
+  return {
+    ...project,
+    entities: project.entities.map((entity) => {
+      if (entity.id !== entityId || !entity.identifiers.some((identifier) => identifier.id === identifierId)) return entity
+      const identifiers = entity.identifiers.map((identifier) => identifier.id === identifierId
+        ? { ...identifier, ...patch }
+        : patch.isPrimary ? { ...identifier, isPrimary: false } : identifier)
+      return { ...entity, identifiers }
+    }),
+  }
+}
+
+export function removeIdentifier(project: Project, entityId: string, identifierId: string): Project {
+  return {
+    ...project,
+    entities: project.entities.map((entity) => {
+      if (entity.id !== entityId || entity.identifiers.length <= 1) return entity
+      const index = entity.identifiers.findIndex((identifier) => identifier.id === identifierId)
+      if (index < 0) return entity
+      const wasPrimary = entity.identifiers[index].isPrimary === true || (entity.identifiers[index].isPrimary === undefined && index === 0)
+      const remaining = entity.identifiers.filter((identifier) => identifier.id !== identifierId)
+      if (wasPrimary && remaining[0]) remaining[0] = { ...remaining[0], isPrimary: true }
+      return { ...entity, identifiers: remaining }
     }),
   }
 }
@@ -384,15 +428,43 @@ export function updateAssociationAttribute(
   attributeId: string,
   patch: Partial<Attribute>,
 ): Project {
+  const association = project.associations.find((item) => item.id === associationId)
+  if (association && patch.name !== undefined) {
+    const trimmedName = patch.name.trim()
+    if (!trimmedName) return project
+    const duplicate = association.attributes.some(
+      (attribute) => attribute.id !== attributeId && attribute.name.trim().toLowerCase() === trimmedName.toLowerCase(),
+    )
+    if (duplicate) return project
+  }
   return {
     ...project,
     associations: project.associations.map((a) =>
       a.id === associationId
         ? {
             ...a,
-            attributes: a.attributes.map((at) => (at.id === attributeId ? { ...at, ...patch } : at)),
+            attributes: a.attributes.map((at) =>
+              at.id === attributeId
+                ? { ...at, ...patch, ...(patch.name !== undefined ? { name: patch.name.trim() } : {}) }
+                : at,
+            ),
           }
         : a,
+    ),
+  }
+}
+
+export function removeAssociationAttribute(
+  project: Project,
+  associationId: string,
+  attributeId: string,
+): Project {
+  return {
+    ...project,
+    associations: project.associations.map((association) =>
+      association.id === associationId
+        ? { ...association, attributes: association.attributes.filter((item) => item.id !== attributeId) }
+        : association,
     ),
   }
 }

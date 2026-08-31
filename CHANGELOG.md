@@ -2,6 +2,55 @@
 
 Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → MLD → SQL).
 
+## Unreleased — Fiabilisation SQL, persistance et arborescence
+
+- SQL généré en deux phases : création des tables, puis ajout des contraintes FK par `ALTER TABLE`.
+- Normalisation PostgreSQL déterministe des noms physiques et nouvelle erreur bloquante `MERISE-E012` en cas de collision.
+- Validation profonde des imports `.merise.json` et du localStorage, erreurs lisibles et migration de la version historique `0` vers `1`.
+- Distinction des identifiants principaux et alternatifs ; les identifiants alternatifs sont générés en contraintes `UNIQUE`.
+- Arborescence accessible et repliable avec propriétés, identifiants, participants, rôles et cardinalités.
+- Ajout d’un lint ESLint séparé du typecheck ; 138 tests Vitest.
+
+## v0.1.4 — Refonte UX, arborescence et fiabilisation MLD/SQL
+
+### Interface
+- Nouveau thème inspiré de GitHub, compatible clair/sombre.
+- Dock principal allégé en bas : modes MCD/UML/MLD, arborescence, création et Undo/Redo.
+- Dock d’état en haut à droite : validation, SQL et thème.
+- Le SQL s’ouvre dans un panneau latéral animé depuis la droite ; l’export et la fermeture sont intégrés au panneau.
+- Suppression de l’export JSON dans le dock, de l’aperçu MLD textuel et du toggle des types.
+- Les types conceptuels sont désormais toujours visibles.
+- Arborescence repliable des entités et associations ; la sélection met en évidence l’élément dans l’arbre et contourne le nœud correspondant.
+- Correction de la boucle React « Maximum update depth exceeded » lors d’une sélection depuis l’arborescence ou de l’ouverture du panneau SQL.
+
+### Édition des nœuds et propriétés
+- Renommage des entités et associations par double-clic sur leur nom ; suppression de l’icône crayon dans les headers.
+- Actions d’en-tête visibles uniquement au survol.
+- Lignes de propriété simplifiées : modification et suppression au survol, avec confirmation avant suppression.
+- Formulaire de propriété aligné sur le modèle réel : `TEXT`, `INTEGER`, `DECIMAL`, `DATE`, `BOOLEAN`, identifiant, caractère obligatoire, unicité et description.
+- Ajout et modification des propriétés d’association, avec contrôle des noms dupliqués.
+- Handles React Flow conservés fonctionnellement mais masqués visuellement.
+
+### Associations réflexives et vues
+- Deux arêtes distinctes et stables pour les associations réflexives dans les vues MCD, UML et MLD.
+- Handles dédiés pour éviter les arêtes croisées et les erreurs React Flow `#008`.
+- En MLD, une table associative et ses deux FK ne sont affichées que lorsqu’elles existent réellement ; la pastille disparaît sinon.
+
+### Moteur MERISE et SQL
+- Nouvelle erreur bloquante `MERISE-E011` pour les types conceptuels invalides.
+- Détection des propriétés dupliquées dans les associations et de toute référence orpheline, même partielle.
+- Les propriétés d’une association 1:N suivent désormais la FK dans la relation réceptrice.
+- Prise en charge correcte des identifiants, PK et FK composites.
+- Les FK conservent le type de la PK référencée au lieu d’utiliser systématiquement `INTEGER`.
+- Génération PostgreSQL valide des PK composites avec contrainte de table.
+- Conservation de `UNIQUE` et utilisation d’une FK unique pour les associations 1:1.
+- Génération et export SQL bloqués tant que le modèle contient une erreur MERISE.
+
+### Maintenance
+- Mise à niveau vers React 19, TypeScript 7, Vite 8, Vitest 4, Zustand 5 et React Flow 12.
+- Découpage lazy des panneaux secondaires et suppression du composant d’aperçu MLD inutilisé.
+- **125 tests Vitest**, typecheck strict et build de production validés.
+
 ## v0.1.0 — MVP (en cours)
 
 ### Édition inline dans le canevas (remplace l'inspector)
@@ -10,7 +59,7 @@ Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → ML
 - **Suppression d'association** : icône corbeille en bout de ligne (space-between), masquée pendant le renommage, comme pour les entités.
 - **Propriétés sur les associations** : bouton « + » ouvrant le même `AddPropertyModal` (cible `addPropertyTarget` générique entité/association). Nouvelles commandes `addAssociationAttribute` / `updateAssociationAttribute` ; les propriétés portées par une association (non table) sont listées dans la pastille.
 - **Renommage par icône** : le renommage s'effectue via un icône crayon dans la barre d'actions (+ / 🗑 / ✏️), au lieu du double-clic. S'applique aux entités et aux associations (table + pastille).
-- **Corrigé** : les propriétés d'association 1:N migrent désormais dans la table côté « n » (max=N) au lieu du côté « 1 » (correction de la règle de passage MLD).
+- **Corrigé** : les propriétés d'association 1:N migrent avec la FK dans la relation qui reçoit cette dernière.
 - **Règle de validation W005** : avertissement pour les associations ternaires ou de dimension supérieure (non supportées en MVP).
 - **Suppression de l'inspector** (`src/components/inspector/Inspector.tsx`) : l'édition se fait désormais directement dans les nœuds.
 - **Entité** : double-clic sur le nom → renommage inline (✓/✕, icônes). Quand l'entité est sélectionnée, la ligne d'en-tête passe en `space-between` avec une icône « + » (ajout de propriété) et une icône corbeille (suppression) ; pendant le renommage, ces icônes disparaissent.

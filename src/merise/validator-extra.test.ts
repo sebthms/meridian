@@ -34,9 +34,8 @@ describe('Validation — règles E006 → E010', () => {
     )
     const { issues } = validateProject(buildProject({ entities: [client, commande], associations: [assoc] }))
     expect(ruleIds(issues).has('MERISE-E007')).toBe(true)
-    // Ici l'un des participants est encore valide → E010 ne se déclenche PAS
-    // (E010 n'apparaît que quand AUCUN participant ne pointe vers une entité existante).
-    expect(ruleIds(issues).has('MERISE-E010')).toBe(false)
+    // Toute référence orpheline est signalée, même si l'autre extrémité reste valide.
+    expect(ruleIds(issues).has('MERISE-E010')).toBe(true)
   })
 
   it('MERISE-E008 : cardinalité invalide (hors des 4 formes)', () => {
@@ -78,9 +77,37 @@ describe('Validation — règles E006 → E010', () => {
     const { issues } = validateProject(buildProject({ entities: [], associations: [assoc] }))
     expect(ruleIds(issues).has('MERISE-E010')).toBe(true)
   })
+
+  it('MERISE-E011 : type conceptuel non pris en charge', () => {
+    const entity = makeEntity('CLIENT', { attrs: [['id_client', 'INTEGER']], identifierAttrNames: ['id_client'] })
+    entity.attributes[0].conceptualType = 'VARCHAR' as never
+    const { errors } = validateProject(buildProject({ entities: [entity] }))
+    expect(errors.some((issue) => issue.ruleId === 'MERISE-E011')).toBe(true)
+  })
 })
 
 describe('Validation — cas particuliers', () => {
+  it('MERISE-E012 détecte les collisions de noms physiques PostgreSQL', () => {
+    const first = makeEntity('Client actif', { attrs: [['id1', 'INTEGER']], identifierAttrNames: ['id1'] })
+    const second = makeEntity('Client-actif', { attrs: [['id2', 'INTEGER']], identifierAttrNames: ['id2'] })
+    const { errors } = validateProject(buildProject({ entities: [first, second] }))
+    expect(errors.some((issue) => issue.ruleId === 'MERISE-E012')).toBe(true)
+  })
+
+  it('MERISE-E004 détecte aussi les propriétés dupliquées d’une association', () => {
+    const client = makeEntity('CLIENT', { attrs: [['id_client', 'INTEGER']], identifierAttrNames: ['id_client'] })
+    const produit = makeEntity('PRODUIT', { attrs: [['id_produit', 'INTEGER']], identifierAttrNames: ['id_produit'] })
+    const assoc = makeAssociation('COMMANDER',
+      { entityId: client.id, cardinality: { min: 0, max: 'N' } },
+      { entityId: produit.id, cardinality: { min: 0, max: 'N' } })
+    assoc.attributes = [
+      { id: 'a1', name: 'quantite', conceptualType: 'INTEGER' },
+      { id: 'a2', name: ' Quantite ', conceptualType: 'INTEGER' },
+    ]
+    const { errors } = validateProject(buildProject({ entities: [client, produit], associations: [assoc] }))
+    expect(errors.some((issue) => issue.ruleId === 'MERISE-E004')).toBe(true)
+  })
+
   it('plusieurs associations entre les mêmes entités sont autorisées (aucune erreur)', () => {
     const client = makeEntity('CLIENT', { attrs: [['id_client', 'INTEGER']], identifierAttrNames: ['id_client'] })
     const commande = makeEntity('COMMANDE', { attrs: [['id_commande', 'INTEGER']], identifierAttrNames: ['id_commande'] })

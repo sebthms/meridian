@@ -11,16 +11,26 @@
 ```
 MCD (canvas)
   ↓  validation en temps réel
-Règles MERISE (E001–E010, W001–W005)
+Règles MERISE (E001–E011, W001–W005)
   ↓
 MLD relationnel
   ↓
-SQL PostgreSQL (copiable)
+SQL PostgreSQL (prévisualisable et exportable)
 ```
 
-- Les **erreurs** (E001…E010) bloquent la génération — le modèle n'est pas conforme.
+- Les **erreurs** (E001…E011) bloquent la génération et l’export SQL — le modèle n'est pas conforme.
 - Les **warnings** (W001…W005) signalent des choix de conception discutables.
 - Le MLD et le SQL se mettent à jour automatiquement au fil des modifications.
+
+## Fonctionnalités principales
+
+- Vues MCD, UML et MLD sur un canvas interactif.
+- Entités et associations binaires ou réflexives, avec cardinalités `0,1`, `1,1`, `0,N` et `1,N`.
+- Propriétés d'entité et d'association avec cinq types conceptuels, identifiants principaux ou alternatifs, nullabilité et unicité.
+- Arborescence repliable synchronisée avec la sélection du diagramme.
+- Validation MERISE en temps réel avec erreurs bloquantes et avertissements ignorables.
+- Panneau SQL PostgreSQL latéral, mis à jour automatiquement, avec export intégré.
+- Historique Undo/Redo et persistance locale dans le navigateur.
 
 
 ## Commandes
@@ -28,7 +38,8 @@ SQL PostgreSQL (copiable)
 ```bash
 pnpm install
 pnpm dev           # http://localhost:5173
-pnpm test          # 101 tests (Vitest)
+pnpm lint          # ESLint React/TypeScript
+pnpm test          # 136 tests (Vitest)
 pnpm typecheck     # vérification de types
 pnpm build         # build de production → dist/
 pnpm preview       # prévisualiser le build
@@ -38,8 +49,8 @@ pnpm preview       # prévisualiser le build
 
 | Domaine       | Technologie |
 |---------------|-------------|
-| Framework     | React 18 + TypeScript |
-| Build         | Vite 6 |
+| Framework     | React 19 + TypeScript |
+| Build         | Vite 8 |
 | UI            | Tailwind CSS + shadcn/ui |
 | Canvas        | @xyflow/react (React Flow) |
 | State         | Zustand |
@@ -67,14 +78,14 @@ Les commandes d'édition (`src/editor/commands.ts`) sont des fonctions pures `(P
 ```
 src/
 ├── app/            UI principale (layout)
-├── components/     canvas, inspector, issues, mld, sql, ui
+├── components/     canvas, issues, sql, ui
 ├── domain/         modèle conceptuel (entité, attribut, identifiant, association, cardinalité)
 ├── merise/         validator + règles (structural/semantic)
 ├── mld/            générateur MCD → MLD
 ├── sql/            générateur PostgreSQL
 ├── editor/         commandes d'édition + adapter de nœuds
 ├── store/          store Zustand + historique
-└── persistence/    localStorage + import/export .merise.json
+└── persistence/    localStorage + sérialisation de projet
 fixtures/           fixtures de référence
 ```
 
@@ -94,13 +105,17 @@ fixtures/           fixtures de référence
 | E008 | Cardinalité invalide | Erreur |
 | E009 | Cardinalité incomplète | Erreur |
 | E010 | Référence orpheline | Erreur |
+| E011 | Type conceptuel invalide | Erreur |
+| E012 | Nom physique PostgreSQL dupliqué | Erreur |
 | W001 | Nom suspect | Warning |
 | W002 | Attribut potentiellement non atomique | Warning |
 | W003 | Structure répétitive suspecte | Warning |
 | W004 | Dépendance fonctionnelle suspecte | Warning |
 | W005 | Association ternaire (non supportée en MVP) | Warning |
 
-Les extensions MERISE avancées (associations n-aires, CIF/CIM, héritage, partition/exclusion, temporalité) sont prévues pour une version future.
+Le MVP couvre le noyau MERISE binaire. Les identifiants alternatifs sont traduits en contraintes `UNIQUE` dans le MLD/SQL. Les noms SQL sont normalisés de façon déterministe et les clés étrangères sont ajoutées après la création des tables, ce qui permet de gérer l'ordre des entités et les cycles.
+
+Les extensions avancées — associations n-aires, CIF/CIM avancées, héritage, partition/exclusion, temporalité, MCT/MOT, normalisation formelle et autres dialectes SQL — sont prévues pour une version future.
 
 ## Licence
 

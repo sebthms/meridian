@@ -13,6 +13,8 @@ export type EntityNodeData = {
     name: string
     conceptualType: string
     isIdentifier: boolean
+    nullable?: boolean
+    unique?: boolean
   }>
   foreignKeys: Array<{
     name: string
@@ -36,6 +38,8 @@ export type AssociationNodeData = {
     id: string
     name: string
     conceptualType: ConceptualType
+    nullable?: boolean
+    unique?: boolean
   }>
 }
 
@@ -89,6 +93,8 @@ export function projectToNodes(
           name: a.name,
           conceptualType: a.conceptualType,
           isIdentifier: isIdentifierAttribute(e, a.id),
+          nullable: a.nullable,
+          unique: a.unique,
         })),
         foreignKeys,
       } satisfies EntityNodeData,
@@ -157,6 +163,8 @@ export function projectToNodes(
           id: at.id,
           name: at.name,
           conceptualType: at.conceptualType,
+          nullable: at.nullable,
+          unique: at.unique,
         })),
       } satisfies AssociationNodeData,
     })
@@ -211,8 +219,8 @@ export function projectToEdges(
               onClose: () => {},
             } satisfies AssocEdgeData,
             markerEnd: { type: 'arrowclosed' as any },
-            sourceHandle: 'right',
-            targetHandle: 'target',
+            sourceHandle: reflexive ? 'reflexive-source-0' : 'right',
+            targetHandle: reflexive ? 'reflexive-target-0' : 'target',
           })
         }
         if (p2) {
@@ -234,8 +242,8 @@ export function projectToEdges(
               onClose: () => {},
             } satisfies AssocEdgeData,
             markerEnd: { type: 'arrowclosed' as any },
-            sourceHandle: 'right',
-            targetHandle: reflexive ? 'bottom' : 'target',
+            sourceHandle: reflexive ? 'reflexive-source-1' : 'right',
+            targetHandle: reflexive ? 'reflexive-target-1' : 'target',
           })
         }
         continue
@@ -329,8 +337,20 @@ export function projectToEdges(
         id: `${association.id}__${participant.entityId}__${index}`,
         source: fromPastille ? association.id : participant.entityId,
         target: fromPastille ? participant.entityId : association.id,
-        sourceHandle: fromPastille ? 'right' : reflexive ? 'right' : 'source',
-        targetHandle: fromPastille ? (reflexive ? 'bottom' : 'target') : 'left',
+        sourceHandle: fromPastille
+          ? reflexive
+            ? 'reflexive-source-1'
+            : 'right'
+          : reflexive
+            ? 'reflexive-source'
+            : 'source',
+        targetHandle: fromPastille
+          ? reflexive
+            ? 'reflexive-target-1'
+            : 'target'
+          : reflexive
+            ? 'reflexive-target-0'
+            : 'left',
         type: 'assoc',
         label: viewMode === 'MLD' ? '' : label,
         data: {

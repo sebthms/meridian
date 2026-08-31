@@ -10,11 +10,16 @@ export type MldColumn = {
   partOfPrimaryKey: boolean
   sqlType: 'TEXT' | 'INTEGER' | 'NUMERIC' | 'DATE' | 'BOOLEAN'
   notNull: boolean
+  unique: boolean
+  /** Regroupe les colonnes d'une même FK, notamment pour les clés composées. */
+  foreignKeyGroup?: string
 }
 
 export type MldRelation = {
   name: string
   columns: MldColumn[]
+  /** Contraintes UNIQUE composées issues des identifiants alternatifs. */
+  uniqueConstraints?: string[][]
   source: 'entity' | 'association'
   sourceId: string
 }

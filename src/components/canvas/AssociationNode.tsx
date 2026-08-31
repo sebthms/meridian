@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Check, KeyRound, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { Check, KeyRound, Plus, Trash2, X } from 'lucide-react'
 import {
   DatabaseSchemaNode,
   DatabaseSchemaNodeHeader,
@@ -11,9 +11,15 @@ import {
 import { cn } from '@/lib/utils'
 import type { AssociationNodeData } from '@/editor/nodes/adapter'
 import { useProjectStore } from '@/store/project-store'
-import { updateAssociationName, deleteAssociation } from '@/editor/commands'
+import { updateAssociationName, deleteAssociation, removeAssociationAttribute } from '@/editor/commands'
 import { useRename } from './useRename'
-import { TypeIcon, TypeLabel, GenericPropertyIcon } from './type-icon'
+import { PropertyRow } from './PropertyRow'
+
+const sourceHandleClass =
+  '!h-3 !w-3 !opacity-0'
+const targetHandleClass =
+  '!h-3 !w-3 !opacity-0'
+import { GenericPropertyIcon } from './type-icon'
 
 /**
  * Nœud d'association.
@@ -31,7 +37,6 @@ function AssociationNode({ data, selected }: NodeProps) {
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
-  const showTypeLabels = useProjectStore((s) => s.showTypeLabels)
   const rename = useRename(d.label, (name) =>
     apply(updateAssociationName(project, d.id, name)),
   )
@@ -43,19 +48,8 @@ function AssociationNode({ data, selected }: NodeProps) {
     select(undefined)
   }
 
-  const actions = selected && !rename.editing && (
-    <span className="flex shrink-0 items-center gap-0.5">
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation()
-          rename.start()
-        }}
-        className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        title="Renommer"
-      >
-        <Pencil className="h-3.5 w-3.5" />
-      </button>
+  const actions = !rename.editing && (
+    <span className="flex max-w-0 -translate-x-1 items-center gap-0.5 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover/header:max-w-14 group-hover/header:translate-x-0 group-hover/header:opacity-100">
       <button
         type="button"
         onClick={(e) => {
@@ -82,27 +76,53 @@ function AssociationNode({ data, selected }: NodeProps) {
   )
 
   return (
-    <div className="relative">
+    <div className="group relative">
       {/* Reçoit le lien de la 1ʳᵉ entité (gauche) */}
       <Handle
         type="target"
         id="left"
         position={Position.Left}
-        className="!h-2.5 !w-2.5 !border-2 !border-background !bg-primary"
+        title="Point de réception"
+        className={targetHandleClass}
       />
       {/* Relie vers la 2ᵉ entité (droite) */}
       <Handle
         type="source"
         id="right"
         position={Position.Right}
-        className="!h-2.5 !w-2.5 !border-2 !border-background !bg-primary"
+        title="Point de départ"
+        className={sourceHandleClass}
+      />
+      <Handle
+        type="target"
+        id="reflexive-target-0"
+        position={Position.Top}
+        style={{ left: '30%' }}
+        title="Point de réception réflexif"
+        className={targetHandleClass}
+      />
+      <Handle
+        type="source"
+        id="reflexive-source-0"
+        position={Position.Top}
+        style={{ left: '42%' }}
+        title="Premier point de départ réflexif"
+        className={sourceHandleClass}
+      />
+      <Handle
+        type="source"
+        id="reflexive-source-1"
+        position={Position.Top}
+        style={{ left: '70%' }}
+        title="Second point de départ réflexif"
+        className={sourceHandleClass}
       />
 
       {isTable ? (
         <DatabaseSchemaNode className={cn('min-w-[170px]', selected && 'shadow-lg')}>
-          <DatabaseSchemaNodeHeader>
+          <DatabaseSchemaNodeHeader className="group/header">
             <div className="flex w-full items-center justify-between gap-2 px-1">
-              <span className="flex min-w-0 items-center gap-1">
+              <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} className="flex min-w-0 cursor-text items-center gap-1" title="Double-cliquer pour renommer">
                 <RenameView rename={rename} label={d.label} />
 
               </span>
@@ -154,31 +174,20 @@ function AssociationNode({ data, selected }: NodeProps) {
       ) : (
         <div
         className={cn(
-          'flex min-w-[90px] flex-col items-center rounded-full border-2 bg-card px-3 py-1 text-center shadow-sm transition-shadow',
+          'flex min-w-[90px] flex-col items-center rounded-full border-2 bg-card px-3 py-1 text-center shadow-sm transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md',
           selected ? 'border-primary shadow-lg ring-2 ring-primary/30' : 'border-border',
           isUML &&
             'rounded-md border-blue-400/50 shadow-blue-500/10'
         )}
 
       >
-        <div className="flex w-full items-center justify-between gap-2">
-            <RenameView rename={rename} label={d.label} />
+        <div className="group/header flex w-full items-center justify-between gap-2">
+            <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} className="cursor-text" title="Double-cliquer pour renommer"><RenameView rename={rename} label={d.label} /></span>
             {actions}
           </div>
           {d.attributes && d.attributes.length > 0 && (
             <div className="mt-1 w-full space-y-0.5 border-t border-border/60 pt-1">
-              {d.attributes.map((at) => (
-                <div
-                  key={at.id}
-                  className="flex items-center gap-1  text-[10px] text-muted-foreground"
-                >
-                  <TypeIcon type={at.conceptualType} className="shrink-0" />
-                  <span className="truncate">{at.name || '…'}</span>
-                  {showTypeLabels && (
-                    <TypeLabel type={at.conceptualType} className="ml-auto" />
-                  )}
-                </div>
-              ))}
+              {d.attributes.map((at) => <PropertyRow key={at.id} name={at.name} type={at.conceptualType} nullable={at.nullable} unique={at.unique} onEdit={() => openAddProperty({ kind: 'association', id: d.id, attributeId: at.id })} onDelete={() => apply(removeAssociationAttribute(project, d.id, at.id))} />)}
             </div>
           )}
         </div>

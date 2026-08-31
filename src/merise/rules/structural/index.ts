@@ -8,6 +8,8 @@ import {
   attributeHasName,
   noDuplicateAttributes,
   identifierIsValid,
+  attributeTypeIsValid,
+  physicalNamesAreUnique,
 } from './entity-rules'
 import {
   associationHasName,
@@ -22,10 +24,12 @@ export const structuralRules: Array<(project: Project, issues: ValidationIssue[]
   attributeHasName,
   noDuplicateAttributes,
   identifierIsValid,
+  attributeTypeIsValid,
   associationHasName,
   associationIsConnected,
   cardinalityIsValid,
   cardinalityIsComplete,
+  physicalNamesAreUnique,
 ]
 
 export { RULE_E003 }

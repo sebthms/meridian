@@ -26,6 +26,26 @@ describe('MLD — entités', () => {
     expect(rel.columns.find((c) => c.name === 'nom')!.isPrimaryKey).toBe(false)
     expect(rel.columns.find((c) => c.name === 'nom')!.isForeignKey).toBe(false)
   })
+
+  it('traduit un identifiant alternatif simple en contrainte UNIQUE', () => {
+    const entity = makeEntity('CLIENT', {
+      attrs: [['id_client', 'INTEGER'], ['email', 'TEXT']],
+      identifierAttrNames: ['id_client'],
+    })
+    entity.identifiers.push({ id: 'i_email', name: 'Email unique', attributeIds: [entity.attributes[1].id], isPrimary: false })
+    const relation = generateMld(buildProject({ entities: [entity] })).relations[0]
+    expect(relation.columns.find((column) => column.name === 'email')!.unique).toBe(true)
+  })
+
+  it('traduit un identifiant alternatif composé en contrainte UNIQUE de table', () => {
+    const entity = makeEntity('CLIENT', {
+      attrs: [['id_client', 'INTEGER'], ['nom', 'TEXT'], ['prenom', 'TEXT']],
+      identifierAttrNames: ['id_client'],
+    })
+    entity.identifiers.push({ id: 'i_nom_prenom', attributeIds: [entity.attributes[1].id, entity.attributes[2].id], isPrimary: false })
+    const relation = generateMld(buildProject({ entities: [entity] })).relations[0]
+    expect(relation.uniqueConstraints).toEqual([['nom', 'prenom']])
+  })
 })
 
 describe('MLD — associations', () => {

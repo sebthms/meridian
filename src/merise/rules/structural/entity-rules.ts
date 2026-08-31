@@ -1,4 +1,5 @@
-import { createIdentifier } from '@/domain'
+import { CONCEPTUAL_TYPES, createIdentifier } from '@/domain'
+import { physicalIdentifier } from '@/sql/naming'
 import { makeIssue } from '../../types'
 import {
   RULE_E001,
@@ -6,6 +7,8 @@ import {
   RULE_E003,
   RULE_E004,
   RULE_E005,
+  RULE_E011,
+  RULE_E012,
   type StructuralRule,
 } from './definitions'
 
@@ -16,6 +19,18 @@ export const entityHasName: StructuralRule = (project, issues) => {
       issues.push(makeIssue(RULE_E001, [entity.id]))
     }
   }
+}
+
+export const attributeTypeIsValid: StructuralRule = (project, issues) => {
+  const check = (ownerId: string, attributes: Array<{ id: string; conceptualType: unknown }>) => {
+    for (const attribute of attributes) {
+      if (!CONCEPTUAL_TYPES.includes(attribute.conceptualType as never)) {
+        issues.push(makeIssue(RULE_E011, [ownerId, attribute.id]))
+      }
+    }
+  }
+  for (const entity of project.entities) check(entity.id, entity.attributes)
+  for (const association of project.associations) check(association.id, association.attributes)
 }
 
 export const entityHasIdentifier: StructuralRule = (project, issues) => {
@@ -45,18 +60,24 @@ export const attributeHasName: StructuralRule = (project, issues) => {
 }
 
 export const noDuplicateAttributes: StructuralRule = (project, issues) => {
-  for (const entity of project.entities) {
+  const check = (attributes: Array<{ id: string; name: string }>, ownerId: string) => {
     const seen = new Map<string, string>()
-    for (const attr of entity.attributes) {
+    for (const attr of attributes) {
       const key = attr.name.trim().toLowerCase()
       if (key.length === 0) continue
       const existingId = seen.get(key)
       if (existingId && existingId !== attr.id) {
-        issues.push(makeIssue(RULE_E004, [entity.id, attr.id]))
+        issues.push(makeIssue(RULE_E004, [ownerId, attr.id]))
       } else if (!existingId) {
         seen.set(key, attr.id)
       }
     }
+  }
+  for (const entity of project.entities) {
+    check(entity.attributes, entity.id)
+  }
+  for (const association of project.associations) {
+    check(association.attributes, association.id)
   }
 }
 
@@ -74,6 +95,26 @@ export const identifierIsValid: StructuralRule = (project, issues) => {
           break
         }
       }
+    }
+  }
+}
+
+/** Refuse les collisions de tables après normalisation PostgreSQL. */
+export const physicalNamesAreUnique: StructuralRule = (project, issues) => {
+  const objects = [
+    ...project.entities.map((entity) => ({ id: entity.id, name: entity.name })),
+    ...project.associations
+      .filter((association) => association.participants.length === 2 && association.participants.every((participant) => participant.cardinality?.max === 'N'))
+      .map((association) => ({ id: association.id, name: association.name })),
+  ]
+  const firstByPhysicalName = new Map<string, { id: string; name: string }>()
+  for (const object of objects) {
+    const physical = physicalIdentifier(object.name)
+    const first = firstByPhysicalName.get(physical)
+    if (first && first.id !== object.id) {
+      issues.push(makeIssue(RULE_E012, [first.id, object.id], `Les noms « ${first.name} » et « ${object.name} » deviennent tous deux « ${physical} » en SQL PostgreSQL.`))
+    } else if (!first) {
+      firstByPhysicalName.set(physical, object)
     }
   }
 }

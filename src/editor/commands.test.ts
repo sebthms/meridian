@@ -279,6 +279,16 @@ describe('Commandes d\u2019association avancées', () => {
     expect(attr.nullable).toBe(true)
   })
 
+  it('updateAssociationAttribute refuse un renommage dupliqué', () => {
+    let p = projectWithTwoEntities()
+    p = createAssociationBetween(p, p.entities[0].id, p.entities[1].id, 'N:N')
+    const assocId = p.associations[0].id
+    const first = addAssociationAttribute(p, assocId, 'debut', 'DATE')
+    const second = addAssociationAttribute(first.project, assocId, 'fin', 'DATE')
+    const result = updateAssociationAttribute(second.project, assocId, second.attributeId, { name: ' debut ' })
+    expect(result).toBe(second.project)
+  })
+
   it('deleteAssociation supprime l\u2019association', () => {
     let p = projectWithTwoEntities()
     p = createAssociationBetween(p, p.entities[0].id, p.entities[1].id, 'N:N')

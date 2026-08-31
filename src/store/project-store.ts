@@ -21,17 +21,15 @@ type ProjectStore = {
   viewMode: ViewMode
   selectedElementId?: string
   // UI transitoire : cible (entité ou association) du modal d'ajout de propriété.
-  addPropertyTarget?: { kind: 'entity' | 'association'; id: string } | null
-  showTypeLabels: boolean
+  addPropertyTarget?: { kind: 'entity' | 'association'; id: string; attributeId?: string } | null
   issues: ValidationIssue[]
   past: Project[]
   future: Project[]
   // actions
   apply: (next: Project) => void
   select: (id?: string) => void
-  openAddProperty: (target: { kind: 'entity' | 'association'; id: string }) => void
+  openAddProperty: (target: { kind: 'entity' | 'association'; id: string; attributeId?: string }) => void
   closeAddProperty: () => void
-  toggleTypeLabels: () => void
   undo: () => void
   redo: () => void
   reset: () => void
@@ -55,7 +53,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   viewMode: 'MCD',
   selectedElementId: undefined,
   addPropertyTarget: null,
-  showTypeLabels: true,
   issues: revalidate(initialProject),
   past: [],
   future: [],
@@ -77,8 +74,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   openAddProperty: (target) => set({ addPropertyTarget: target }),
 
   closeAddProperty: () => set({ addPropertyTarget: null }),
-
-  toggleTypeLabels: () => set((state) => ({ showTypeLabels: !state.showTypeLabels })),
 
   undo: () => {
     let restored: Project | undefined

@@ -30,7 +30,7 @@ export const RULE_E004: RuleDefinition = {
   id: 'MERISE-E004',
   severity: 'error',
   title: 'Attribut dupliqué',
-  explanation: 'Deux attributs ne peuvent pas avoir le même nom dans une même entité.',
+  explanation: 'Deux attributs ne peuvent pas avoir le même nom dans une même entité ou association.',
   autoFixable: false,
 }
 
@@ -80,6 +80,22 @@ export const RULE_E010: RuleDefinition = {
   severity: 'error',
   title: 'Référence vers entité supprimée',
   explanation: 'Aucun objet ne doit conserver un identifiant orphelin.',
+  autoFixable: false,
+}
+
+export const RULE_E011: RuleDefinition = {
+  id: 'MERISE-E011',
+  severity: 'error',
+  title: 'Type conceptuel invalide',
+  explanation: 'Une propriété doit utiliser un type conceptuel pris en charge par le modèle.',
+  autoFixable: false,
+}
+
+export const RULE_E012: RuleDefinition = {
+  id: 'MERISE-E012',
+  severity: 'error',
+  title: 'Nom physique dupliqué',
+  explanation: 'Deux objets produisent le même nom PostgreSQL après normalisation.',
   autoFixable: false,
 }
 

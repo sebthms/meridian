@@ -14,297 +14,169 @@ import {
   addAssociationAttribute,
   updateAssociationAttribute,
 } from '@/editor'
-import { cn } from '@/lib/utils'
 import type { ConceptualType } from '@/domain'
 
-type Category = 'texte' | 'numerique' | 'date' | 'autre'
+const TYPE_OPTIONS: ReadonlyArray<{ value: ConceptualType; label: string; detail: string }> = [
+  { value: 'TEXT', label: 'Texte', detail: 'Chaîne de caractères' },
+  { value: 'INTEGER', label: 'Entier', detail: 'Nombre entier' },
+  { value: 'DECIMAL', label: 'Décimal', detail: 'Nombre à virgule' },
+  { value: 'DATE', label: 'Date', detail: 'Date sans heure' },
+  { value: 'BOOLEAN', label: 'Booléen', detail: 'Vrai ou faux' },
+]
 
-const CATEGORY_LABELS: Record<Category, string> = {
-  texte: 'Texte',
-  numerique: 'Numérique',
-  date: 'Date / Heure',
-  autre: 'Autre',
-}
-
-const SUBTYPES: Record<Category, { value: string; label: string }[]> = {
-  texte: [
-    { value: 'ascii', label: 'Caractères ASCII' },
-    { value: 'unicode', label: 'Caractères Unicode' },
-    { value: 'binaire', label: 'Binaire' },
-  ],
-  numerique: [
-    { value: 'entier', label: 'Entier' },
-    { value: 'decimal', label: 'Décimal' },
-    { value: 'reel', label: 'Réel' },
-    { value: 'monetaire', label: 'Monétaire' },
-    { value: 'compteur', label: 'Compteur (auto)' },
-  ],
-  date: [
-    { value: 'date', label: 'Date' },
-    { value: 'heure', label: 'Heure' },
-    { value: 'date-heure', label: 'Date-Heure' },
-  ],
-  autre: [
-    { value: 'booleen', label: 'Booléen' },
-    { value: 'xml', label: 'XML' },
-    { value: 'geometrique', label: 'Géométrique' },
-    { value: 'geographique', label: 'Géographique' },
-    { value: 'libre', label: 'Libre (non typé)' },
-  ],
-}
-
-function toConceptualType(cat: Category, sub: string): ConceptualType {
-  if (cat === 'texte') return 'TEXT'
-  if (cat === 'numerique') return sub === 'entier' ? 'INTEGER' : 'DECIMAL'
-  if (cat === 'date') return 'DATE'
-  return sub === 'booleen' ? 'BOOLEAN' : 'TEXT'
-}
-
-/**
- * Modal d'ajout de propriété (côté visuel complet). Les champs avancés
- * (longueur, collation, stockage, nom logique…) sont collectés mais seuls
- * les champs supportés par le modèle (nom, type, NOT NULL, UNIQUE, complément,
- * identifiant) sont réellement appliqués pour l'instant.
- */
 export function AddPropertyModal() {
-  const target = useProjectStore((s) => s.addPropertyTarget)
-  const project = useProjectStore((s) => s.project)
-  const apply = useProjectStore((s) => s.apply)
-  const close = useProjectStore((s) => s.closeAddProperty)
+  const target = useProjectStore((state) => state.addPropertyTarget)
+  const project = useProjectStore((state) => state.project)
+  const apply = useProjectStore((state) => state.apply)
+  const close = useProjectStore((state) => state.closeAddProperty)
 
-  const [nom, setNom] = useState('')
-  const [logical, setLogical] = useState('')
-  const [logicalTouched, setLogicalTouched] = useState(false)
-  const [category, setCategory] = useState<Category>('texte')
-  const [subType, setSubType] = useState('ascii')
-  const [storage, setStorage] = useState<'variable' | 'fixe' | 'volumineux'>('variable')
-  const [length, setLength] = useState(50)
-  const [collation, setCollation] = useState('')
+  const [name, setName] = useState('')
+  const [conceptualType, setConceptualType] = useState<ConceptualType>('TEXT')
   const [notNull, setNotNull] = useState(false)
   const [unique, setUnique] = useState(false)
   const [identifier, setIdentifier] = useState(false)
-  const [complement, setComplement] = useState('')
-  const [comment, setComment] = useState('')
+  const [description, setDescription] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const isEntity = target?.kind === 'entity'
+  const entity = target?.kind === 'entity'
+    ? project.entities.find((item) => item.id === target.id)
+    : undefined
+  const association = target?.kind === 'association'
+    ? project.associations.find((item) => item.id === target.id)
+    : undefined
+  const editedAttribute = target?.attributeId
+    ? target.kind === 'entity'
+      ? entity?.attributes.find((item) => item.id === target.attributeId)
+      : association?.attributes.find((item) => item.id === target.attributeId)
+    : undefined
+  const editedIsIdentifier = Boolean(
+    target?.attributeId && entity?.identifiers.some((item) => item.attributeIds.includes(target.attributeId!)),
+  )
 
-  // Réinitialise tous les champs à chaque ouverture (nouvelle cible).
   useEffect(() => {
     if (!target) return
-    setNom('')
-    setLogical('')
-    setLogicalTouched(false)
-    setCategory('texte')
-    setSubType('ascii')
-    setStorage('variable')
-    setLength(50)
-    setCollation('')
-    setNotNull(false)
-    setUnique(false)
-    setIdentifier(false)
-    setComplement('')
-    setComment('')
+    setName(editedAttribute?.name ?? '')
+    setConceptualType(editedAttribute?.conceptualType ?? 'TEXT')
+    setNotNull(editedAttribute?.nullable === false)
+    setUnique(editedAttribute?.unique === true)
+    setIdentifier(editedIsIdentifier)
+    setDescription(editedAttribute?.description ?? '')
     setError(null)
-  }, [target])
-
-  // Nom logique dérivé en live du nom (majuscules + snake_case).
-  useEffect(() => {
-    if (!logicalTouched) setLogical(nom.toUpperCase().replace(/\s+/g, '_'))
-  }, [nom, logicalTouched])
+  }, [target, editedAttribute, editedIsIdentifier])
 
   if (!target) return null
 
-  const onOk = () => {
-    if (!nom.trim()) return
-    const ct = toConceptualType(category, subType)
-    if (target.kind === 'entity') {
-      const res = addAttributeWithName(project, target.id, nom.trim(), ct)
-      if (res.attributeId === '') {
-        setError('Cette propriété existe déjà dans l’entité.')
-        return
-      }
-      let next = res.project
-      if (notNull) next = updateAttribute(next, target.id, res.attributeId, { nullable: false })
-      if (unique) next = updateAttribute(next, target.id, res.attributeId, { unique: true })
-      if (complement.trim())
-        next = updateAttribute(next, target.id, res.attributeId, { description: complement.trim() })
-      if (identifier) next = toggleIdentifierAttribute(next, target.id, res.attributeId)
-      apply(next)
-    } else {
-      const res = addAssociationAttribute(project, target.id, nom.trim(), ct)
-      if (res.attributeId === '') {
-        setError('Cette propriété existe déjà dans l’association.')
-        return
-      }
-      let next = res.project
-      if (notNull) next = updateAssociationAttribute(next, target.id, res.attributeId, { nullable: false })
-      if (unique) next = updateAssociationAttribute(next, target.id, res.attributeId, { unique: true })
-      if (complement.trim())
-        next = updateAssociationAttribute(next, target.id, res.attributeId, {
-          description: complement.trim(),
-        })
-      apply(next)
+  const save = () => {
+    const trimmedName = name.trim()
+    if (!trimmedName) return
+    const patch = {
+      name: trimmedName,
+      conceptualType,
+      nullable: !notNull,
+      unique,
+      description: description.trim() || undefined,
     }
+
+    if (target.attributeId) {
+      let next = target.kind === 'entity'
+        ? updateAttribute(project, target.id, target.attributeId, patch)
+        : updateAssociationAttribute(project, target.id, target.attributeId, patch)
+      if (next === project) {
+        setError('Une propriété portant ce nom existe déjà.')
+        return
+      }
+      if (target.kind === 'entity' && identifier !== editedIsIdentifier) {
+        next = toggleIdentifierAttribute(next, target.id, target.attributeId)
+      }
+      apply(next)
+      close()
+      return
+    }
+
+    const result = target.kind === 'entity'
+      ? addAttributeWithName(project, target.id, trimmedName, conceptualType)
+      : addAssociationAttribute(project, target.id, trimmedName, conceptualType)
+    if (!result.attributeId) {
+      setError('Une propriété portant ce nom existe déjà.')
+      return
+    }
+
+    let next = target.kind === 'entity'
+      ? updateAttribute(result.project, target.id, result.attributeId, patch)
+      : updateAssociationAttribute(result.project, target.id, result.attributeId, patch)
+    if (target.kind === 'entity' && identifier) {
+      next = toggleIdentifierAttribute(next, target.id, result.attributeId)
+    }
+    apply(next)
     close()
   }
 
   return (
-    <Modal open onClose={close} title="Ajouter une propriété">
+    <Modal open onClose={close} title={target.attributeId ? 'Modifier la propriété' : 'Ajouter une propriété'}>
       <div className="space-y-5">
-        {/* 1. Nom */}
-        <section className="space-y-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Nom</h3>
-          <div className="space-y-1.5">
-            <Label htmlFor="prop-nom">Nom</Label>
-            <Input
-              id="prop-nom"
-              value={nom}
-              onChange={(e) => setNom(e.target.value)}
-              placeholder="nom_propriété"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="prop-logical">Nom logique</Label>
-            <Input
-              id="prop-logical"
-              value={logical}
-              onChange={(e) => {
-                setLogical(e.target.value)
-                setLogicalTouched(true)
-              }}
-            />
-          </div>
-        </section>
+        <div className="space-y-1.5">
+          <Label htmlFor="property-name">Nom</Label>
+          <Input
+            id="property-name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="nom_propriete"
+            autoFocus
+          />
+        </div>
 
-        {/* 2. Type de donnée */}
-        <section className="space-y-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Type de donnée
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(SUBTYPES) as Category[]).map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => {
-                  setCategory(cat)
-                  setSubType(SUBTYPES[cat][0].value)
-                }}
-                className={cn(
-                  'rounded-full border px-3 py-1 text-xs transition-colors',
-                  category === cat
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border text-muted-foreground hover:bg-accent',
-                )}
-              >
-                {CATEGORY_LABELS[cat]}
-              </button>
-            ))}
-          </div>
-
-          <RadioGroup value={subType} onValueChange={setSubType} className="gap-1.5">
-            {SUBTYPES[category].map((opt) => (
-              <label key={opt.value} className="flex cursor-pointer items-center gap-2 text-sm">
-                <RadioGroupItem value={opt.value} id={`sub-${opt.value}`} />
-                <span>{opt.label}</span>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">Type conceptuel</legend>
+          <RadioGroup
+            value={conceptualType}
+            onValueChange={(value) => setConceptualType(value as ConceptualType)}
+            className="grid grid-cols-1 gap-1 sm:grid-cols-2"
+          >
+            {TYPE_OPTIONS.map((option) => (
+              <label key={option.value} className="flex cursor-pointer items-start gap-2 rounded-lg border p-2.5 hover:bg-accent/60">
+                <RadioGroupItem value={option.value} />
+                <span>
+                  <span className="block text-sm font-medium">{option.label}</span>
+                  <span className="block text-[11px] text-muted-foreground">{option.detail}</span>
+                </span>
               </label>
             ))}
           </RadioGroup>
+        </fieldset>
 
-          {category === 'texte' && (
-            <div className="space-y-3 rounded-md border border-border p-3">
-              <RadioGroup value={storage} onValueChange={(v) => setStorage(v as typeof storage)} className="gap-1.5">
-                {(['variable', 'fixe', 'volumineux'] as const).map((s) => (
-                  <label key={s} className="flex cursor-pointer items-center gap-2 text-sm capitalize">
-                    <RadioGroupItem value={s} id={`storage-${s}`} />
-                    <span>{s}</span>
-                  </label>
-                ))}
-              </RadioGroup>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="prop-length" className="shrink-0">
-                  Longueur
-                </Label>
-                <Input
-                  id="prop-length"
-                  type="number"
-                  min={1}
-                  value={length}
-                  onChange={(e) => setLength(Number(e.target.value))}
-                  className="w-20"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="prop-collation" className="shrink-0">
-                  Collation
-                </Label>
-                <Input
-                  id="prop-collation"
-                  value={collation}
-                  onChange={(e) => setCollation(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-            </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {target.kind === 'entity' && (
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox checked={identifier} onCheckedChange={(checked) => setIdentifier(checked === true)} />
+              Identifiant
+            </label>
           )}
-        </section>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <Checkbox checked={notNull} onCheckedChange={(checked) => setNotNull(checked === true)} />
+            Obligatoire
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <Checkbox checked={unique} onCheckedChange={(checked) => setUnique(checked === true)} />
+            Unique
+          </label>
+        </div>
 
-        {/* 3. Propriétés (contraintes) */}
-        <section className="space-y-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Propriétés
-          </h3>
-          <div className="grid grid-cols-2 gap-2">
-            {isEntity && (
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <Checkbox checked={identifier} onCheckedChange={(c) => setIdentifier(c === true)} />
-                <span>Identifiant</span>
-              </label>
-            )}
-            <label className="flex cursor-pointer items-center gap-2 text-sm">
-              <Checkbox checked={notNull} onCheckedChange={(c) => setNotNull(c === true)} />
-              <span>NOT NULL</span>
-            </label>
-            <label className="flex cursor-pointer items-center gap-2 text-sm">
-              <Checkbox checked={unique} onCheckedChange={(c) => setUnique(c === true)} />
-              <span>UNIQUE</span>
-            </label>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="prop-complement">Complément</Label>
-            <Input
-              id="prop-complement"
-              value={complement}
-              onChange={(e) => setComplement(e.target.value)}
-              placeholder="valeur par défaut, expression…"
-            />
-          </div>
-        </section>
-
-        {/* 4. Commentaire */}
-        <section className="space-y-1.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Commentaire
-          </h3>
+        <div className="space-y-1.5">
+          <Label htmlFor="property-description">Description</Label>
           <Textarea
-            id="prop-comment"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            id="property-description"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
             rows={3}
+            placeholder="Rôle métier de cette propriété…"
           />
-        </section>
+        </div>
 
         {error && <p className="text-xs text-destructive">{error}</p>}
 
-        {/* 5. Actions */}
-        <div className="flex justify-end gap-2 border-t border-border pt-4">
-          <Button type="button" variant="outline" onClick={close}>
-            Annuler
-          </Button>
-          <Button type="button" onClick={onOk} disabled={!nom.trim()}>
-            OK
-          </Button>
+        <div className="flex justify-end gap-2 border-t pt-4">
+          <Button type="button" variant="outline" onClick={close}>Annuler</Button>
+          <Button type="button" onClick={save} disabled={!name.trim()}>Enregistrer</Button>
         </div>
       </div>
     </Modal>

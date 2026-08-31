@@ -35,7 +35,7 @@ export const associationIsConnected: StructuralRule = (project, issues) => {
     if (!connected) {
       issues.push(makeIssue(RULE_E007, [association.id]))
     }
-    if (valid.length === 0) {
+    if (valid.length !== association.participants.length) {
       issues.push(makeIssue(RULE_E010, [association.id]))
     }
   }

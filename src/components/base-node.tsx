@@ -7,7 +7,7 @@ export function BaseNode({ className, ...props }: ComponentProps<"div">) {
     <div
       className={cn(
         "bg-card text-card-foreground relative rounded-md border",
-        "hover:ring-1",
+        "transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md hover:ring-1",
         // React Flow displays node elements inside of a `NodeWrapper`
         // component, which compiles down to a div with the class
         // `react-flow__node`. When a node is selected, the class `selected` is

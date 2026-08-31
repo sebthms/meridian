@@ -56,6 +56,39 @@ describe('SQL — colonnes et types', () => {
 })
 
 describe('SQL — relations', () => {
+  it('crée toutes les tables avant les contraintes FK', () => {
+    const a = makeEntity('A', { attrs: [['id_a', 'INTEGER']], identifierAttrNames: ['id_a'] })
+    const b = makeEntity('B', { attrs: [['id_b', 'INTEGER']], identifierAttrNames: ['id_b'] })
+    const assoc = makeAssociation('AB',
+      { entityId: a.id, cardinality: { min: 0, max: 'N' } },
+      { entityId: b.id, cardinality: { min: 1, max: 1 } })
+    const sql = generateSql(generateMld(buildProject({ entities: [a, b], associations: [assoc] })))
+    expect(sql.indexOf('ALTER TABLE')).toBeGreaterThan(sql.lastIndexOf('CREATE TABLE'))
+  })
+
+  it('supporte un cycle entre deux tables grâce à la seconde phase FK', () => {
+    const a = makeEntity('A', { attrs: [['id_a', 'INTEGER']], identifierAttrNames: ['id_a'] })
+    const b = makeEntity('B', { attrs: [['id_b', 'INTEGER']], identifierAttrNames: ['id_b'] })
+    const ab = makeAssociation('AB',
+      { entityId: a.id, cardinality: { min: 0, max: 'N' } },
+      { entityId: b.id, cardinality: { min: 1, max: 1 } })
+    const ba = makeAssociation('BA',
+      { entityId: b.id, cardinality: { min: 0, max: 'N' } },
+      { entityId: a.id, cardinality: { min: 1, max: 1 } })
+    const sql = generateSql(generateMld(buildProject({ entities: [a, b], associations: [ab, ba] })))
+    expect((sql.match(/ALTER TABLE/g) ?? []).length).toBe(2)
+  })
+
+  it('normalise les noms physiques PostgreSQL dans le script', () => {
+    const entity = makeEntity('Équipe Active', {
+      attrs: [['id équipe', 'INTEGER']],
+      identifierAttrNames: ['id équipe'],
+    })
+    const sql = generateSql(generateMld(buildProject({ entities: [entity] })))
+    expect(sql).toContain('CREATE TABLE equipe_active')
+    expect(sql).toContain('id_equipe INTEGER PRIMARY KEY')
+  })
+
   it('génère la contrainte FOREIGN KEY pour une relation 1:N', () => {
     const client = makeEntity('CLIENT', { attrs: [['id_client', 'INTEGER']], identifierAttrNames: ['id_client'] })
     const commande = makeEntity('COMMANDE', { attrs: [['id_commande', 'INTEGER']], identifierAttrNames: ['id_commande'] })
@@ -107,9 +140,50 @@ describe('SQL — relations', () => {
 
     // Règle 3 (réflexive N:N) : table associative, PK composite = les deux FK auto-référentes
     expect(sql).toContain('CREATE TABLE parrainer')
-    expect(sql).toContain('parrain_id_employe INTEGER PRIMARY KEY')
-    expect(sql).toContain('filleul_id_employe INTEGER PRIMARY KEY')
+    expect(sql).toContain('parrain_id_employe INTEGER')
+    expect(sql).toContain('filleul_id_employe INTEGER')
+    expect(sql).toContain('PRIMARY KEY (parrain_id_employe, filleul_id_employe)')
     expect(sql).toContain('REFERENCES employe(id_employe)')
+  })
+
+  it('génère une PK et une FK composées valides en conservant les types référencés', () => {
+    const parent = makeEntity('PARENT', {
+      attrs: [['code', 'TEXT'], ['version', 'INTEGER']],
+      identifierAttrNames: ['code', 'version'],
+    })
+    const enfant = makeEntity('ENFANT', {
+      attrs: [['id_enfant', 'INTEGER']],
+      identifierAttrNames: ['id_enfant'],
+    })
+    const assoc = makeAssociation('DEPENDRE',
+      { entityId: parent.id, cardinality: { min: 0, max: 'N' } },
+      { entityId: enfant.id, cardinality: { min: 1, max: 1 } })
+    const sql = generateSql(generateMld(buildProject({ entities: [parent, enfant], associations: [assoc] })))
+
+    expect(sql).toContain('CONSTRAINT pk_parent PRIMARY KEY (code, version)')
+    expect(sql).toContain('parent_code TEXT NOT NULL')
+    expect(sql).toContain('parent_version INTEGER NOT NULL')
+    expect(sql).toContain('FOREIGN KEY (parent_code, parent_version)')
+    expect(sql).toContain('REFERENCES parent(code, version)')
+  })
+
+  it('préserve UNIQUE et impose une FK unique pour une association 1:1', () => {
+    const personne = makeEntity('PERSONNE', {
+      attrs: [['id_personne', 'INTEGER'], ['email', 'TEXT']],
+      identifierAttrNames: ['id_personne'],
+    })
+    personne.attributes.find((attribute) => attribute.name === 'email')!.unique = true
+    const passeport = makeEntity('PASSEPORT', {
+      attrs: [['id_passeport', 'INTEGER']],
+      identifierAttrNames: ['id_passeport'],
+    })
+    const assoc = makeAssociation('POSSEDER',
+      { entityId: personne.id, cardinality: { min: 0, max: 1 } },
+      { entityId: passeport.id, cardinality: { min: 1, max: 1 } })
+    const sql = generateSql(generateMld(buildProject({ entities: [personne, passeport], associations: [assoc] })))
+
+    expect(sql).toContain('email TEXT NOT NULL UNIQUE')
+    expect(sql).toContain('id_personne INTEGER NOT NULL UNIQUE')
   })
 
   it('les commandes CREATE TABLE sont séparées par des lignes vides (ordre entités puis associations)', () => {

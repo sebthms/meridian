@@ -1,5 +1,5 @@
 import type { Attribute } from './attribute'
-import type { Identifier } from './identifier'
+import { isPrimaryIdentifier, type Identifier } from './identifier'
 
 export type Entity = {
   id: string
@@ -38,6 +38,14 @@ export function createEntity(id: string, name = '', position = { x: 0, y: 0 }): 
 export function getEntityAttributesInIdentifiers(entity: Entity): Attribute[] {
   const ids = new Set(entity.identifiers.flatMap((i) => i.attributeIds))
   return entity.attributes.filter((a) => ids.has(a.id))
+}
+
+export function getPrimaryIdentifier(entity: Entity): Identifier | undefined {
+  return entity.identifiers.find((identifier, index, identifiers) => isPrimaryIdentifier(identifier, index, identifiers))
+}
+
+export function getAlternateIdentifiers(entity: Entity): Identifier[] {
+  return entity.identifiers.filter((identifier, index, identifiers) => !isPrimaryIdentifier(identifier, index, identifiers))
 }
 
 export function isIdentifierAttribute(entity: Entity, attributeId: string): boolean {

@@ -109,6 +109,8 @@ describe('MLD generator', () => {
     const project = buildProject({ entities: [a, b], associations: [assoc] })
     const mld = generateMld(project)
     expect(mld.relations.filter((r) => ['A', 'B'].includes(r.name))).toHaveLength(2)
+    const relationB = mld.relations.find((relation) => relation.name === 'B')!
+    expect(relationB.columns.some((column) => column.isForeignKey && column.unique)).toBe(true)
   })
 
   it('reflexive association produces a self-referencing FK', () => {
@@ -161,9 +163,10 @@ describe('MLD generator', () => {
     const cli = mld.relations.find((r) => r.name === 'CLIENT')!
     // la FK est dans le côté 1,1 (COMMANDE)
     expect(cmd.columns.some((c) => c.isForeignKey && c.references?.table === 'CLIENT')).toBe(true)
-    // la propriété migre dans le côté N (CLIENT), pas dans COMMANDE
-    expect(cli.columns.some((c) => c.name === 'date_passe')).toBe(true)
-    expect(cmd.columns.some((c) => c.name === 'date_passe')).toBe(false)
+    // La propriété suit la FK dans COMMANDE : chaque commande porte les
+    // informations propres à son unique occurrence de l'association.
+    expect(cmd.columns.some((c) => c.name === 'date_passe')).toBe(true)
+    expect(cli.columns.some((c) => c.name === 'date_passe')).toBe(false)
   })
 
   it('reflexive 1:N with association properties adds properties to the entity table', () => {

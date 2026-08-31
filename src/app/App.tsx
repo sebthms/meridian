@@ -6,33 +6,17 @@ import { Modal } from '@/components/ui/Modal'
 const IssuesPanel = lazy(() =>
   import('@/components/issues/IssuesPanel').then(({ IssuesPanel }) => ({ default: IssuesPanel })),
 )
-const MldPanel = lazy(() =>
-  import('@/components/mld/MldPanel').then(({ MldPanel }) => ({ default: MldPanel })),
-)
 const SqlPanel = lazy(() =>
   import('@/components/sql/SqlPanel').then(({ SqlPanel }) => ({ default: SqlPanel })),
 )
 
-type ModalView = 'issues' | 'mld' | 'sql'
+type PanelView = 'issues' | 'sql'
 
 export default function App() {
   const { theme, toggleTheme } = useTheme()
-  const [view, setView] = useState<ModalView | null>(null)
+  const [view, setView] = useState<PanelView | null>(null)
 
   const close = useCallback(() => setView(null), [])
-
-  const panel = (() => {
-    if (view === 'issues') return <IssuesPanel />
-    if (view === 'mld') return <MldPanel />
-    if (view === 'sql') return <SqlPanel />
-    return null
-  })()
-
-  const title = {
-    issues: 'Problèmes de validation',
-    mld: 'Modèle logique (MLD)',
-    sql: 'SQL (PostgreSQL)',
-  } satisfies Record<ModalView, string>
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -40,11 +24,17 @@ export default function App() {
         <Canvas colorMode={theme} onToggleTheme={toggleTheme} onOpenModal={setView} />
       </main>
 
-      <Modal open={view !== null} onClose={close} title={view ? title[view] : ''}>
+      <Modal open={view === 'issues'} onClose={close} title="Problèmes de validation">
         <Suspense fallback={<p className="text-sm text-muted-foreground">Chargement…</p>}>
-          {panel}
+          {view === 'issues' && <IssuesPanel />}
         </Suspense>
       </Modal>
+
+      {view === 'sql' && (
+        <Suspense fallback={null}>
+          <SqlPanel onClose={close} />
+        </Suspense>
+      )}
     </div>
   )
 }

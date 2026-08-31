@@ -75,14 +75,14 @@ describe('projectToEdges MLD handles', () => {
     expect(edges[0]).toMatchObject({
       source: 'association',
       target: 'entity',
-      sourceHandle: 'right',
-      targetHandle: 'target',
+      sourceHandle: 'reflexive-source-0',
+      targetHandle: 'reflexive-target-0',
     })
     expect(edges[1]).toMatchObject({
       source: 'association',
       target: 'entity',
-      sourceHandle: 'right',
-      targetHandle: 'bottom',
+      sourceHandle: 'reflexive-source-1',
+      targetHandle: 'reflexive-target-1',
     })
   })
 
@@ -119,14 +119,14 @@ describe('projectToEdges MCD reflexive association', () => {
     expect(edges[0]).toMatchObject({
       source: 'entity',
       target: 'association',
-      sourceHandle: 'right',
-      targetHandle: 'left',
+      sourceHandle: 'reflexive-source',
+      targetHandle: 'reflexive-target-0',
     })
     expect(edges[1]).toMatchObject({
       source: 'association',
       target: 'entity',
-      sourceHandle: 'right',
-      targetHandle: 'bottom',
+      sourceHandle: 'reflexive-source-1',
+      targetHandle: 'reflexive-target-1',
     })
   })
 })
