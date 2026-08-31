@@ -24,12 +24,15 @@ function AssociationEdge(props: EdgeProps) {
   const isLoop = type === 'loop'
 
   const getLoopPath = () => {
-    const radius = 40
-    const x = sourceX
-    const y = sourceY - radius
-    const edgePath = `M ${sourceX} ${sourceY} C ${x - radius} ${y - radius}, ${x + radius} ${y - radius}, ${sourceX} ${sourceY}`
-    const labelX = sourceX
-    const labelY = sourceY - radius * 2
+    const offset = 60
+    const edgePath = [
+      `M ${sourceX} ${sourceY}`,
+      `C ${sourceX + offset} ${sourceY},`,
+      `${targetX + offset} ${targetY + offset},`,
+      `${targetX} ${targetY}`,
+    ].join(' ')
+    const labelX = Math.max(sourceX, targetX) + offset
+    const labelY = (sourceY + targetY) / 2 + offset / 2
     return [edgePath, labelX, labelY] as const
   }
 

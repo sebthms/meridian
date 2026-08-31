@@ -53,22 +53,36 @@ function EntityNode({ data, selected }: NodeProps) {
         isMLD && 'border-slate-400/50 shadow-slate-500/10',
       )}
     >
-      {/* Handle source : en haut de l'en-tête → tirez vers une association */}
-      {!isMLD && (
-        <Handle
-          type="source"
-          id="source"
-          position={Position.Top}
-          title="Relier à une association"
-          className="!h-2.5 !w-2.5 !border-2 !border-background !bg-primary"
-        />
-      )}
+      {/* Les handles restent montés dans toutes les vues : les arêtes MLD sont
+          elles aussi reliées directement aux entités. */}
+      <Handle
+        type="source"
+        id="source"
+        position={Position.Top}
+        title="Relier à une association"
+        className={cn(
+          '!h-2.5 !w-2.5 !border-2 !border-background !bg-primary',
+          isMLD && '!opacity-0',
+        )}
+      />
       {/* Handle cible (gauche) : reçoit l'arête, invisible mais fonctionnel */}
       <Handle
         type="target"
         id="target"
         position={Position.Left}
         title="Relier à une association"
+        className="!h-2.5 !w-2.5 !opacity-0"
+      />
+      <Handle
+        type="source"
+        id="right"
+        position={Position.Right}
+        className="!h-2.5 !w-2.5 !opacity-0"
+      />
+      <Handle
+        type="target"
+        id="bottom"
+        position={Position.Bottom}
         className="!h-2.5 !w-2.5 !opacity-0"
       />
 

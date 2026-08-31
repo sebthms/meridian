@@ -102,14 +102,12 @@ export function projectToNodes(
   // En MLD, seules les associations N:N (ou avec attributs dans certains cas) restent sous forme de table.
   // En UML, on peut décider de cacher les nœuds d'association s'ils n'ont pas d'attributs.
   for (const a of project.associations) {
-    const bothN = a.participants.length === 2 && a.participants.every((p) => p.cardinality.max === 'N')
     const hasAttributes = a.attributes.length > 0
+    const hasAssociativeTable = mld.relations.some((relation) => relation.sourceId === a.id)
 
     // Logique d'affichage du nœud d'association
     let shouldShow = true
-    if (viewMode === 'MLD' && !bothN && !hasAttributes) {
-      shouldShow = false
-    }
+    if (viewMode === 'MLD') shouldShow = hasAssociativeTable
     if (viewMode === 'UML' && !hasAttributes) {
       // Option : en UML, on préfère souvent les lignes directes.
       // Mais pour rester simple et éditable, on peut les garder ou les transformer.
@@ -119,7 +117,18 @@ export function projectToNodes(
 
     if (!shouldShow) continue
 
-    const position = a.position ?? associationMidpoint(a, byId)
+    const defaultPosition = associationMidpoint(a, byId)
+    const entityPosition = byId.get(a.participants[0]?.entityId ?? '')
+    const storedPosition = a.position ?? defaultPosition
+    // Les anciennes associations réflexives étaient créées exactement sur
+    // l'entité, ce qui masquait la pastille et ses deux branches.
+    const position =
+      isReflexive(a) &&
+      entityPosition &&
+      Math.abs(storedPosition.x - entityPosition.x) < 40 &&
+      Math.abs(storedPosition.y - entityPosition.y) < 40
+        ? { x: entityPosition.x + 240, y: entityPosition.y + 80 }
+        : storedPosition
     let columns: AssociationNodeData['columns']
 
     if (viewMode === 'MLD') {
@@ -168,48 +177,24 @@ export function projectToEdges(
 ): Edge[] {
   const { viewMode } = opts
   const edges: Edge[] = []
+  const mld = viewMode === 'MLD' ? generateMld(project) : null
 
   for (const association of project.associations) {
     const reflexive = isReflexive(association)
     const bothN = association.participants.length === 2 && association.participants.every((p) => p.cardinality.max === 'N')
-    const hasAttributes = association.attributes.length > 0
+    const hasAssociativeTable =
+      mld?.relations.some((relation) => relation.sourceId === association.id) ?? false
 
     if (viewMode === 'MLD') {
-      if (reflexive) {
-        // Réflexive en MLD : l'entité a une FK auto-référentielle
-        const entityId = association.participants[0].entityId
-        edges.push({
-          id: `mld-reflexive__${association.id}`,
-          source: entityId,
-          target: entityId,
-          type: 'loop', // Changed to 'loop' for special path handling
-          label: '',
-          data: {
-            associationId: association.id,
-            participantIndex: 0,
-            type: 'MLD',
-            otherCardinality: null,
-            isOpen: false,
-            viewMode,
-            onOpen: () => {},
-            onPick: () => {},
-            onClose: () => {},
-          } satisfies AssocEdgeData,
-          markerEnd: { type: 'arrowclosed' as any },
-          sourceHandle: 'right',
-          targetHandle: 'right',
-        })
-        continue
-      }
-
-      if (bothN) {
-        // N:N en MLD : l'association devient une table de jointure, deux FK partent d'elle.
+      if (hasAssociativeTable) {
+        // Une table associative possède deux FK, y compris lorsqu'elles
+        // référencent toutes les deux la même table (réflexive N:N).
         const p1 = association.participants[0]
         const p2 = association.participants[1]
 
         if (p1) {
           edges.push({
-            id: `mld__${association.id}__${p1.entityId}`,
+            id: `mld__${association.id}__${p1.entityId}__0`,
             source: association.id,
             target: p1.entityId,
             type: 'assoc',
@@ -226,11 +211,13 @@ export function projectToEdges(
               onClose: () => {},
             } satisfies AssocEdgeData,
             markerEnd: { type: 'arrowclosed' as any },
+            sourceHandle: 'right',
+            targetHandle: 'target',
           })
         }
         if (p2) {
           edges.push({
-            id: `mld__${association.id}__${p2.entityId}`,
+            id: `mld__${association.id}__${p2.entityId}__1`,
             source: association.id,
             target: p2.entityId,
             type: 'assoc',
@@ -247,17 +234,49 @@ export function projectToEdges(
               onClose: () => {},
             } satisfies AssocEdgeData,
             markerEnd: { type: 'arrowclosed' as any },
+            sourceHandle: 'right',
+            targetHandle: reflexive ? 'bottom' : 'target',
           })
         }
         continue
       }
 
+      if (reflexive) {
+        // Sans table associative, la pastille disparaît et la FK migre dans
+        // la table de l'entité sous la forme d'une autoréférence.
+        const entityId = association.participants[0].entityId
+        edges.push({
+          id: `mld-reflexive__${association.id}`,
+          source: entityId,
+          target: entityId,
+          type: 'loop',
+          label: '',
+          data: {
+            associationId: association.id,
+            participantIndex: 0,
+            type: 'MLD',
+            otherCardinality: null,
+            isOpen: false,
+            viewMode,
+            onOpen: () => {},
+            onPick: () => {},
+            onClose: () => {},
+          } satisfies AssocEdgeData,
+          markerEnd: { type: 'arrowclosed' as any },
+          sourceHandle: 'right',
+          targetHandle: 'bottom',
+        })
+        continue
+      }
+
       // 1:N en MLD : la FK migre. Arête directe entre les entités.
-      if (!bothN && !hasAttributes) {
+      if (!bothN) {
         const p1 = association.participants[0]
         const p2 = association.participants[1]
 
         if (p1 && p2) {
+          // La FK migre vers le côté "1".
+          // Source: entité qui reçoit la FK, Target: entité qui donne la PK.
           const sourceId = p1.cardinality.max === 1 ? p1.entityId : p2.entityId
           const targetId = p1.cardinality.max === 1 ? p2.entityId : p1.entityId
 
@@ -279,19 +298,20 @@ export function projectToEdges(
               onClose: () => {},
             } satisfies AssocEdgeData,
             markerEnd: { type: 'arrowclosed' as any },
+            sourceHandle: 'source',
+            targetHandle: 'target',
           })
         }
         continue
       }
     }
 
-    // Pour MCD et UML, ou MLD pour les N:N avec attributs (qui restent des pastilles)
+    // Pour MCD et UML (ou MLD pour les N:N avec attributs qui restent des pastilles)
     for (const [index, participant] of association.participants.entries()) {
-      // Si réflexive, on ne dessine qu'une seule arête qui boucle sur l'entité.
-      // La logique suivante gère les arêtes non-réflexives et les réflexives comme des boucles.
-      if (reflexive && index === 1) continue // On ne dessine qu'une seule arête pour la réflexive.
-
-      const fromPastille = index === 1 && !reflexive // Pour les réflexives, on veut que le handle soit toujours sur l'entité.
+      // Une réflexive MERISE conserve deux branches : une pour chaque rôle et
+      // cardinalité. La seconde part donc de la pastille comme une association
+      // binaire classique, même si les deux participants sont la même entité.
+      const fromPastille = index === 1
       const otherIndex = index === 0 ? 1 : 0
       const otherParticipant = association.participants[otherIndex]
       const isOpen =
@@ -307,11 +327,11 @@ export function projectToEdges(
 
       edges.push({
         id: `${association.id}__${participant.entityId}__${index}`,
-        source: reflexive ? participant.entityId : (fromPastille ? association.id : participant.entityId),
-        target: reflexive ? participant.entityId : (fromPastille ? participant.entityId : association.id),
-        sourceHandle: fromPastille ? 'right' : 'source',
-        targetHandle: fromPastille ? 'target' : 'left',
-        type: viewMode === 'MLD' ? 'assoc' : (reflexive ? 'loop' : 'assoc'), // Set type based on viewMode and reflexivity
+        source: fromPastille ? association.id : participant.entityId,
+        target: fromPastille ? participant.entityId : association.id,
+        sourceHandle: fromPastille ? 'right' : reflexive ? 'right' : 'source',
+        targetHandle: fromPastille ? (reflexive ? 'bottom' : 'target') : 'left',
+        type: 'assoc',
         label: viewMode === 'MLD' ? '' : label,
         data: {
           associationId: association.id,
@@ -325,7 +345,6 @@ export function projectToEdges(
           onClose: opts.onClose,
         } satisfies AssocEdgeData,
         ...(viewMode === 'MLD' ? { markerEnd: { type: 'arrowclosed' as any } } : {}),
-        ...(reflexive && viewMode !== 'MLD' && { type: 'loop', sourceHandle: 'right', targetHandle: 'right' } as any), // Only for non-MLD reflexive
       })
     }
   }

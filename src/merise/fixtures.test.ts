@@ -7,7 +7,7 @@ import { generateMld } from '@/mld'
 import { generateSql } from '@/sql'
 
 function loadFixture(name: string): Project {
-  const raw = readFileSync(resolve(__dirname, '../../fixtures', name), 'utf-8')
+  const raw = readFileSync(resolve(import.meta.dirname, '../../fixtures', name), 'utf-8')
   return JSON.parse(raw) as Project
 }
 

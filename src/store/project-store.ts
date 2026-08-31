@@ -48,17 +48,20 @@ function revalidate(project: Project): ValidationIssue[] {
 
 const MAX_HISTORY = 100
 
+const initialProject = loadProjectFromStorage() ?? createProject()
+
 export const useProjectStore = create<ProjectStore>((set, get) => ({
-  project: loadProjectFromStorage() ?? createProject(),
+  project: initialProject,
   viewMode: 'MCD',
   selectedElementId: undefined,
   addPropertyTarget: null,
   showTypeLabels: true,
-  issues: [],
+  issues: revalidate(initialProject),
   past: [],
   future: [],
 
   apply: (next) => {
+    if (next === get().project) return
     const project = { ...next, associations: ensureAssociationPositions(next) }
     set((state) => ({
       project,
@@ -78,9 +81,11 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   toggleTypeLabels: () => set((state) => ({ showTypeLabels: !state.showTypeLabels })),
 
   undo: () => {
+    let restored: Project | undefined
     set((state) => {
       const previous = state.past[state.past.length - 1]
       if (!previous) return state
+      restored = previous
       return {
         project: previous,
         issues: revalidate(previous),
@@ -89,12 +94,15 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         selectedElementId: undefined,
       }
     })
+    if (restored) saveProjectToStorage(restored)
   },
 
   redo: () => {
+    let restored: Project | undefined
     set((state) => {
       const next = state.future[0]
       if (!next) return state
+      restored = next
       return {
         project: next,
         issues: revalidate(next),
@@ -103,6 +111,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         selectedElementId: undefined,
       }
     })
+    if (restored) saveProjectToStorage(restored)
   },
 
   reset: () => {

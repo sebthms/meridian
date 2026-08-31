@@ -328,10 +328,12 @@ export function createAssociationBetween(
   const eB = project.entities.find((e) => e.id === entityBId)
   const posA = eA?.position ?? { x: 0, y: 0 }
   const posB = eB?.position ?? { x: 0, y: 0 }
-  const position = {
-    x: (posA.x + posB.x) / 2,
-    y: (posA.y + posB.y) / 2,
-  }
+  const position = reflexive
+    ? { x: posA.x + 240, y: posA.y + 80 }
+    : {
+        x: (posA.x + posB.x) / 2,
+        y: (posA.y + posB.y) / 2,
+      }
   return { ...project, associations: [...project.associations, { ...association, position }] }
 }
 

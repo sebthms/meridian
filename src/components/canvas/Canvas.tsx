@@ -37,8 +37,8 @@ import {
   moveAssociation,
   updateCardinality,
 } from '@/editor'
-import type { Project } from '@/domain'
 import { type Cardinality } from '@/domain'
+import type { ValidationIssue } from '@/merise'
 import { cn } from '@/lib/utils'
 import { downloadProject, downloadText } from '@/persistence'
 import { generateMld } from '@/mld'
@@ -48,11 +48,11 @@ import AssociationNode from './AssociationNode'
 import AssociationEdge from './AssociationEdge'
 
 const nodeTypes = { entity: EntityNode, association: AssociationNode }
-const edgeTypes = { assoc: AssociationEdge }
+const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge }
 
 type Status = 'valid' | 'warning' | 'error'
 
-function statusOf(issues: Project['name'] extends never ? never : Array<{ severity: string }>): Status {
+function statusOf(issues: ValidationIssue[]): Status {
   if (issues.some((i) => i.severity === 'error')) return 'error'
   if (issues.some((i) => i.severity === 'warning')) return 'warning'
   return 'valid'
@@ -118,6 +118,14 @@ export function Canvas({
     participantIndex: number
   } | null>(null)
 
+  const onPickCardinality = useCallback(
+    (associationId: string, participantIndex: number, cardinality: Cardinality) => {
+      apply(updateCardinality(project, associationId, participantIndex, cardinality))
+      setCardinalityTarget(null)
+    },
+    [apply, project],
+  )
+
   // nœuds/arêtes dérivés du modèle métier (adapter), jamais l'inverse.
   useEffect(() => {
     setNodes(projectToNodes(project, { selectedId, viewMode }))
@@ -131,7 +139,15 @@ export function Canvas({
         openTarget: cardinalityTarget,
       }),
     )
-  }, [project, selectedId, viewMode, cardinalityTarget, setNodes, setEdges])
+  }, [
+    project,
+    selectedId,
+    viewMode,
+    cardinalityTarget,
+    onPickCardinality,
+    setNodes,
+    setEdges,
+  ])
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -161,15 +177,6 @@ export function Canvas({
     [project, apply],
   )
 
-  const onPickCardinality = (
-    associationId: string,
-    participantIndex: number,
-    cardinality: Cardinality,
-  ) => {
-    apply(updateCardinality(project, associationId, participantIndex, cardinality))
-    setCardinalityTarget(null)
-  }
-
   const status = statusOf(issues)
 
   return (
@@ -193,7 +200,6 @@ export function Canvas({
         }}
         onConnect={onConnect}
         connectionMode={ConnectionMode.Loose}
-        proOptions={{ hideAttribution: true }}
       >
         <Background />
         <Controls />
