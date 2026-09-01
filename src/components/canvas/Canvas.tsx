@@ -235,7 +235,7 @@ export function Canvas({
         <Background />
         <Controls className="!m-4 !overflow-hidden !rounded-xl !border-border/60 !bg-card/90 !shadow-lg [&>button]:!border-border/60 [&>button]:!bg-card [&>button]:!text-muted-foreground [&>button:hover]:!bg-accent [&>button:hover]:!text-foreground" />
         <SidebarProvider open={Boolean(panelView)} onOpenChange={(open) => { if (!open) onClosePanel() }} className="pointer-events-none absolute inset-0 z-[80] min-h-0 w-full" style={{ '--sidebar-width': '24rem' } as React.CSSProperties}>
-          <Sidebar collapsible="icon" variant="floating" className="pointer-events-auto !bottom-auto !left-4 !top-6 !h-auto [&_[data-sidebar=sidebar]]:rounded-xl [&_[data-sidebar=sidebar]]:border [&_[data-sidebar=sidebar]]:border-border/60 [&_[data-sidebar=sidebar]]:bg-card/95 [&_[data-sidebar=sidebar]]:shadow-xl [&_[data-sidebar=sidebar]]:backdrop-blur">
+          <Sidebar collapsible="icon" variant="floating" className="pointer-events-auto !bottom-auto !left-4 !top-6 !h-auto !overflow-visible [&_[data-sidebar=sidebar]]:rounded-xl [&_[data-sidebar=sidebar]]:border [&_[data-sidebar=sidebar]]:border-border/60 [&_[data-sidebar=sidebar]]:bg-card/95 [&_[data-sidebar=sidebar]]:shadow-xl [&_[data-sidebar=sidebar]]:backdrop-blur">
             <div className="flex items-start p-1">
               <SidebarHeader className="flex w-12 flex-none flex-col items-center gap-1 p-0.5">
             <div className="flex w-8 flex-none flex-col items-center gap-1">
@@ -251,7 +251,7 @@ export function Canvas({
             <DockButton title="Paramètres" onClick={() => togglePanel('settings')} className={panelView === 'settings' ? 'bg-accent text-primary' : undefined}><Settings2 className="h-4 w-4" aria-hidden /></DockButton>
             </div>
               </SidebarHeader>
-            {panelView && <SidebarContent className="scrollbar-subtle animate-panel-in ml-2 w-80 flex-none overflow-x-hidden border-l border-border/60 pl-2 pr-0">
+            {panelView && <SidebarContent className="scrollbar-subtle animate-panel-in ml-2 max-h-[calc(100vh-3.5rem)] min-h-0 w-80 flex-none overflow-x-hidden overflow-y-auto border-l border-border/60 pl-2 pr-0">
               <div key={panelView ?? 'closed'} className={panelView ? 'animate-panel-content' : undefined}>
                 {panelView === 'tree' && <ProjectTreePanel embedded />}
                 {panelView === 'projects' && <div className="relative z-50"><ProjectManagerModal open panel embedded onClose={onClosePanel} /></div>}
