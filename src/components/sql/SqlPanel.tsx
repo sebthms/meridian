@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useProjectStore } from '@/store/project-store'
 import { generateMld } from '@/mld'
 import { generateSql } from '@/sql'
 import { downloadText } from '@/persistence'
-import { Download } from 'lucide-react'
+import { Check, Copy, Download } from 'lucide-react'
+import { InfoPopover } from '@/components/ui/InfoPopover'
 
 export function SqlPanel() {
   const project = useProjectStore((s) => s.project)
@@ -11,28 +12,39 @@ export function SqlPanel() {
   const errors = useMemo(() => issues.filter((issue) => issue.severity === 'error'), [issues])
   const sql = useMemo(() => generateSql(generateMld(project)), [project])
   const canExport = errors.length === 0
+  const [copied, setCopied] = useState(false)
+
+  const copySql = async () => {
+    try {
+      await navigator.clipboard.writeText(sql)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1400)
+    } catch {
+      setCopied(false)
+    }
+  }
 
   return (
     <div className="flex h-full flex-col gap-4 p-4">
-      <div className="flex items-center justify-between gap-3 pb-0.5">
-        <p className="min-w-0 truncate text-[11px] text-muted-foreground">Synchronisé automatiquement avec le diagramme</p>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-foreground hover:bg-accent"
-            onClick={() => canExport && downloadText(sql, `${project.name || 'schema'}.sql`, 'text/sql')}
-            disabled={!canExport}
-          >
-            <Download className="h-3.5 w-3.5" aria-hidden />
-            Exporter
-          </button>
-        </div>
-      </div>
       <div className="min-h-0 flex-1">
         {canExport ? (
-          <pre className="scrollbar-subtle h-full overflow-auto rounded-xl border border-border bg-muted/40 p-4 font-mono text-xs leading-6 text-foreground">
-            {sql || '-- Le diagramme ne contient aucune relation.'}
-          </pre>
+          <div className="relative h-full">
+            <div className="absolute right-3 top-3 z-10 flex items-center gap-1">
+              <InfoPopover label={copied ? 'Copié' : 'Copier le script SQL'}>
+                <button type="button" aria-label="Copier le script SQL" onClick={copySql} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card/90 text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground">
+                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />}
+                </button>
+              </InfoPopover>
+              <InfoPopover label="Exporter le script SQL">
+                <button type="button" aria-label="Exporter le script SQL" onClick={() => downloadText(sql, `${project.name || 'schema'}.sql`, 'text/sql')} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card/90 text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground">
+                  <Download className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </InfoPopover>
+            </div>
+            <pre className="scrollbar-subtle h-full overflow-auto rounded-xl bg-black/30 p-4 pr-20 font-mono text-xs leading-6 text-foreground dark:bg-black/45">
+              {sql || '-- Le diagramme ne contient aucune relation.'}
+            </pre>
+          </div>
         ) : (
           <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
             <p className="font-medium text-destructive">Génération SQL bloquée</p>

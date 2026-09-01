@@ -6,9 +6,12 @@ import {
   Link2,
   LoaderCircle,
   ListTree,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   Redo2,
   FolderOpen,
+  Save,
   Settings2,
   Undo2,
 } from 'lucide-react'
@@ -51,6 +54,7 @@ import { SettingsModal } from '@/components/projects/SettingsModal'
 import { SqlPanel } from '@/components/sql/SqlPanel'
 import { InfoPopover } from '@/components/ui/InfoPopover'
 import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
+import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from '@/components/ui/sidebar'
 
 const nodeTypes = { entity: EntityNode, association: AssociationNode }
 const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge }
@@ -84,7 +88,7 @@ function DockButton({ className, title, 'aria-label': ariaLabel, ...props }: Com
 }
 
 function DockSeparator() {
-  return <div className="mx-0.5 h-5 w-px bg-border" aria-hidden />
+  return <div className="my-0.5 h-px w-5 bg-border" aria-hidden />
 }
 
 export function Canvas({
@@ -121,6 +125,10 @@ export function Canvas({
   } | null>(null)
   const [confirmingSelectionDelete, setConfirmingSelectionDelete] = useState(false)
   const selectedNodes = nodes.filter((node) => node.selected)
+  const togglePanel = (view: 'tree' | 'projects' | 'sql' | 'settings') => {
+    if (panelView === view) onClosePanel()
+    else onOpenModal(view)
+  }
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -226,31 +234,43 @@ export function Canvas({
       >
         <Background />
         <Controls className="!m-4 !overflow-hidden !rounded-xl !border-border/60 !bg-card/90 !shadow-lg [&>button]:!border-border/60 [&>button]:!bg-card [&>button]:!text-muted-foreground [&>button:hover]:!bg-accent [&>button:hover]:!text-foreground" />
-        <Panel position="top-left" className="!m-4">
-          <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
-            <InfoPopover label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
-              <span className="inline-flex h-8 items-center gap-1 px-2 text-[10px] text-muted-foreground" aria-label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
-                {saveStatus === 'saving' ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />}
-                <span className="hidden sm:inline">{saveStatus === 'saving' ? 'Sauvegarde…' : 'Enregistré'}</span>
-              </span>
-            </InfoPopover>
-            <DockSeparator />
-            <DockButton title="Arborescence" onClick={() => onOpenModal('tree')} className={panelView === 'tree' ? 'bg-accent text-primary' : undefined}>
-              <ListTree className="h-4 w-4" aria-hidden />
+        <SidebarProvider open={Boolean(panelView)} onOpenChange={(open) => { if (!open) onClosePanel() }} className="pointer-events-none absolute inset-0 z-[80] min-h-0 w-full" style={{ '--sidebar-width': '24rem' } as React.CSSProperties}>
+          <Sidebar collapsible="icon" variant="floating" className="pointer-events-auto !bottom-auto !left-4 !top-6 !h-auto [&_[data-sidebar=sidebar]]:rounded-xl [&_[data-sidebar=sidebar]]:border [&_[data-sidebar=sidebar]]:border-border/60 [&_[data-sidebar=sidebar]]:bg-card/95 [&_[data-sidebar=sidebar]]:shadow-xl [&_[data-sidebar=sidebar]]:backdrop-blur">
+            <div className="flex items-start p-1">
+              <SidebarHeader className="flex w-12 flex-none flex-col items-center gap-1 p-0.5">
+            <div className="flex w-8 flex-none flex-col items-center gap-1">
+            <DockButton title={panelView ? 'Réduire le panneau' : 'Ouvrir le panneau'} onClick={panelView ? onClosePanel : () => onOpenModal('tree')} className="text-muted-foreground">
+              {panelView ? <PanelLeftClose className="h-4 w-4" aria-hidden /> : <PanelLeftOpen className="h-4 w-4" aria-hidden />}
             </DockButton>
             <DockSeparator />
-            <DockButton title="Gérer mes diagrammes" onClick={() => onOpenModal('projects')} className={panelView === 'projects' ? 'bg-accent text-primary' : undefined}><FolderOpen className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Ouvrir le SQL" onClick={() => onOpenModal('sql')} className={panelView === 'sql' ? 'bg-accent text-primary' : undefined}><Database className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Paramètres" onClick={() => onOpenModal('settings')} className={panelView === 'settings' ? 'bg-accent text-primary' : undefined}><Settings2 className="h-4 w-4" aria-hidden /></DockButton>
-          </div>
-          {panelView === 'tree' && <div className="mt-2"><ProjectTreePanel /></div>}
-          {panelView === 'projects' && <div className="mt-2"><ProjectManagerModal open panel onClose={onClosePanel} /></div>}
-          {panelView === 'sql' && <div className="mt-2 w-80 overflow-hidden rounded-xl border border-border bg-card/95 shadow-xl"><SqlPanel /></div>}
-          {panelView === 'settings' && <div className="mt-2"><SettingsModal open panel onClose={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} /></div>}
-        </Panel>
+            <DockButton title="Arborescence" onClick={() => togglePanel('tree')} className={panelView === 'tree' ? 'bg-accent text-primary' : undefined}>
+              <ListTree className="h-4 w-4" aria-hidden />
+            </DockButton>
+            <DockButton title="Gérer mes diagrammes" onClick={() => togglePanel('projects')} className={panelView === 'projects' ? 'bg-accent text-primary' : undefined}><FolderOpen className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Ouvrir le SQL" onClick={() => togglePanel('sql')} className={panelView === 'sql' ? 'bg-accent text-primary' : undefined}><Database className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Paramètres" onClick={() => togglePanel('settings')} className={panelView === 'settings' ? 'bg-accent text-primary' : undefined}><Settings2 className="h-4 w-4" aria-hidden /></DockButton>
+            </div>
+              </SidebarHeader>
+            {panelView && <SidebarContent className="scrollbar-subtle animate-panel-in ml-2 w-80 flex-none overflow-x-hidden border-l border-border/60 pl-2 pr-0">
+              <div key={panelView ?? 'closed'} className={panelView ? 'animate-panel-content' : undefined}>
+                {panelView === 'tree' && <ProjectTreePanel embedded />}
+                {panelView === 'projects' && <div className="relative z-50"><ProjectManagerModal open panel embedded onClose={onClosePanel} /></div>}
+                {panelView === 'sql' && <div className="w-80"><SqlPanel /></div>}
+                {panelView === 'settings' && <SettingsModal open panel embedded onClose={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} />}
+              </div>
+            </SidebarContent>}
+            </div>
+          </Sidebar>
+        </SidebarProvider>
 
         <Panel position="top-right" className="!m-4">
           <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
+            <InfoPopover label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
+              <span className="inline-flex h-8 w-8 items-center justify-center text-muted-foreground" aria-label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
+                {saveStatus === 'saving' ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              </span>
+            </InfoPopover>
+            <div className="mx-0.5 h-5 w-px bg-border" aria-hidden />
             <DockButton title={statusLabel(status)} onClick={() => onOpenModal('issues')}>
               <StatusIcon status={status} />
             </DockButton>

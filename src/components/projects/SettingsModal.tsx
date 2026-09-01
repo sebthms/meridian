@@ -5,7 +5,7 @@ import { useProjectStore } from '@/store/project-store'
 import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
 import { InfoPopover } from '@/components/ui/InfoPopover'
 
-export function SettingsModal({ open, onClose, colorMode, onToggleTheme, panel = false }: { open: boolean; onClose: () => void; colorMode: 'light' | 'dark'; onToggleTheme: () => void; panel?: boolean }) {
+export function SettingsModal({ open, onClose, colorMode, onToggleTheme, panel = false, embedded = false }: { open: boolean; onClose: () => void; colorMode: 'light' | 'dark'; onToggleTheme: () => void; panel?: boolean; embedded?: boolean }) {
   const projects = useProjectStore((state) => state.projects)
   const clearAllProjects = useProjectStore((state) => state.clearAllProjects)
   const [confirming, setConfirming] = useState(false)
@@ -20,5 +20,5 @@ export function SettingsModal({ open, onClose, colorMode, onToggleTheme, panel =
       </section>
   )
   if (!open) return null
-  return panel ? <aside className="w-80 rounded-xl border border-border bg-card/95 p-5 shadow-xl backdrop-blur" aria-label="Paramètres">{content}</aside> : <Modal open onClose={onClose} title="Paramètres" className="max-w-md">{content}</Modal>
+  return panel ? <aside className={`w-80 ${embedded ? 'p-4' : 'rounded-xl border border-border bg-card/95 p-5 shadow-xl backdrop-blur'}`} aria-label="Paramètres">{content}</aside> : <Modal open onClose={onClose} title="Paramètres" className="max-w-md">{content}</Modal>
 }

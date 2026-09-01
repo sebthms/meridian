@@ -12,7 +12,7 @@ type TemplateOption = { id: string; label: string; description: string }
 const templates = templateCatalog as TemplateOption[]
 const projectsByTemplate = templateProjects as Record<string, Project>
 
-export function ProjectManagerModal({ open, onClose, panel = false }: { open: boolean; onClose: () => void; panel?: boolean }) {
+export function ProjectManagerModal({ open, onClose, panel = false, embedded = false }: { open: boolean; onClose: () => void; panel?: boolean; embedded?: boolean }) {
   const projects = useProjectStore((state) => state.projects)
   const activeProjectId = useProjectStore((state) => state.activeProjectId)
   const createProject = useProjectStore((state) => state.createProject)
@@ -52,7 +52,7 @@ export function ProjectManagerModal({ open, onClose, panel = false }: { open: bo
         </div>
         {adding ? <><InfoPopover label="Créer"><button type="button" aria-label="Créer le diagramme" onClick={submitCreate} disabled={!inputValue.trim() || (useTemplate && !selectedTemplate)} className="rounded-md p-1.5 text-emerald-600 hover:bg-accent disabled:opacity-40"><Check className="h-4 w-4" /></button></InfoPopover><InfoPopover label="Annuler"><button type="button" aria-label="Annuler la création" onClick={() => { setAdding(false); setUseTemplate(false); setSelectedTemplate(null) }} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button></InfoPopover></> : <><InfoPopover label="Trier par modification récente"><span className="rounded-md p-1.5 text-muted-foreground"><Filter className="h-4 w-4" /></span></InfoPopover><InfoPopover label="Nouveau diagramme"><button type="button" aria-label="Nouveau diagramme" onClick={() => setAdding(true)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><Plus className="h-4 w-4" /></button></InfoPopover></>}
       </div>
-      {adding && <div className="space-y-2 rounded-lg border border-border/70 bg-muted/20 p-2.5">
+      {adding && <div className="relative z-50 space-y-2 px-0.5 py-1">
         <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
           <input type="checkbox" checked={useTemplate} onChange={(event) => { setUseTemplate(event.target.checked); if (!event.target.checked) setSelectedTemplate(null) }} className="h-3.5 w-3.5 accent-primary" />
           use template ?
@@ -84,5 +84,5 @@ export function ProjectManagerModal({ open, onClose, panel = false }: { open: bo
   )
 
   if (!open) return null
-  return panel ? <aside className="w-80 overflow-hidden rounded-xl border border-border bg-card/95 p-5 shadow-xl backdrop-blur" aria-label="Mes diagrammes">{content}</aside> : <Modal open onClose={onClose} title="Mes diagrammes" className="max-w-xl">{content}</Modal>
+  return panel ? <aside className={`relative z-50 w-80 ${embedded ? 'p-4' : 'rounded-xl border border-border bg-card/95 p-5 shadow-xl backdrop-blur'}`} aria-label="Mes diagrammes">{content}</aside> : <Modal open onClose={onClose} title="Mes diagrammes" className="max-w-xl">{content}</Modal>
 }

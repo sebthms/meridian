@@ -13,7 +13,7 @@ function TreeToggle({ open, label, onClick, children }: { open: boolean; label: 
   )
 }
 
-export function ProjectTreePanel() {
+export function ProjectTreePanel({ embedded = false }: { embedded?: boolean }) {
   const project = useProjectStore((state) => state.project)
   const select = useProjectStore((state) => state.select)
   const selectedId = useProjectStore((state) => state.selectedElementId)
@@ -30,9 +30,9 @@ export function ProjectTreePanel() {
   })
 
   return (
-    <aside className="w-80 overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur" aria-label="Arborescence du diagramme">
-      <div className="border-b px-4 py-3"><p className="text-xs font-semibold">Structure du diagramme</p><p className="mt-0.5 text-[10px] text-muted-foreground">{project.entities.length} entités · {project.associations.length} associations</p></div>
-      <div className="scrollbar-subtle max-h-[60vh] overflow-x-hidden overflow-y-auto p-3 text-xs">
+    <aside className={embedded ? 'w-80 overflow-hidden p-4' : 'w-80 overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur'} aria-label="Arborescence du diagramme">
+      <div className={embedded ? 'border-b py-3' : 'border-b px-4 py-3'}><p className="text-xs font-semibold">Structure du diagramme</p><p className="mt-0.5 text-[10px] text-muted-foreground">{project.entities.length} entités · {project.associations.length} associations</p></div>
+      <div className={embedded ? 'scrollbar-subtle max-h-[60vh] overflow-x-hidden overflow-y-auto py-3 text-xs' : 'scrollbar-subtle max-h-[60vh] overflow-x-hidden overflow-y-auto p-3 text-xs'}>
         <TreeToggle open={openEntities} label="les entités" onClick={() => setOpenEntities((open) => !open)}><Database className="h-3.5 w-3.5" aria-hidden />Entités</TreeToggle>
         {openEntities && <div className="ml-2 border-l border-border/60 pl-1">{project.entities.map((entity) => {
           const open = expandedEntities.has(entity.id)

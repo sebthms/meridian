@@ -7,6 +7,7 @@ import {
 } from '@/domain'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
+import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 
 const ONE_ONE: Cardinality = { min: 1, max: 1 }
 
@@ -40,14 +41,18 @@ export function CardinalityPopover({
   const isOtherOneOne = otherCardinality !== null && areCardinalitiesEqual(otherCardinality, ONE_ONE)
 
   return (
-    <div
-      className="absolute left-0 -top-5 z-50"
-      style={{
-        transform: `translate(-50%, calc(-100% - 8px)) translate(${anchor.x}px, ${anchor.y}px)`,
-        pointerEvents: 'all',
-      }}
-    >
-      <div className="rounded-lg border border-border bg-card p-2.5 shadow-xl">
+    <Popover open>
+      <PopoverAnchor asChild>
+        <span
+          className="absolute left-0 top-0 z-50 h-px w-px"
+          style={{
+            transform: `translate(${anchor.x}px, ${anchor.y}px)`,
+            pointerEvents: 'all',
+          }}
+          aria-hidden
+        />
+      </PopoverAnchor>
+      <PopoverContent side="top" align="center" className="w-auto p-2.5" onOpenAutoFocus={(event) => event.preventDefault()}>
         <div className="flex justify-between items-center pb-2">
           <div>
             <p className=" text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -89,8 +94,7 @@ export function CardinalityPopover({
           })}
         </div>
 
-      </div>
-
-    </div>
+      </PopoverContent>
+    </Popover>
   )
 }
