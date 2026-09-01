@@ -1,0 +1,8 @@
+[
+  { "id": "blog", "label": "Blog", "description": "Articles, auteurs et commentaires" },
+  { "id": "marketplace", "label": "Marketplace", "description": "Vendeurs, produits et commandes" },
+  { "id": "ecommerce", "label": "E-commerce", "description": "Catalogue et panier client" },
+  { "id": "crm", "label": "CRM", "description": "Contacts, entreprises et opportunités" },
+  { "id": "library", "label": "Bibliothèque", "description": "Livres, membres et emprunts" },
+  { "id": "events", "label": "Événements", "description": "Événements, lieux et inscriptions" }
+]

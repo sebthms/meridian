@@ -4,11 +4,12 @@ import {
   CheckCircle2,
   Database,
   Link2,
+  LoaderCircle,
   ListTree,
-  Moon,
   Plus,
   Redo2,
-  Sun,
+  FolderOpen,
+  Settings2,
   Undo2,
 } from 'lucide-react'
 import { useCallback, useEffect, useState, type ComponentProps } from 'react'
@@ -35,6 +36,8 @@ import {
   moveEntity,
   moveAssociation,
   updateCardinality,
+  deleteEntity,
+  deleteAssociation,
 } from '@/editor'
 import { type Cardinality } from '@/domain'
 import type { ValidationIssue } from '@/merise'
@@ -43,6 +46,11 @@ import EntityNode from './EntityNode'
 import AssociationNode from './AssociationNode'
 import AssociationEdge from './AssociationEdge'
 import { ProjectTreePanel } from './ProjectTreePanel'
+import { ProjectManagerModal } from '@/components/projects/ProjectManagerModal'
+import { SettingsModal } from '@/components/projects/SettingsModal'
+import { SqlPanel } from '@/components/sql/SqlPanel'
+import { InfoPopover } from '@/components/ui/InfoPopover'
+import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
 
 const nodeTypes = { entity: EntityNode, association: AssociationNode }
 const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge }
@@ -67,16 +75,11 @@ function StatusIcon({ status }: { status: Status }) {
   return <CheckCircle2 className="h-4 w-4 text-green-600" aria-hidden />
 }
 
-function DockButton({ className, ...props }: ComponentProps<'button'>) {
+function DockButton({ className, title, 'aria-label': ariaLabel, ...props }: ComponentProps<'button'>) {
   return (
-    <button
-      type="button"
-      className={cn(
-        'inline-flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-40',
-        className,
-      )}
-      {...props}
-    />
+    <InfoPopover label={title ?? ariaLabel ?? 'Action'}>
+      <button type="button" aria-label={ariaLabel ?? title} className={cn('inline-flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-40', className)} {...props} />
+    </InfoPopover>
   )
 }
 
@@ -88,13 +91,18 @@ export function Canvas({
   colorMode,
   onToggleTheme,
   onOpenModal,
+  panelView,
+  onClosePanel,
 }: {
   colorMode: 'light' | 'dark'
   onToggleTheme: () => void
-  onOpenModal: (view: 'issues' | 'sql') => void
+  onOpenModal: (view: 'issues' | 'tree' | 'sql' | 'projects' | 'settings') => void
+  panelView?: 'tree' | 'projects' | 'sql' | 'settings' | null
+  onClosePanel: () => void
 }) {
   const project = useProjectStore((s) => s.project)
   const issues = useProjectStore((s) => s.issues)
+  const saveStatus = useProjectStore((s) => s.saveStatus)
   const selectedId = useProjectStore((s) => s.selectedElementId)
   const select = useProjectStore((s) => s.select)
   const apply = useProjectStore((s) => s.apply)
@@ -111,7 +119,28 @@ export function Canvas({
     associationId: string
     participantIndex: number
   } | null>(null)
-  const [treeOpen, setTreeOpen] = useState(false)
+  const [confirmingSelectionDelete, setConfirmingSelectionDelete] = useState(false)
+  const selectedNodes = nodes.filter((node) => node.selected)
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement
+      if (event.key !== 'Delete' || target.closest('input, textarea, [contenteditable="true"]') || selectedNodes.length === 0) return
+      event.preventDefault()
+      setConfirmingSelectionDelete(true)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [selectedNodes.length])
+
+  const confirmSelectionDelete = () => {
+    let next = project
+    for (const node of selectedNodes) {
+      next = node.type === 'entity' ? deleteEntity(next, node.id) : deleteAssociation(next, node.id)
+    }
+    apply(next)
+    setConfirmingSelectionDelete(false)
+  }
 
   const onPickCardinality = useCallback(
     (associationId: string, participantIndex: number, cardinality: Cardinality) => {
@@ -192,30 +221,38 @@ export function Canvas({
         }}
         onConnect={onConnect}
         connectionMode={ConnectionMode.Loose}
+        selectionOnDrag
+        deleteKeyCode={null}
       >
         <Background />
-        <Controls />
-        {treeOpen && <Panel position="top-left" className="!m-4"><ProjectTreePanel /></Panel>}
+        <Controls className="!m-4 !overflow-hidden !rounded-xl !border-border/60 !bg-card/90 !shadow-lg [&>button]:!border-border/60 [&>button]:!bg-card [&>button]:!text-muted-foreground [&>button:hover]:!bg-accent [&>button:hover]:!text-foreground" />
+        <Panel position="top-left" className="!m-4">
+          <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
+            <InfoPopover label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
+              <span className="inline-flex h-8 items-center gap-1 px-2 text-[10px] text-muted-foreground" aria-label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
+                {saveStatus === 'saving' ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />}
+                <span className="hidden sm:inline">{saveStatus === 'saving' ? 'Sauvegarde…' : 'Enregistré'}</span>
+              </span>
+            </InfoPopover>
+            <DockSeparator />
+            <DockButton title="Arborescence" onClick={() => onOpenModal('tree')} className={panelView === 'tree' ? 'bg-accent text-primary' : undefined}>
+              <ListTree className="h-4 w-4" aria-hidden />
+            </DockButton>
+            <DockSeparator />
+            <DockButton title="Gérer mes diagrammes" onClick={() => onOpenModal('projects')} className={panelView === 'projects' ? 'bg-accent text-primary' : undefined}><FolderOpen className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Ouvrir le SQL" onClick={() => onOpenModal('sql')} className={panelView === 'sql' ? 'bg-accent text-primary' : undefined}><Database className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Paramètres" onClick={() => onOpenModal('settings')} className={panelView === 'settings' ? 'bg-accent text-primary' : undefined}><Settings2 className="h-4 w-4" aria-hidden /></DockButton>
+          </div>
+          {panelView === 'tree' && <div className="mt-2"><ProjectTreePanel /></div>}
+          {panelView === 'projects' && <div className="mt-2"><ProjectManagerModal open panel onClose={onClosePanel} /></div>}
+          {panelView === 'sql' && <div className="mt-2 w-80 overflow-hidden rounded-xl border border-border bg-card/95 shadow-xl"><SqlPanel /></div>}
+          {panelView === 'settings' && <div className="mt-2"><SettingsModal open panel onClose={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} /></div>}
+        </Panel>
 
         <Panel position="top-right" className="!m-4">
           <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
             <DockButton title={statusLabel(status)} onClick={() => onOpenModal('issues')}>
               <StatusIcon status={status} />
-            </DockButton>
-            <DockSeparator />
-            <DockButton title="Ouvrir le SQL" onClick={() => onOpenModal('sql')}>
-              <Database className="h-4 w-4" aria-hidden />
-            </DockButton>
-            <DockSeparator />
-            <DockButton
-              title={colorMode === 'dark' ? 'Mode clair' : 'Mode sombre'}
-              onClick={onToggleTheme}
-            >
-              {colorMode === 'dark' ? (
-                <Sun className="h-4 w-4" aria-hidden />
-              ) : (
-                <Moon className="h-4 w-4" aria-hidden />
-              )}
             </DockButton>
           </div>
         </Panel>
@@ -263,37 +300,21 @@ export function Canvas({
             </div>
 
             <DockSeparator />
-
-            <DockButton title="Arborescence" onClick={() => setTreeOpen((open) => !open)} className={treeOpen ? 'bg-accent text-primary' : undefined}>
-              <ListTree className="h-4 w-4" aria-hidden />
-            </DockButton>
-
+            <DockButton title="Ajouter une entité" onClick={() => apply(createEntityCommand(project))}><Plus className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Ajouter une association" onClick={() => apply(createAssociationCommand(project))}><Link2 className="h-4 w-4" aria-hidden /></DockButton>
             <DockSeparator />
-
-            <DockButton title="Ajouter une entité" onClick={() => apply(createEntityCommand(project))}>
-              <Plus className="h-4 w-4" aria-hidden />
-            </DockButton>
-            <DockButton
-              title="Ajouter une association"
-              onClick={() => apply(createAssociationCommand(project))}
-            >
-              <Link2 className="h-4 w-4" aria-hidden />
-            </DockButton>
-
-            <DockSeparator />
-
-            <DockButton title="Annuler (Ctrl+Z)" onClick={undo} disabled={past.length === 0}>
-              <Undo2 className="h-4 w-4" aria-hidden />
-            </DockButton>
-            <DockButton title="Rétablir (Ctrl+Y)" onClick={redo} disabled={future.length === 0}>
-              <Redo2 className="h-4 w-4" aria-hidden />
-            </DockButton>
-
+            <DockButton title="Annuler (Ctrl+Z)" onClick={undo} disabled={past.length === 0}><Undo2 className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Rétablir (Ctrl+Y)" onClick={redo} disabled={future.length === 0}><Redo2 className="h-4 w-4" aria-hidden /></DockButton>
           </div>
         </Panel>
       </ReactFlow>
 
       <AddPropertyModal />
+      {confirmingSelectionDelete && (
+        <div className="absolute bottom-20 left-1/2 z-50 w-64 -translate-x-1/2">
+          <ConfirmPopover message={`Supprimer les ${selectedNodes.length} éléments sélectionnés ?`} onCancel={() => setConfirmingSelectionDelete(false)} onConfirm={confirmSelectionDelete} confirmLabel="Supprimer" />
+        </div>
+      )}
     </div>
   )
 }

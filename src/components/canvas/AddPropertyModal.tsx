@@ -14,7 +14,7 @@ import {
   addAssociationAttribute,
   updateAssociationAttribute,
 } from '@/editor'
-import type { ConceptualType } from '@/domain'
+import { isValidModelName, modelNameError, type ConceptualType } from '@/domain'
 
 const TYPE_OPTIONS: ReadonlyArray<{ value: ConceptualType; label: string; detail: string }> = [
   { value: 'TEXT', label: 'Texte', detail: 'Chaîne de caractères' },
@@ -52,6 +52,9 @@ export function AddPropertyModal() {
   const editedIsIdentifier = Boolean(
     target?.attributeId && entity?.identifiers.some((item) => item.attributeIds.includes(target.attributeId!)),
   )
+  const nameFormatError = name.trim() && !isValidModelName(name.trim())
+    ? modelNameError('Le nom de la propriété')
+    : null
 
   useEffect(() => {
     if (!target) return
@@ -68,7 +71,14 @@ export function AddPropertyModal() {
 
   const save = () => {
     const trimmedName = name.trim()
-    if (!trimmedName) return
+    if (!trimmedName) {
+      setError('Le nom est obligatoire.')
+      return
+    }
+    if (!isValidModelName(trimmedName)) {
+      setError(modelNameError('Le nom de la propriété'))
+      return
+    }
     const patch = {
       name: trimmedName,
       conceptualType,
@@ -119,10 +129,12 @@ export function AddPropertyModal() {
           <Input
             id="property-name"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => { setName(event.target.value); setError(null) }}
             placeholder="nom_propriete"
+            pattern="[A-Za-z_][A-Za-z0-9_]*"
             autoFocus
           />
+          {(nameFormatError || error) && <p className="text-xs text-destructive">{nameFormatError || error}</p>}
         </div>
 
         <fieldset className="space-y-2">
@@ -171,8 +183,6 @@ export function AddPropertyModal() {
             placeholder="Rôle métier de cette propriété…"
           />
         </div>
-
-        {error && <p className="text-xs text-destructive">{error}</p>}
 
         <div className="flex justify-end gap-2 border-t pt-4">
           <Button type="button" variant="outline" onClick={close}>Annuler</Button>

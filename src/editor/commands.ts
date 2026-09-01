@@ -4,6 +4,7 @@ import {
   createAttribute,
   createEntity,
   createIdentifier,
+  isValidModelName,
   type Attribute,
   type ConceptualType,
 } from '@/domain'
@@ -44,7 +45,7 @@ export function createEntityCommand(project: Project): Project {
 export function renameEntity(project: Project, entityId: string, name: string): Project {
   const trimmed = name.trim()
   // Refuse un nom vide ou déjà porté par une autre entité.
-  if (trimmed.length === 0) return project
+  if (trimmed.length === 0 || !isValidModelName(trimmed)) return project
   const duplicate = project.entities.some(
     (e) => e.id !== entityId && e.name.trim().toLowerCase() === trimmed.toLowerCase(),
   )
@@ -108,6 +109,7 @@ export function addAttributeWithName(
   const entity = project.entities.find((e) => e.id === entityId)
   if (
     !entity ||
+    !isValidModelName(name.trim()) ||
     entity.attributes.some((a) => a.name.trim().toLowerCase() === name.trim().toLowerCase())
   ) {
     return { project, attributeId: '' }
@@ -130,6 +132,7 @@ export function updateAttribute(
 ): Project {
   const entity = project.entities.find((e) => e.id === entityId)
   if (entity && patch.name && patch.name.trim() !== '') {
+    if (!isValidModelName(patch.name.trim())) return project
     // refuse de renommer vers un nom déjà porté par un autre attribut
     const dup = entity.attributes.some(
       (a) => a.id !== attributeId && a.name.trim().toLowerCase() === patch.name!.trim().toLowerCase(),
@@ -389,9 +392,11 @@ export function deleteAssociation(project: Project, associationId: string): Proj
 }
 
 export function updateAssociationName(project: Project, associationId: string, name: string): Project {
+  const trimmed = name.trim()
+  if (!isValidModelName(trimmed)) return project
   return {
     ...project,
-    associations: project.associations.map((a) => (a.id === associationId ? { ...a, name } : a)),
+    associations: project.associations.map((a) => (a.id === associationId ? { ...a, name: trimmed } : a)),
   }
 }
 
@@ -408,6 +413,7 @@ export function addAssociationAttribute(
   const association = project.associations.find((a) => a.id === associationId)
   if (
     !association ||
+    !isValidModelName(name.trim()) ||
     association.attributes.some((a) => a.name.trim().toLowerCase() === name.trim().toLowerCase())
   ) {
     return { project, attributeId: '' }
@@ -431,7 +437,7 @@ export function updateAssociationAttribute(
   const association = project.associations.find((item) => item.id === associationId)
   if (association && patch.name !== undefined) {
     const trimmedName = patch.name.trim()
-    if (!trimmedName) return project
+    if (!isValidModelName(trimmedName)) return project
     const duplicate = association.attributes.some(
       (attribute) => attribute.id !== attributeId && attribute.name.trim().toLowerCase() === trimmedName.toLowerCase(),
     )

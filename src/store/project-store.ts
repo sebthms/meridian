@@ -1,10 +1,13 @@
 import { create } from 'zustand'
 import type { Project } from '@/domain'
-import { createProject, ensureAssociationPositions } from '@/domain'
+import { createProject as createEmptyProject, ensureAssociationPositions } from '@/domain'
 import type { ValidationIssue } from '@/merise'
 import { validateProject } from '@/merise'
 import {
   loadProjectFromStorage,
+  loadProjectLibrary,
+  saveProjectLibrary,
+  type StoredProject,
   saveProjectToStorage,
   clearProjectStorage,
 } from '@/persistence'
@@ -15,10 +18,14 @@ export type HistoryState = {
 }
 
 export type ViewMode = 'MCD' | 'UML' | 'MLD'
+export type SaveStatus = 'saved' | 'saving'
 
 type ProjectStore = {
   project: Project
+  projects: StoredProject[]
+  activeProjectId: string | null
   viewMode: ViewMode
+  saveStatus: SaveStatus
   selectedElementId?: string
   // UI transitoire : cible (entité ou association) du modal d'ajout de propriété.
   addPropertyTarget?: { kind: 'entity' | 'association'; id: string; attributeId?: string } | null
@@ -34,10 +41,17 @@ type ProjectStore = {
   redo: () => void
   reset: () => void
   load: (project: Project) => void
+  createProject: (name?: string) => string
+  createProjectFromTemplate: (name: string, template: Project) => string
+  openProject: (projectId: string) => void
+  renameProject: (projectId: string, name: string) => void
+  deleteProject: (projectId: string) => void
+  clearAllProjects: () => void
   setViewMode: (mode: ViewMode) => void
   ignoreIssue: (issueId: string) => void
   ignoreRule: (ruleId: string) => void
   unignoreRule: (ruleId: string) => void
+  resetIgnoredRules: () => void
 }
 
 function revalidate(project: Project): ValidationIssue[] {
@@ -46,11 +60,30 @@ function revalidate(project: Project): ValidationIssue[] {
 
 const MAX_HISTORY = 100
 
-const initialProject = loadProjectFromStorage() ?? createProject()
+function newProjectId(): string {
+  return `project_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+}
+
+const persistedProjects = loadProjectLibrary()
+const legacyProject = persistedProjects.length === 0 ? loadProjectFromStorage() : null
+const initialProjects: StoredProject[] = legacyProject
+  ? [{ id: newProjectId(), project: legacyProject, updatedAt: new Date().toISOString() }]
+  : persistedProjects
+const initialActiveProjectId = initialProjects[0]?.id ?? null
+const initialProject = initialProjects[0]?.project ?? createEmptyProject()
+
+if (legacyProject) saveProjectLibrary(initialProjects)
+
+function persistProjects(projects: StoredProject[]): void {
+  saveProjectLibrary(projects)
+}
 
 export const useProjectStore = create<ProjectStore>((set, get) => ({
   project: initialProject,
+  projects: initialProjects,
+  activeProjectId: initialActiveProjectId,
   viewMode: 'MCD',
+  saveStatus: 'saved',
   selectedElementId: undefined,
   addPropertyTarget: null,
   issues: revalidate(initialProject),
@@ -60,13 +93,21 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   apply: (next) => {
     if (next === get().project) return
     const project = { ...next, associations: ensureAssociationPositions(next) }
-    set((state) => ({
+    set({ saveStatus: 'saving' })
+    set((state) => {
+      const projects = state.projects.map((item) => item.id === state.activeProjectId
+        ? { ...item, project, updatedAt: new Date().toISOString() }
+        : item)
+      persistProjects(projects)
+      return {
       project,
+      projects,
       issues: revalidate(project),
       past: [...state.past, state.project].slice(-MAX_HISTORY),
       future: [],
-    }))
-    saveProjectToStorage(project)
+      saveStatus: 'saved',
+      }
+    })
   },
 
   select: (id) => set({ selectedElementId: id }),
@@ -89,7 +130,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         selectedElementId: undefined,
       }
     })
-    if (restored) saveProjectToStorage(restored)
+    if (restored) { saveProjectToStorage(restored); set({ saveStatus: 'saved' }) }
   },
 
   redo: () => {
@@ -106,25 +147,99 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         selectedElementId: undefined,
       }
     })
-    if (restored) saveProjectToStorage(restored)
+    if (restored) { saveProjectToStorage(restored); set({ saveStatus: 'saved' }) }
   },
 
   reset: () => {
-    const project = createProject()
-    set({ project, issues: [], past: [], future: [], selectedElementId: undefined })
-    clearProjectStorage()
+    const project = createEmptyProject()
+    get().load(project)
   },
 
   load: (project) => {
     const next = { ...project, associations: ensureAssociationPositions(project) }
-    set({
+    set({ saveStatus: 'saving' })
+    set((state) => {
+      const projects = state.activeProjectId
+        ? state.projects.map((item) => item.id === state.activeProjectId ? { ...item, project: next, updatedAt: new Date().toISOString() } : item)
+        : [...state.projects, { id: newProjectId(), project: next, updatedAt: new Date().toISOString() }]
+      const activeProjectId = state.activeProjectId ?? projects[projects.length - 1]!.id
+      persistProjects(projects)
+      return {
       project: next,
+      projects,
+      activeProjectId,
       issues: revalidate(next),
       past: [],
       future: [],
+      saveStatus: 'saved',
       selectedElementId: undefined,
+      }
     })
-    saveProjectToStorage(next)
+  },
+
+  createProject: (name = 'Nouveau projet') => {
+    const project = createEmptyProject(name.trim() || 'Nouveau projet')
+    const item = { id: newProjectId(), project, updatedAt: new Date().toISOString() }
+    set({ saveStatus: 'saving' })
+    set((state) => {
+      const projects = [...state.projects, item]
+      persistProjects(projects)
+      return { projects, activeProjectId: item.id, project, issues: revalidate(project), past: [], future: [], selectedElementId: undefined, saveStatus: 'saved' }
+    })
+    return item.id
+  },
+
+  createProjectFromTemplate: (name, template) => {
+    const project: Project = JSON.parse(JSON.stringify({ ...template, name: name.trim() || template.name })) as Project
+    const item = { id: newProjectId(), project, updatedAt: new Date().toISOString() }
+    set({ saveStatus: 'saving' })
+    set((state) => {
+      const projects = [...state.projects, item]
+      persistProjects(projects)
+      return { projects, activeProjectId: item.id, project, issues: revalidate(project), past: [], future: [], selectedElementId: undefined, saveStatus: 'saved' }
+    })
+    return item.id
+  },
+
+  openProject: (projectId) => {
+    set((state) => {
+      const item = state.projects.find((candidate) => candidate.id === projectId)
+      if (!item) return state
+      return { activeProjectId: item.id, project: item.project, issues: revalidate(item.project), past: [], future: [], selectedElementId: undefined }
+    })
+  },
+
+  renameProject: (projectId, name) => {
+    const trimmedName = name.trim()
+    if (!trimmedName) return
+    set({ saveStatus: 'saving' })
+    set((state) => {
+      const projects = state.projects.map((item) => item.id === projectId ? { ...item, project: { ...item.project, name: trimmedName }, updatedAt: new Date().toISOString() } : item)
+      const active = projects.find((item) => item.id === state.activeProjectId)
+      persistProjects(projects)
+      return active ? { projects, project: active.project, saveStatus: 'saved' } : { projects, saveStatus: 'saved' }
+    })
+  },
+
+  deleteProject: (projectId) => {
+    set({ saveStatus: 'saving' })
+    set((state) => {
+      const remaining = state.projects.filter((item) => item.id !== projectId)
+      if (remaining.length === 0) {
+        persistProjects([])
+        return { projects: [], activeProjectId: null, project: createEmptyProject(), issues: [], past: [], future: [], selectedElementId: undefined, saveStatus: 'saved' }
+      }
+      const activeProjectId = state.activeProjectId === projectId ? remaining[0].id : state.activeProjectId
+      const active = remaining.find((item) => item.id === activeProjectId) ?? remaining[0]
+      persistProjects(remaining)
+      return { projects: remaining, activeProjectId: active.id, project: active.project, issues: revalidate(active.project), past: [], future: [], selectedElementId: undefined, saveStatus: 'saved' }
+    })
+  },
+
+  clearAllProjects: () => {
+    set({ saveStatus: 'saving' })
+    clearProjectStorage()
+    set({ projects: [], activeProjectId: null, project: createEmptyProject(), issues: [], past: [], future: [], selectedElementId: undefined, saveStatus: 'saved' })
   },
 
   setViewMode: (viewMode) => set({ viewMode }),
@@ -151,5 +266,11 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       ignoredIssueIds: project.ignoredIssueIds.filter((id) => !id.startsWith(`${ruleId}:`)),
     }
     get().apply(next)
+  },
+
+  resetIgnoredRules: () => {
+    const { project } = get()
+    if (project.ignoredRules.length === 0 && project.ignoredIssueIds.length === 0) return
+    get().apply({ ...project, ignoredRules: [], ignoredIssueIds: [] })
   },
 }))

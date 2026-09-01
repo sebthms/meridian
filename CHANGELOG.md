@@ -9,6 +9,8 @@ Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → ML
 - Validation profonde des imports `.merise.json` et du localStorage, erreurs lisibles et migration de la version historique `0` vers `1`.
 - Distinction des identifiants principaux et alternatifs ; les identifiants alternatifs sont générés en contraintes `UNIQUE`.
 - Arborescence accessible et repliable avec propriétés, identifiants, participants, rôles et cardinalités.
+- Bibliothèque multi-projets persistante avec création, ouverture, renommage, suppression et auto-save.
+- Icônes dossier et paramètres dans le dock supérieur droit ; création obligatoire d’un projet au premier lancement et confirmation avant vidage du store.
 - Ajout d’un lint ESLint séparé du typecheck ; 138 tests Vitest.
 
 ## v0.1.4 — Refonte UX, arborescence et fiabilisation MLD/SQL

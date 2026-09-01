@@ -141,6 +141,13 @@ function associationPropertyColumns(association: Association): MldColumn[] {
  * Table associative d'une N:N. En réflexive, les deux FK sont nommées par leur
  * rôle (`parrain_id_employe`, `filleul_id_employe`) pour lever l'ambiguïté.
  */
+export function associativeRelationName(association: Association, entities: Entity[]): string {
+  const names = association.participants
+    .map((participant) => entities.find((entity) => entity.id === participant.entityId)?.name)
+    .filter((name): name is string => Boolean(name))
+  return names.length === association.participants.length ? names.join('_') : association.name
+}
+
 function buildAssociativeTable(association: Association, entities: Entity[]): MldRelation {
   const cols: MldColumn[] = []
   for (const [index, participant] of association.participants.entries()) {
@@ -154,7 +161,7 @@ function buildAssociativeTable(association: Association, entities: Entity[]): Ml
     }))
   }
   return {
-    name: association.name,
+    name: associativeRelationName(association, entities),
     columns: [...cols, ...associationPropertyColumns(association)],
     source: 'association',
     sourceId: association.id,

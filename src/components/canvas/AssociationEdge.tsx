@@ -74,7 +74,7 @@ function AssociationEdge(props: EdgeProps) {
             transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
             pointerEvents: 'all',
           }}
-          title="Changer la cardinalité de cette extrémité"
+          aria-label="Changer la cardinalité de cette extrémité"
         >
           {d.type}
         </button>

@@ -28,7 +28,7 @@ export function LabeledHandle({
 
   return (
     <div
-      title={title}
+      aria-label={title}
       className={cn(
         "relative flex items-center",
         flexDirections[position],

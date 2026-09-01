@@ -23,7 +23,7 @@ Contraintes produit :
 | State         | Zustand                                      |
 | Tests         | Vitest                                       |
 | Backend       | Aucun                                        |
-| Persistance   | localStorage + fichier `.merise.json`        |
+| Persistance   | bibliothèque multi-projets localStorage + fichier `.merise.json` |
 | Hosting       | GitHub Pages                                 |
 
 ## Règle d'or (architecture)
@@ -90,12 +90,15 @@ Le MCD n'expose **jamais** de types SQL physiques (`VARCHAR(255)`, `SERIAL`, `DE
 ## Comportement UI (courant)
 - **Dock principal** intégré au canvas : modes MCD/UML/MLD, arborescence, ajout d’entité/association et Undo/Redo.
 - **Dock d’état** en haut à droite : validation, panneau SQL latéral avec export intégré, thème clair/sombre.
+- **Gestion des projets** : icône dossier, bibliothèque CRUD, projet actif et auto-save local.
+- **Paramètres** : icône dédiée avec gestion des données locales et confirmation avant vidage du store.
 - **Sélection** : entités et associations sélectionnables, surlignage visuel ; la sélection survit à l'édition.
 - **Ajout/édition de propriété** : nom, cinq types conceptuels, identifiant, caractère obligatoire, unicité et description.
 - **Associations** : création par le dock ou connexion entre entités ; cardinalités éditables sur les arêtes, y compris pour les associations réflexives.
 - **Types conceptuels** toujours affichés à droite de chaque propriété dans le diagramme.
 - **Undo/Redo** : raccourcis Ctrl/Cmd+Z · Shift+Z · Y ; historique non inondé pendant le drag.
 - **Validation en temps réel** : panneau de problèmes ; le SQL est bloqué tant que le MCD contient une erreur. Les imports et le localStorage passent par une validation structurelle profonde et une migration versionnée.
+- **Première arrivée** : si aucun projet n’est présent, la modal de création est obligatoire avant l’affichage du canvas.
 
 ## Conventions
 - Noms de fichiers/commits en anglais, commentaires de code et UI en français.

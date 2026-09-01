@@ -52,6 +52,13 @@ describe('Commandes d’entités', () => {
     expect(original.entities[0].name).toBe('ENTITY')
   })
 
+  it('refuse les noms de modèle avec espaces, accents ou caractères spéciaux', () => {
+    const original = projectWithTwoEntities()
+    expect(renameEntity(original, original.entities[0].id, 'Client final')).toBe(original)
+    expect(renameEntity(original, original.entities[0].id, 'Clïent')).toBe(original)
+    expect(renameEntity(original, original.entities[0].id, 'client-$')).toBe(original)
+  })
+
   it('deleteEntity retire l’entité et supprime l’association devenue orpheline', () => {
     let p = projectWithTwoEntities()
     const [a, b] = p.entities

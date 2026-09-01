@@ -111,7 +111,7 @@ describe('SQL — relations', () => {
     const sql = generateSql(generateMld(buildProject({ entities: [etudiant, cours], associations: [inscription] })))
 
     // Table inscription avec deux colonnes PK/FK + deux FK constraints
-    expect(sql).toContain('CREATE TABLE inscription')
+    expect(sql).toContain('CREATE TABLE etudiant_cours')
     expect(sql).toContain('id_etudiant INTEGER PRIMARY KEY')
     expect(sql).toContain('id_cours INTEGER PRIMARY KEY')
     expect(sql).toContain('REFERENCES etudiant(id_etudiant)')
@@ -139,7 +139,7 @@ describe('SQL — relations', () => {
     const sql = generateSql(generateMld(buildProject({ entities: [employe], associations: [parrainer] })))
 
     // Règle 3 (réflexive N:N) : table associative, PK composite = les deux FK auto-référentes
-    expect(sql).toContain('CREATE TABLE parrainer')
+    expect(sql).toContain('CREATE TABLE employe_employe')
     expect(sql).toContain('parrain_id_employe INTEGER')
     expect(sql).toContain('filleul_id_employe INTEGER')
     expect(sql).toContain('PRIMARY KEY (parrain_id_employe, filleul_id_employe)')
@@ -196,7 +196,7 @@ describe('SQL — relations', () => {
     // Les entités sont générées avant la table associative (FK resolvable).
     const idxA = sql.indexOf('CREATE TABLE a')
     const idxB = sql.indexOf('CREATE TABLE b')
-    const idxAB = sql.indexOf('CREATE TABLE ab')
+    const idxAB = sql.indexOf('CREATE TABLE a_b')
     expect(idxA).toBeGreaterThanOrEqual(0)
     expect(idxB).toBeGreaterThan(idxA)
     expect(idxAB).toBeGreaterThan(idxB)

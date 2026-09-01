@@ -31,6 +31,8 @@ SQL PostgreSQL (prévisualisable et exportable)
 - Validation MERISE en temps réel avec erreurs bloquantes et avertissements ignorables.
 - Panneau SQL PostgreSQL latéral, mis à jour automatiquement, avec export intégré.
 - Historique Undo/Redo et persistance locale dans le navigateur.
+- Bibliothèque de diagrammes multiples avec création, ouverture, renommage, suppression et auto-save.
+- Accès aux diagrammes et aux paramètres depuis le dock supérieur droit ; le premier lancement demande de créer un diagramme.
 
 
 ## Commandes

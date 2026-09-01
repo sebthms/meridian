@@ -57,9 +57,20 @@ describe('MLD generator', () => {
     )
     const project = buildProject({ entities: [etudiant, cours], associations: [inscription] })
     const mld = generateMld(project)
-    const table = mld.relations.find((r) => r.name === 'INSCRIPTION')!
+    const table = mld.relations.find((r) => r.name === 'ETUDIANT_COURS')!
     expect(table.columns).toHaveLength(2)
     expect(table.columns.every((c) => c.isPrimaryKey && c.isForeignKey)).toBe(true)
+  })
+
+  it('nomme la table associative avec les entités, indépendamment du nom visuel', () => {
+    const a = makeEntity('TABLE_A', { attrs: [['id_a', 'INTEGER']], identifierAttrNames: ['id_a'] })
+    const b = makeEntity('TABLE_B', { attrs: [['id_b', 'INTEGER']], identifierAttrNames: ['id_b'] })
+    const association = makeAssociation('NOM_VISUEL',
+      { entityId: a.id, cardinality: { min: 0, max: 'N' } },
+      { entityId: b.id, cardinality: { min: 0, max: 'N' } })
+    const mld = generateMld(buildProject({ entities: [a, b], associations: [association] }))
+    expect(mld.relations.some((relation) => relation.name === 'TABLE_A_TABLE_B')).toBe(true)
+    expect(mld.relations.some((relation) => relation.name === 'NOM_VISUEL')).toBe(false)
   })
 
   it('N:N with association properties', () => {
@@ -79,7 +90,7 @@ describe('MLD generator', () => {
     inscription.attributes = [{ id: 'p_date', name: 'date', conceptualType: 'DATE', nullable: false }]
     const project = buildProject({ entities: [etudiant, cours], associations: [inscription] })
     const mld = generateMld(project)
-    const table = mld.relations.find((r) => r.name === 'INSCRIPTION')!
+    const table = mld.relations.find((r) => r.name === 'ETUDIANT_COURS')!
     expect(table.columns).toHaveLength(3)
     expect(table.columns.some((c) => c.name === 'date')).toBe(true)
   })

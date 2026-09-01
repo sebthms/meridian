@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { isValidModelName } from '@/domain'
 
 /**
  * Édition inline du nom d'un élément (entité ou association) :
@@ -22,7 +23,7 @@ export function useRename(label: string, onCommit: (name: string) => void) {
     setEditing(true)
   }
   const commit = () => {
-    onCommit(draft.trim())
+    if (isValidModelName(draft.trim())) onCommit(draft.trim())
     setEditing(false)
   }
   const cancel = () => setEditing(false)

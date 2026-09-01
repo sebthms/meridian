@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import { Check, KeyRound, Plus, Trash2, X } from 'lucide-react'
 import {
@@ -14,12 +14,15 @@ import { useProjectStore } from '@/store/project-store'
 import { updateAssociationName, deleteAssociation, removeAssociationAttribute } from '@/editor/commands'
 import { useRename } from './useRename'
 import { PropertyRow } from './PropertyRow'
+import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
+import { InfoPopover } from '@/components/ui/InfoPopover'
 
 const sourceHandleClass =
   '!h-3 !w-3 !opacity-0'
 const targetHandleClass =
   '!h-3 !w-3 !opacity-0'
 import { GenericPropertyIcon } from './type-icon'
+import { isValidModelName, modelNameError } from '@/domain'
 
 /**
  * Nœud d'association.
@@ -37,6 +40,7 @@ function AssociationNode({ data, selected }: NodeProps) {
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   const rename = useRename(d.label, (name) =>
     apply(updateAssociationName(project, d.id, name)),
   )
@@ -46,32 +50,33 @@ function AssociationNode({ data, selected }: NodeProps) {
   const handleDelete = () => {
     apply(deleteAssociation(project, d.id))
     select(undefined)
+    setConfirmingDelete(false)
   }
 
   const actions = !rename.editing && (
     <span className="flex max-w-0 -translate-x-1 items-center gap-0.5 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover/header:max-w-14 group-hover/header:translate-x-0 group-hover/header:opacity-100">
-      <button
+      <InfoPopover label="Ajouter une propriété"><button
         type="button"
         onClick={(e) => {
           e.stopPropagation()
           openAddProperty({ kind: 'association', id: d.id })
         }}
         className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        title="Ajouter une propriété"
+        aria-label="Ajouter une propriété"
       >
         <Plus className="h-3.5 w-3.5" />
-      </button>
-      <button
+      </button></InfoPopover>
+      <InfoPopover label="Supprimer l'association"><button
         type="button"
         onClick={(e) => {
           e.stopPropagation()
-          handleDelete()
+          setConfirmingDelete(true)
         }}
         className="nodrag nopan rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
-        title="Supprimer l'association"
+        aria-label="Supprimer l'association"
       >
         <Trash2 className="h-3.5 w-3.5" />
-      </button>
+      </button></InfoPopover>
     </span>
   )
 
@@ -82,7 +87,7 @@ function AssociationNode({ data, selected }: NodeProps) {
         type="target"
         id="left"
         position={Position.Left}
-        title="Point de réception"
+        aria-label="Point de réception"
         className={targetHandleClass}
       />
       {/* Relie vers la 2ᵉ entité (droite) */}
@@ -90,7 +95,7 @@ function AssociationNode({ data, selected }: NodeProps) {
         type="source"
         id="right"
         position={Position.Right}
-        title="Point de départ"
+        aria-label="Point de départ"
         className={sourceHandleClass}
       />
       <Handle
@@ -98,7 +103,7 @@ function AssociationNode({ data, selected }: NodeProps) {
         id="reflexive-target-0"
         position={Position.Top}
         style={{ left: '30%' }}
-        title="Point de réception réflexif"
+        aria-label="Point de réception réflexif"
         className={targetHandleClass}
       />
       <Handle
@@ -106,7 +111,7 @@ function AssociationNode({ data, selected }: NodeProps) {
         id="reflexive-source-0"
         position={Position.Top}
         style={{ left: '42%' }}
-        title="Premier point de départ réflexif"
+        aria-label="Premier point de départ réflexif"
         className={sourceHandleClass}
       />
       <Handle
@@ -114,7 +119,7 @@ function AssociationNode({ data, selected }: NodeProps) {
         id="reflexive-source-1"
         position={Position.Top}
         style={{ left: '70%' }}
-        title="Second point de départ réflexif"
+        aria-label="Second point de départ réflexif"
         className={sourceHandleClass}
       />
 
@@ -122,19 +127,20 @@ function AssociationNode({ data, selected }: NodeProps) {
         <DatabaseSchemaNode className={cn('min-w-[170px]', selected && 'shadow-lg')}>
           <DatabaseSchemaNodeHeader className="group/header">
             <div className="flex w-full items-center justify-between gap-2 px-1">
-              <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} className="flex min-w-0 cursor-text items-center gap-1" title="Double-cliquer pour renommer">
+              <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} className="flex min-w-0 cursor-text items-center gap-1" aria-label="Double-cliquer pour renommer">
                 <RenameView rename={rename} label={d.label} />
 
               </span>
               {actions}
             </div>
+            {confirmingDelete && <div className="absolute right-1 top-8 z-40 w-56"><ConfirmPopover message={<>Supprimer l'association « {d.label} » ?</>} onCancel={() => setConfirmingDelete(false)} onConfirm={handleDelete} confirmLabel="Supprimer" /></div>}
           </DatabaseSchemaNodeHeader>
           <DatabaseSchemaNodeBody>
             {d.columns!.map((c) => (
               <DatabaseSchemaTableRow key={c.name}>
                 <DatabaseSchemaTableCell className="flex items-center gap-1.5 py-1.5 pl-2 pr-2 ">
                   {c.isPrimaryKey ? (
-                    <KeyRound className="h-3 w-3 shrink-0 text-blue-500" aria-hidden />
+                    <KeyRound className="h-3 w-3 shrink-0 text-amber-500" aria-hidden />
                   ) : c.isForeignKey ? (
                     <KeyRound
                       className={cn(
@@ -151,7 +157,7 @@ function AssociationNode({ data, selected }: NodeProps) {
                     <span
                       className={cn(
                         'truncate',
-                        'font-semibold text-blue-500',
+                        c.isPrimaryKey ? 'font-semibold text-amber-600 dark:text-amber-400' : 'font-semibold text-blue-500',
                       )}
                     >
                       {c.name}
@@ -160,7 +166,7 @@ function AssociationNode({ data, selected }: NodeProps) {
                     <span
                       className={cn(
                         'truncate',
-                        c.reflexive ? 'font-semibold text-blue-500' : 'text-foreground',
+                        c.isPrimaryKey ? 'font-semibold text-amber-600 dark:text-amber-400' : c.reflexive ? 'font-semibold text-blue-500' : 'text-foreground',
                       )}
                     >
                       {c.name}
@@ -182,8 +188,9 @@ function AssociationNode({ data, selected }: NodeProps) {
 
       >
         <div className="group/header flex w-full items-center justify-between gap-2">
-            <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} className="cursor-text" title="Double-cliquer pour renommer"><RenameView rename={rename} label={d.label} /></span>
+            <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} className="cursor-text" aria-label="Double-cliquer pour renommer"><RenameView rename={rename} label={d.label} /></span>
             {actions}
+            {confirmingDelete && <div className="absolute right-1 top-8 z-40 w-56"><ConfirmPopover message={<>Supprimer l'association « {d.label} » ?</>} onCancel={() => setConfirmingDelete(false)} onConfirm={handleDelete} confirmLabel="Supprimer" /></div>}
           </div>
           {d.attributes && d.attributes.length > 0 && (
             <div className="mt-1 w-full space-y-0.5 border-t border-border/60 pt-1">
@@ -208,6 +215,7 @@ function RenameView({
   if (editing) {
     return (
       <span className="flex items-center gap-1">
+        <div className="flex flex-col gap-0.5">
         <input
           ref={inputRef}
           value={draft}
@@ -218,20 +226,23 @@ function RenameView({
           }}
           className="nodrag nopan w-24 rounded-md border border-border bg-background px-1.5 py-0.5 text-xs text-foreground outline-none focus:border-primary"
           placeholder="Nom"
+          pattern="[A-Za-z_][A-Za-z0-9_]*"
         />
         <button
           type="button"
           onClick={commit}
           className="nodrag nopan rounded p-0.5 text-emerald-600 hover:bg-accent"
-          title="Valider"
+          aria-label="Valider"
         >
           <Check className="h-3.5 w-3.5" />
         </button>
+        {draft.trim() && !isValidModelName(draft.trim()) && <span className="max-w-40 text-[9px] font-normal text-red-600">{modelNameError('Le nom')}</span>}
+        </div>
         <button
           type="button"
           onClick={cancel}
           className="nodrag nopan rounded p-0.5 text-muted-foreground hover:bg-accent"
-          title="Annuler"
+          aria-label="Annuler"
         >
           <X className="h-3.5 w-3.5" />
         </button>

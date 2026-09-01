@@ -30,9 +30,9 @@ export function ProjectTreePanel() {
   })
 
   return (
-    <aside className="w-72 overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur" aria-label="Arborescence du diagramme">
-      <div className="border-b px-3 py-2"><p className="text-xs font-semibold">Structure du diagramme</p><p className="text-[10px] text-muted-foreground">{project.entities.length} entités · {project.associations.length} associations</p></div>
-      <div className="max-h-[60vh] overflow-auto p-2 text-xs">
+    <aside className="w-80 overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur" aria-label="Arborescence du diagramme">
+      <div className="border-b px-4 py-3"><p className="text-xs font-semibold">Structure du diagramme</p><p className="mt-0.5 text-[10px] text-muted-foreground">{project.entities.length} entités · {project.associations.length} associations</p></div>
+      <div className="scrollbar-subtle max-h-[60vh] overflow-x-hidden overflow-y-auto p-3 text-xs">
         <TreeToggle open={openEntities} label="les entités" onClick={() => setOpenEntities((open) => !open)}><Database className="h-3.5 w-3.5" aria-hidden />Entités</TreeToggle>
         {openEntities && <div className="ml-2 border-l border-border/60 pl-1">{project.entities.map((entity) => {
           const open = expandedEntities.has(entity.id)
@@ -43,12 +43,12 @@ export function ProjectTreePanel() {
             </div>
             {open && <div className="ml-7 space-y-0.5 border-l border-border/40 py-1 pl-2">{entity.attributes.map((attribute) => {
               const isIdentifier = entity.identifiers.some((identifier) => identifier.attributeIds.includes(attribute.id))
-              return <div key={attribute.id} className="flex items-center gap-1.5 truncate py-0.5 text-[11px] text-muted-foreground" title={attribute.name}>{isIdentifier ? <KeyRound className="h-3 w-3 shrink-0 text-amber-500" aria-label="Identifiant" /> : <TableProperties className="h-3 w-3 shrink-0" aria-hidden />}{attribute.name || 'Sans nom'}</div>
-            })}{entity.identifiers.map((identifier, index) => <div key={identifier.id} className="flex items-center gap-1.5 truncate py-0.5 text-[10px] text-amber-600 dark:text-amber-400"><KeyRound className="h-3 w-3 shrink-0" aria-hidden />{identifier.name || (index === 0 ? 'Identifiant principal' : `Identifiant ${index + 1}`)}</div>)}</div>}
+              return <div key={attribute.id} className={cn('flex items-center gap-1.5 truncate py-0.5 text-[11px]', isIdentifier ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground')} aria-label={attribute.name}>{isIdentifier ? <KeyRound className="h-3 w-3 shrink-0 text-amber-500" aria-label="Identifiant" /> : <TableProperties className="h-3 w-3 shrink-0" aria-hidden />}{attribute.name || 'Sans nom'}</div>
+            })}</div>}
           </div>
         })}</div>}
 
-        <TreeToggle open={openAssociations} label="les associations" onClick={() => setOpenAssociations((open) => !open)}><Network className="h-3.5 w-3.5" aria-hidden />Associations</TreeToggle>
+        <div className="mt-2"><TreeToggle open={openAssociations} label="les associations" onClick={() => setOpenAssociations((open) => !open)}><Network className="h-3.5 w-3.5" aria-hidden />Associations</TreeToggle></div>
         {openAssociations && <div className="ml-2 border-l border-border/60 pl-1">{project.associations.map((association) => {
           const open = expandedAssociations.has(association.id)
           return <div key={association.id}>

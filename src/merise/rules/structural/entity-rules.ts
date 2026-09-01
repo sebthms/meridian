@@ -1,5 +1,6 @@
 import { CONCEPTUAL_TYPES, createIdentifier } from '@/domain'
 import { physicalIdentifier } from '@/sql/naming'
+import { associativeRelationName } from '@/mld'
 import { makeIssue } from '../../types'
 import {
   RULE_E001,
@@ -105,7 +106,7 @@ export const physicalNamesAreUnique: StructuralRule = (project, issues) => {
     ...project.entities.map((entity) => ({ id: entity.id, name: entity.name })),
     ...project.associations
       .filter((association) => association.participants.length === 2 && association.participants.every((participant) => participant.cardinality?.max === 'N'))
-      .map((association) => ({ id: association.id, name: association.name })),
+      .map((association) => ({ id: association.id, name: associativeRelationName(association, project.entities) })),
   ]
   const firstByPhysicalName = new Map<string, { id: string; name: string }>()
   for (const object of objects) {

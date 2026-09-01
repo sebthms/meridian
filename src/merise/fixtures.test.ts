@@ -32,14 +32,14 @@ describe('reference fixtures', () => {
   it('many-to-many produces an associative table', () => {
     const project = loadFixture('many-to-many.json')
     const mld = generateMld(project)
-    const rel = mld.relations.find((r) => r.name === 'INSCRIPTION')!
+    const rel = mld.relations.find((r) => r.name === 'ETUDIANT_COURS')!
     expect(rel.columns.every((c) => c.isPrimaryKey && c.isForeignKey)).toBe(true)
   })
 
   it('association-properties keeps properties on the associative table', () => {
     const project = loadFixture('association-properties.json')
     const mld = generateMld(project)
-    const rel = mld.relations.find((r) => r.name === 'INSCRIPTION')!
+    const rel = mld.relations.find((r) => r.name === 'ETUDIANT_COURS')!
     expect(rel.columns.some((c) => c.name === 'date')).toBe(true)
     expect(rel.columns.some((c) => c.name === 'note')).toBe(true)
   })

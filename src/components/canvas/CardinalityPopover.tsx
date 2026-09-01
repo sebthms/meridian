@@ -57,7 +57,7 @@ export function CardinalityPopover({
           <button
             type="button"
             className=""
-            title='Fermer'
+            aria-label="Fermer"
             onClick={onClose}
           >
             <X className="text-muted-foreground h-4 w-4" />
@@ -81,7 +81,7 @@ export function CardinalityPopover({
                       ? 'cursor-not-allowed text-muted-foreground/40'
                       : 'text-foreground hover:bg-accent',
                 )}
-                title={disabled ? '1,1 de chaque côté est interdit' : undefined}
+                aria-label={disabled ? '1,1 de chaque côté est interdit' : cardinalityToString(c)}
               >
                 {cardinalityToString(c)}
               </button>
