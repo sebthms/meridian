@@ -1,6 +1,8 @@
 import type { Project } from '@/domain'
 import { structuralRules } from './rules/structural'
 import { semanticRules } from './rules/semantic'
+import { validateModelIntegrity, validateSqlProjection } from './rules/advanced/model-rules'
+import { reviewAttributes, reviewAssociations, reviewIdentifiers } from './rules/advanced/semantic-rules'
 import type { ValidationIssue } from './types'
 
 export type ValidationResult = {
@@ -21,12 +23,18 @@ export function validateProject(project: Project): ValidationResult {
   const raw: ValidationIssue[] = []
 
   structuralRules.forEach((run) => run(project, raw))
+  validateModelIntegrity(project, raw)
+  validateSqlProjection(project, raw)
   semanticRules.forEach((run) => run(project, raw))
+  reviewIdentifiers(project, raw)
+  reviewAttributes(project, raw)
+  reviewAssociations(project, raw)
 
   const ignoredRules = new Set(project.ignoredRules ?? [])
   const ignoredIssueIds = new Set(project.ignoredIssueIds ?? [])
 
-  const issues = raw.filter(
+  const unique = [...new Map(raw.map((issue) => [issue.id, issue])).values()]
+  const issues = unique.filter(
     (issue) => !ignoredRules.has(issue.ruleId) && !ignoredIssueIds.has(issue.id),
   )
 

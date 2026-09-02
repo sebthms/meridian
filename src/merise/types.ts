@@ -1,6 +1,12 @@
 export type Severity = 'error' | 'warning' | 'info'
+export type RuleContext = {
+  category?: 'model' | 'normalization' | 'export'
+  certainty?: 'certain' | 'heuristic' | 'manual'
+  suggestion?: string
+  source?: { label: string; url: string }
+}
 
-export type ValidationIssue = {
+export type ValidationIssue = RuleContext & {
   id: string
   ruleId: string
   severity: Severity
@@ -9,7 +15,7 @@ export type ValidationIssue = {
   targetIds: string[]
 }
 
-export type RuleDefinition = {
+export type RuleDefinition = RuleContext & {
   id: string
   severity: Severity
   title: string
@@ -21,13 +27,18 @@ export function makeIssue(
   rule: RuleDefinition,
   targetIds: string[],
   explanation?: string,
+  occurrence?: string,
 ): ValidationIssue {
   return {
-    id: `${rule.id}:${targetIds.join('|') || 'root'}`,
+    id: `${rule.id}:${targetIds.join('|') || 'root'}${occurrence === undefined ? '' : `:${encodeURIComponent(occurrence)}`}`,
     ruleId: rule.id,
     severity: rule.severity,
     title: rule.title,
     explanation: explanation ?? rule.explanation,
     targetIds,
+    category: rule.category ?? 'model',
+    certainty: rule.certainty ?? (rule.severity === 'error' ? 'certain' : 'heuristic'),
+    suggestion: rule.suggestion,
+    source: rule.source,
   }
 }

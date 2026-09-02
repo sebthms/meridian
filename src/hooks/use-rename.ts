@@ -1,11 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { isValidModelName } from '@/domain'
 
-/**
- * Édition inline du nom d'un élément (entité ou association) :
- * double-clic sur le libellé → champ texte + ✓/✕ (icônes).
- * `onCommit` reçoit le nom nettoyé ; il est responsable de l'application.
- */
 export function useRename(label: string, onCommit: (name: string) => void) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(label)
@@ -30,3 +25,5 @@ export function useRename(label: string, onCommit: (name: string) => void) {
 
   return { editing, draft, setDraft, inputRef, start, commit, cancel }
 }
+
+export type RenameState = ReturnType<typeof useRename>

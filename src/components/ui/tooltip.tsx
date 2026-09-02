@@ -1,28 +1,63 @@
-import * as React from "react"
-import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+import * as React from 'react'
+import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import { cn } from '@/lib/utils'
 
-import { cn } from "@/lib/utils"
+type ContentProps = React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+type TooltipDefaults = Pick<ContentProps, 'side' | 'align' | 'sideOffset' | 'className'>
+const TooltipDefaultsContext = React.createContext<TooltipDefaults>({})
 
-const TooltipProvider = TooltipPrimitive.Provider
+/** One provider for the app. Position, delay and appearance can be overridden globally. */
+function TooltipProvider({ children, delayDuration = 300, contentProps = {}, ...props }:
+  React.ComponentProps<typeof TooltipPrimitive.Provider> & { contentProps?: TooltipDefaults }) {
+  return (
+    <TooltipDefaultsContext.Provider value={contentProps}>
+      <TooltipPrimitive.Provider delayDuration={delayDuration} {...props}>{children}</TooltipPrimitive.Provider>
+    </TooltipDefaultsContext.Provider>
+  )
+}
 
 const Tooltip = TooltipPrimitive.Root
-
 const TooltipTrigger = TooltipPrimitive.Trigger
 
-const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Content
-    ref={ref}
-    sideOffset={sideOffset}
-    className={cn(
-      "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-tooltip-content-transform-origin]",
-      className
-    )}
-    {...props}
-  />
-))
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
+const TooltipContent = React.forwardRef<React.ElementRef<typeof TooltipPrimitive.Content>, ContentProps>(
+  ({ className, sideOffset, ...props }, ref) => {
+    const defaults = React.useContext(TooltipDefaultsContext)
+    return (
+      <TooltipPrimitive.Portal>
+        <TooltipPrimitive.Content
+          ref={ref}
+          data-slot="tooltip-content"
+          side={defaults.side}
+          align={defaults.align}
+          sideOffset={sideOffset ?? defaults.sideOffset ?? 4}
+          collisionPadding={8}
+          className={cn(
+            'z-[200] w-fit max-w-[min(20rem,calc(100vw-1rem))] rounded-md bg-foreground px-3 py-1.5 text-xs text-background break-words',
+            defaults.className,
+            className,
+          )}
+          {...props}
+        />
+      </TooltipPrimitive.Portal>
+    )
+  },
+)
+TooltipContent.displayName = 'TooltipContent'
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+/** Composition keeping the child's click handlers and accessible name. */
+function AppTooltip({ children, content, delayDuration, ...props }: Omit<ContentProps, 'children' | 'content'> & {
+  children: React.ReactElement
+  content: React.ReactNode
+  delayDuration?: number
+}) {
+  return (
+    <Tooltip delayDuration={delayDuration}>
+      <TooltipTrigger asChild>
+        {React.isValidElement<{ disabled?: boolean }>(children) && children.props.disabled ? <span tabIndex={0} className="inline-flex">{children}</span> : children}
+      </TooltipTrigger>
+      <TooltipContent {...props}>{content}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, AppTooltip }

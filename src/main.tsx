@@ -4,11 +4,14 @@ import '@xyflow/react/dist/style.css'
 import './index.css'
 import { initTheme } from '@/lib/theme'
 import App from './app/App'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 initTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <TooltipProvider>
+      <App />
+    </TooltipProvider>
   </StrictMode>,
 )

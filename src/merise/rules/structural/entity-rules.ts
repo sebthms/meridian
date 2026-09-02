@@ -86,7 +86,7 @@ export const identifierIsValid: StructuralRule = (project, issues) => {
   for (const entity of project.entities) {
     const attributeIds = new Set(entity.attributes.map((a) => a.id))
     for (const identifier of entity.identifiers) {
-      if (identifier.attributeIds.length === 0) {
+      if (identifier.attributeIds.length === 0 || new Set(identifier.attributeIds).size !== identifier.attributeIds.length) {
         issues.push(makeIssue(RULE_E005, [entity.id, identifier.id]))
         continue
       }

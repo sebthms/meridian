@@ -38,7 +38,7 @@ export const RULE_E005: RuleDefinition = {
   id: 'MERISE-E005',
   severity: 'error',
   title: 'Identifiant invalide',
-  explanation: 'Un identifiant doit référencer au moins un attribut existant.',
+  explanation: 'Un identifiant doit référencer au moins un attribut existant, sans répéter une même composante.',
   autoFixable: false,
 }
 

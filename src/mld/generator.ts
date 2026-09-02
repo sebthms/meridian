@@ -48,11 +48,13 @@ function primaryKeyColumns(entity: Entity): MldColumn[] {
 
 function entityRelation(entity: Entity): MldRelation {
   const pkNames = new Set(primaryKeyColumns(entity).map((c) => c.name))
+  const pkOrder = new Map(primaryKeyAttributes(entity).map((attribute, index) => [attribute.id, index]))
   const alternateIdentifiers = getAlternateIdentifiers(entity).filter((identifier) => identifier.attributeIds.length > 0)
   const alternateSingleIds = new Set(alternateIdentifiers.filter((identifier) => identifier.attributeIds.length === 1).flatMap((identifier) => identifier.attributeIds))
   const columns: MldColumn[] = entity.attributes.map((a) => ({
     name: a.name,
     isPrimaryKey: pkNames.has(a.name),
+    primaryKeyOrder: pkOrder.get(a.id),
     isForeignKey: false,
     partOfPrimaryKey: pkNames.has(a.name),
     sqlType: attributeToSql(a),
@@ -110,7 +112,7 @@ function foreignKeyColumns(
     return makeFkColumn(
       name,
       { table: entity.name, column: attribute.name },
-      attributeToSql(attribute),
+      attributeToSql(attribute, { foreignKey: true }),
       options.notNull,
       Boolean(options.unique),
       options.group,

@@ -4,6 +4,7 @@ import {
   createAttribute,
   createEntity,
   createIdentifier,
+  getPrimaryIdentifier,
   isValidModelName,
   type Attribute,
   type ConceptualType,
@@ -186,17 +187,20 @@ export function toggleIdentifierAttribute(
       if (e.id !== entityId) return e
       const current = identifierId
         ? e.identifiers.find((identifier) => identifier.id === identifierId)
-        : e.identifiers[0]
+        : getPrimaryIdentifier(e) ?? e.identifiers[0]
       if (identifierId && !current) return e
       const isIn = current?.attributeIds.includes(attributeId)
       const nextIds = isIn
         ? current!.attributeIds.filter((id) => id !== attributeId)
         : [...(current?.attributeIds ?? []), attributeId]
-      const identifiers = current
+      let identifiers = current
         ? nextIds.length === 0
           ? e.identifiers.filter((identifier) => identifier.id !== current.id)
           : e.identifiers.map((identifier) => identifier.id === current.id ? { ...identifier, attributeIds: nextIds } : identifier)
         : [createIdentifier(uid('i'), nextIds)]
+      if (current && nextIds.length === 0 && getPrimaryIdentifier(e)?.id === current.id && identifiers[0]) {
+        identifiers = identifiers.map((item, index) => ({ ...item, isPrimary: index === 0 }))
+      }
       return { ...e, identifiers }
     }),
   }
@@ -225,15 +229,16 @@ export function updateIdentifier(project: Project, entityId: string, identifierI
 }
 
 /** Réordonne une propriété dans son identifiant composé et persiste son rang. */
-export function setIdentifierOrder(project: Project, entityId: string, attributeId: string, order: number): Project {
+export function setIdentifierOrder(project: Project, entityId: string, attributeId: string, order: number, identifierId?: string): Project {
   return {
     ...project,
     entities: project.entities.map((entity) => {
       if (entity.id !== entityId) return entity
-      const identifier = entity.identifiers.find((item) => item.attributeIds.includes(attributeId))
+      const identifier = entity.identifiers.find((item) => (!identifierId || item.id === identifierId) && item.attributeIds.includes(attributeId))
       if (!identifier) return entity
       const ids = identifier.attributeIds.filter((id) => id !== attributeId)
-      ids.splice(Math.min(Math.max(order - 1, 0), ids.length), 0, attributeId)
+      const rank = Number.isFinite(order) ? Math.trunc(order) : 1
+      ids.splice(Math.min(Math.max(rank - 1, 0), ids.length), 0, attributeId)
       const ranked = new Map(ids.map((id, index) => [id, index + 1]))
       return {
         ...entity,
@@ -242,6 +247,23 @@ export function setIdentifierOrder(project: Project, entityId: string, attribute
       }
     }),
   }
+}
+
+/** Le checkbox du formulaire représente l'appartenance à au moins une clé. */
+export function setAttributeIdentifier(project: Project, entityId: string, attributeId: string, enabled: boolean, order = 1, identifierId?: string): Project {
+  const entity = project.entities.find((item) => item.id === entityId)
+  if (!entity?.attributes.some((attribute) => attribute.id === attributeId)) return project
+  const memberships = entity.identifiers.filter((item) => item.attributeIds.includes(attributeId))
+  let next = project
+  if (!enabled) {
+    // Remove only actual memberships; never toggle the first unrelated key.
+    for (const identifier of memberships) next = toggleIdentifierAttribute(next, entityId, attributeId, identifier.id)
+    return updateAttribute(next, entityId, attributeId, { identifierOrder: undefined })
+  }
+  const key = memberships.find((item) => item.id === identifierId) ?? memberships[0] ?? getPrimaryIdentifier(entity) ?? entity.identifiers[0]
+  if (!memberships.length) next = toggleIdentifierAttribute(next, entityId, attributeId, key?.id)
+  next = updateAttribute(next, entityId, attributeId, { nullable: false })
+  return setIdentifierOrder(next, entityId, attributeId, order, key?.id)
 }
 
 export function removeIdentifier(project: Project, entityId: string, identifierId: string): Project {

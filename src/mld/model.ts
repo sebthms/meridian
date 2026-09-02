@@ -1,6 +1,8 @@
 export type MldColumn = {
   name: string
   isPrimaryKey: boolean
+  /** Ordre dans l'identifiant, indépendant de l'ordre visuel des propriétés. */
+  primaryKeyOrder?: number
   isForeignKey: boolean
   references?: {
     table: string

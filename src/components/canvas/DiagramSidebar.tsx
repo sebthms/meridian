@@ -1,5 +1,5 @@
 import {
-  CheckCircle2,
+  AlertCircle,
   ChevronLeft,
   Database,
   FolderOpen,
@@ -7,17 +7,16 @@ import {
   Moon,
   Network,
   PanelLeftOpen,
-  Trash2,
+  Settings,
   Sun,
 } from 'lucide-react'
-import { useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { type PointerEvent as ReactPointerEvent } from 'react'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -26,21 +25,18 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
+import { AppTooltip, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ClearProjectsButton } from '@/components/shared/clear-projects-button'
 import { useProjectStore } from '@/store/project-store'
-import { ProjectTreePanel } from './ProjectTreePanel'
-import { ProjectManagerModal } from '@/components/projects/ProjectManagerModal'
-import { SettingsModal } from '@/components/projects/SettingsModal'
-import { SqlPanel } from '@/components/sql/SqlPanel'
+import { PanelContent, type PanelView } from '@/components/panel'
 import { cn } from '@/lib/utils'
 
-type PanelView = 'tree' | 'projects' | 'sql' | 'settings'
-
-const navigation = [
-  { id: 'tree' as const, label: 'Structure', description: 'Entités et associations', icon: ListTree },
-  { id: 'projects' as const, label: 'Diagrammes', description: 'Gérer vos modèles', icon: FolderOpen },
-  { id: 'sql' as const, label: 'SQL PostgreSQL', description: 'Prévisualiser et exporter', icon: Database },
+const navigation: Array<{ id: PanelView; label: string; description: string; icon: typeof FolderOpen }> = [
+  { id: 'issues', label: 'Validation', description: 'Problèmes et avertissements', icon: AlertCircle },
+  { id: 'projects', label: 'Diagrammes', description: 'Gérer vos modèles', icon: FolderOpen },
+  { id: 'tree', label: 'Arborescence', description: 'Entités et associations', icon: ListTree },
+  { id: 'sql', label: 'Script SQL', description: 'Prévisualiser et exporter', icon: Database },
+  { id: 'settings', label: 'Paramètres', description: 'Thème et données locales', icon: Settings },
 ]
 
 export function DiagramSidebar({
@@ -62,10 +58,7 @@ export function DiagramSidebar({
 }) {
   const project = useProjectStore((state) => state.project)
   const issues = useProjectStore((state) => state.issues)
-  const projects = useProjectStore((state) => state.projects)
-  const clearAllProjects = useProjectStore((state) => state.clearAllProjects)
   const { open, isMobile } = useSidebar()
-  const [confirmingClear, setConfirmingClear] = useState(false)
 
   const startResize = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -88,6 +81,9 @@ export function DiagramSidebar({
     else onOpenPanel(view)
   }
 
+  const hasErrors = issues.some((issue) => issue.severity === 'error')
+  const hasWarnings = issues.some((issue) => issue.severity === 'warning')
+
   return (
     <>
       <Sidebar
@@ -103,54 +99,40 @@ export function DiagramSidebar({
                 <Network className="size-4" aria-hidden />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold tracking-tight">MERISE Diagrams</p>
-                <p className="truncate text-[11px] text-muted-foreground">Atelier de modélisation</p>
+                <p className="truncate text-sm font-semibold tracking-tight">Diagramme - <span className="text-muted-foreground">{project.name || 'Projet sans nom'}</span></p>
+                <p className="truncate text-[11px] text-muted-foreground"> {project.entities.length} entité{project.entities.length > 1 ? 's' : ''} · {project.associations.length} association{project.associations.length > 1 ? 's' : ''}</p>
               </div>
             </div>
-            <SidebarTrigger className="size-8 shrink-0 rounded-lg" aria-label="Fermer la barre latérale">
+            <AppTooltip content="Fermer la barre latérale"><SidebarTrigger className="size-8 shrink-0 rounded-lg" aria-label="Fermer la barre latérale">
               <ChevronLeft className="size-4" />
-            </SidebarTrigger>
-          </div>
-          <div className="rounded-xl border border-border/70 bg-muted/35 px-3 py-2.5">
-            <p className="truncate text-xs font-medium">{project.name || 'Projet sans nom'}</p>
-            <p className="mt-1 text-[10px] text-muted-foreground">
-              {project.entities.length} entité{project.entities.length > 1 ? 's' : ''} · {project.associations.length} association{project.associations.length > 1 ? 's' : ''}
-            </p>
+            </SidebarTrigger></AppTooltip>
           </div>
         </SidebarHeader>
 
         <SidebarSeparator />
         <SidebarContent className="scrollbar-subtle">
           <SidebarGroup className="p-3">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/75">
-              Espace de travail
-            </SidebarGroupLabel>
             <SidebarGroupContent>
-              <TooltipProvider delayDuration={150}>
               <SidebarMenu className="flex-row gap-1">
                 {navigation.map(({ id, label, description, icon: Icon }) => (
                   <SidebarMenuItem key={id}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton
-                          type="button"
-                          isActive={panelView === id}
-                          onClick={() => selectPanel(id)}
-                          aria-label={label}
-                          className="h-9 flex-1 justify-start gap-2 rounded-xl px-3 text-xs data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
-                        >
-                          <Icon className="size-4" aria-hidden />
-                          <span>{label}</span>
-                          {id === 'tree' && <span className="sr-only">{project.entities.length + project.associations.length} éléments</span>}
-                          {id === 'sql' && issues.some((issue) => issue.severity === 'error') && <span className="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" aria-label="SQL bloqué par des erreurs" />}
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">{label} · {description}</TooltipContent>
-                    </Tooltip>
+                    <AppTooltip content={`${label} · ${description}`} side="bottom">
+                      <SidebarMenuButton
+                        type="button"
+                        isActive={panelView === id}
+                        onClick={() => selectPanel(id)}
+                        aria-label={label}
+                        className="relative size-9 shrink-0 justify-center rounded-xl p-0 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+                      >
+                        <Icon className="size-4" aria-hidden />
+                        {id === 'issues' && hasErrors && <span className="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" aria-label="Erreurs bloquantes" />}
+                        {id === 'issues' && !hasErrors && hasWarnings && <span className="absolute right-1 top-1 size-1.5 rounded-full bg-warning" aria-label="Avertissements" />}
+                        {id === 'sql' && hasErrors && <span className="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" aria-label="SQL bloqué par des erreurs" />}
+                      </SidebarMenuButton>
+                    </AppTooltip>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
-              </TooltipProvider>
             </SidebarGroupContent>
           </SidebarGroup>
 
@@ -158,10 +140,7 @@ export function DiagramSidebar({
             <SidebarGroup className="-mt-3 min-h-0 flex-1 gap-0 p-3 pt-0">
               <SidebarGroupContent className="min-h-0 flex-1 overflow-hidden bg-transparent">
                 <div key={panelView} className="scrollbar-subtle h-full min-h-0 overflow-y-auto animate-panel-in">
-                  {panelView === 'tree' && <ProjectTreePanel embedded />}
-                  {panelView === 'projects' && <ProjectManagerModal open panel embedded onClose={onClosePanel} />}
-                  {panelView === 'sql' && <SqlPanel />}
-                  {panelView === 'settings' && <SettingsModal open panel embedded onClose={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} />}
+                  <PanelContent panelView={panelView} onClosePanel={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} />
                 </div>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -171,34 +150,19 @@ export function DiagramSidebar({
         <SidebarFooter className="gap-2 p-3">
           <SidebarMenu>
             <SidebarMenuItem>
-              <div className="flex items-center justify-between gap-2">
-                <TooltipProvider delayDuration={150}>
-                  <div className="flex items-center gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton type="button" onClick={onToggleTheme} aria-label={colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'} className="size-9 justify-center rounded-xl p-0 text-muted-foreground hover:text-foreground">
-                          {colorMode === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">{colorMode === 'dark' ? 'Thème clair' : 'Thème sombre'}</TooltipContent>
-                    </Tooltip>
-                    <div className="relative">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <SidebarMenuButton type="button" onClick={() => setConfirmingClear((value) => !value)} disabled={projects.length === 0} aria-label="Vider les données locales" className="size-9 justify-center rounded-xl p-0 text-muted-foreground hover:text-destructive disabled:opacity-40">
-                            <Trash2 className="size-4" aria-hidden />
-                          </SidebarMenuButton>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">Vider les données locales</TooltipContent>
-                      </Tooltip>
-                      {confirmingClear && <div className="absolute bottom-11 left-0 z-50 w-64"><ConfirmPopover message="Vider tous les diagrammes ?" onCancel={() => setConfirmingClear(false)} onConfirm={() => { clearAllProjects(); setConfirmingClear(false); onClosePanel() }} /></div>}
-                    </div>
-                  </div>
-                </TooltipProvider>
-                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                  <CheckCircle2 className="size-3.5 text-success" aria-hidden />
-                  <span>Sauvegardé</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarMenuButton type="button" onClick={onToggleTheme} aria-label={colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'} className="size-9 justify-center rounded-xl p-0 text-muted-foreground hover:text-foreground">
+                      {colorMode === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+                    </SidebarMenuButton>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{colorMode === 'dark' ? 'Thème clair' : 'Thème sombre'}</TooltipContent>
+                </Tooltip>
+                <ClearProjectsButton
+                  onCleared={onClosePanel}
+                  className="inline-flex size-9 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-destructive disabled:opacity-40"
+                />
               </div>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -216,14 +180,16 @@ export function DiagramSidebar({
       )}
 
       {!open && (
-        <button
-          type="button"
-          onClick={() => onOpenPanel('tree')}
-          className={cn('pointer-events-auto absolute left-4 top-6 z-[85] flex size-10 items-center justify-center rounded-xl border border-border/70 bg-card/95 text-muted-foreground shadow-lg backdrop-blur transition-all hover:-translate-y-0.5 hover:text-foreground', isMobile && 'left-3 top-3')}
-          aria-label="Ouvrir la barre latérale"
-        >
-          <PanelLeftOpen className="size-4" aria-hidden />
-        </button>
+        <AppTooltip content="Ouvrir la barre latérale" side="right">
+          <button
+            type="button"
+            onClick={() => onOpenPanel('tree')}
+            className={cn('pointer-events-auto absolute left-4 top-6 z-[85] flex size-10 items-center justify-center rounded-xl border border-border/70 bg-card/95 text-muted-foreground shadow-lg backdrop-blur transition-all hover:-translate-y-0.5 hover:text-foreground', isMobile && 'left-3 top-3')}
+            aria-label="Ouvrir la barre latérale"
+          >
+            <PanelLeftOpen className="size-4" aria-hidden />
+          </button>
+        </AppTooltip>
       )}
     </>
   )

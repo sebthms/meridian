@@ -23,6 +23,7 @@ function createTableSql(model: MldModel): string[] {
   for (const relation of model.relations) {
     const table = physicalIdentifier(relation.name)
     const primaryColumns = relation.columns.filter((column) => column.isPrimaryKey)
+      .sort((a, b) => (a.primaryKeyOrder ?? Number.MAX_SAFE_INTEGER) - (b.primaryKeyOrder ?? Number.MAX_SAFE_INTEGER))
     const columns = relation.columns.map((c) =>
       `    ${columnDefinition(c, primaryColumns.length === 1 && c.isPrimaryKey)}`,
     )
@@ -64,5 +65,7 @@ function foreignKeySql(model: MldModel): string[] {
 }
 
 export function generateSql(model: MldModel): string {
-  return [...createTableSql(model), ...foreignKeySql(model)].join('\n\n')
+  const usesPostgis = model.relations.some((relation) => relation.columns.some((column) => /^(geometry|geography)(?:\s*\(|\s*\[|$)/i.test(column.sqlType)))
+  const extensions = usesPostgis ? ['-- Les types spatiaux nécessitent PostGIS installé sur le serveur.\nCREATE EXTENSION IF NOT EXISTS postgis;'] : []
+  return [...extensions, ...createTableSql(model), ...foreignKeySql(model)].join('\n\n')
 }

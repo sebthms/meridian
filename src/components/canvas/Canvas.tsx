@@ -1,19 +1,16 @@
 import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle2,
   Link2,
-  LoaderCircle,
+  Network,
+  Box,
+  Database,
   Plus,
   Redo2,
-  Save,
   Undo2,
 } from 'lucide-react'
 import { useCallback, useEffect, useState, type ComponentProps, type ReactNode } from 'react'
 import {
   ReactFlow,
   Background,
-  Controls,
   Panel,
   ConnectionMode,
   useNodesState,
@@ -25,6 +22,7 @@ import {
 import { useProjectStore } from '@/store/project-store'
 import { projectToNodes, projectToEdges } from '@/editor/nodes/adapter'
 import { AddPropertyModal } from './AddPropertyModal'
+import { CanvasControls } from './CanvasControls'
 import {
   createEntityCommand,
   createAssociationCommand,
@@ -37,42 +35,22 @@ import {
   deleteAssociation,
 } from '@/editor'
 import { type Cardinality } from '@/domain'
-import type { ValidationIssue } from '@/merise'
 import { cn } from '@/lib/utils'
 import EntityNode from './EntityNode'
 import AssociationNode from './AssociationNode'
 import AssociationEdge from './AssociationEdge'
-import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
+import { ConfirmPopover } from '@/components/shared/confirm-popover'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { DiagramSidebar } from './DiagramSidebar'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+import type { PanelView } from '@/components/panel'
+import { AppTooltip } from '@/components/ui/tooltip'
 
 const nodeTypes = { entity: EntityNode, association: AssociationNode }
 const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge }
 
-type Status = 'valid' | 'warning' | 'error'
-
-function statusOf(issues: ValidationIssue[]): Status {
-  if (issues.some((i) => i.severity === 'error')) return 'error'
-  if (issues.some((i) => i.severity === 'warning')) return 'warning'
-  return 'valid'
-}
-
-function statusLabel(status: Status): string {
-  if (status === 'error') return 'Problèmes bloquants'
-  if (status === 'warning') return 'Avertissements de conception'
-  return 'Modèle valide'
-}
-
-function StatusIcon({ status }: { status: Status }) {
-  if (status === 'error') return <AlertCircle className="h-4 w-4 text-destructive" aria-hidden />
-  if (status === 'warning') return <AlertTriangle className="h-4 w-4 text-warning" aria-hidden />
-  return <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
-}
-
 function DockButton({ className, title, 'aria-label': ariaLabel, children, ...props }: ComponentProps<'button'> & { children: ReactNode }) {
   return (
-      <TooltipProvider><Tooltip><TooltipTrigger><button
+      <AppTooltip content={title ?? ariaLabel ?? 'Action'}><button
       type="button"
       aria-label={ariaLabel ?? title}
       className={cn('inline-flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-40', className)}
@@ -80,7 +58,7 @@ function DockButton({ className, title, 'aria-label': ariaLabel, children, ...pr
       >
         {children}
     </button>
-    </TooltipTrigger><TooltipContent>{title ?? ariaLabel ?? 'Action'}</TooltipContent></Tooltip></TooltipProvider>
+    </AppTooltip>
   )
 }
 
@@ -91,19 +69,17 @@ function DockSeparator() {
 export function Canvas({
   colorMode,
   onToggleTheme,
-  onOpenModal,
+  onOpenPanel,
   panelView,
   onClosePanel,
 }: {
   colorMode: 'light' | 'dark'
   onToggleTheme: () => void
-  onOpenModal: (view: 'issues' | 'tree' | 'sql' | 'projects' | 'settings') => void
-  panelView?: 'tree' | 'projects' | 'sql' | 'settings' | null
+  onOpenPanel: (view: PanelView) => void
+  panelView?: PanelView | null
   onClosePanel: () => void
 }) {
   const project = useProjectStore((s) => s.project)
-  const issues = useProjectStore((s) => s.issues)
-  const saveStatus = useProjectStore((s) => s.saveStatus)
   const selectedId = useProjectStore((s) => s.selectedElementId)
   const select = useProjectStore((s) => s.select)
   const apply = useProjectStore((s) => s.apply)
@@ -202,8 +178,6 @@ export function Canvas({
     [project, apply],
   )
 
-  const status = statusOf(issues)
-
   return (
     <div className="relative h-full w-full">
       <ReactFlow
@@ -226,7 +200,7 @@ export function Canvas({
         deleteKeyCode={null}
       >
         <Background />
-        <Controls className="!m-4 !overflow-hidden !rounded-xl !border-border/60 !bg-card/90 !shadow-lg [&>button]:!border-border/60 [&>button]:!bg-card [&>button]:!text-muted-foreground [&>button:hover]:!bg-accent [&>button:hover]:!text-foreground" />
+        <CanvasControls />
         <SidebarProvider
           open={Boolean(panelView)}
           onOpenChange={(open) => { if (!open) onClosePanel() }}
@@ -235,7 +209,7 @@ export function Canvas({
         >
           <DiagramSidebar
             panelView={panelView}
-            onOpenPanel={onOpenModal}
+            onOpenPanel={onOpenPanel}
             onClosePanel={onClosePanel}
             colorMode={colorMode}
             onToggleTheme={onToggleTheme}
@@ -244,67 +218,13 @@ export function Canvas({
           />
         </SidebarProvider>
 
-        <Panel position="top-right" className="!m-4">
-          <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <span className="inline-flex h-8 w-8 items-center justify-center text-muted-foreground" aria-label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
-                    {saveStatus === 'saving' ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <div className="mx-0.5 h-5 w-px bg-border" aria-hidden />
-            <DockButton title={statusLabel(status)} onClick={() => onOpenModal('issues')}>
-              <StatusIcon status={status} />
-            </DockButton>
-          </div>
-        </Panel>
-
         {/* Dock intégré au canvas (remplace la topbar) */}
         <Panel position="bottom-center" className="!m-4">
           <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
             <div className="flex items-center gap-0.5 rounded-lg bg-muted/50 p-0.5">
-              <button
-                type="button"
-                onClick={() => setViewMode('MCD')}
-                className={cn(
-                  'px-2 py-1 text-[10px] font-bold uppercase transition-all',
-                  viewMode === 'MCD'
-                    ? 'rounded-md bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                MCD
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('UML')}
-                className={cn(
-                  'px-2 py-1 text-[10px] font-bold uppercase transition-all',
-                  viewMode === 'UML'
-                    ? 'rounded-md bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                UML
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('MLD')}
-                className={cn(
-                  'px-2 py-1 text-[10px] font-bold uppercase transition-all',
-                  viewMode === 'MLD'
-                    ? 'rounded-md bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                MLD
-              </button>
+              <DockButton title="Modèle conceptuel (MCD)" aria-label="Modèle conceptuel (MCD)" onClick={() => setViewMode('MCD')} className={cn(viewMode === 'MCD' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Network className="h-4 w-4" aria-hidden /></DockButton>
+              <DockButton title="Vue UML" aria-label="Vue UML" onClick={() => setViewMode('UML')} className={cn(viewMode === 'UML' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Box className="h-4 w-4" aria-hidden /></DockButton>
+              <DockButton title="Modèle logique (MLD)" aria-label="Modèle logique (MLD)" onClick={() => setViewMode('MLD')} className={cn(viewMode === 'MLD' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Database className="h-4 w-4" aria-hidden /></DockButton>
             </div>
 
             <DockSeparator />

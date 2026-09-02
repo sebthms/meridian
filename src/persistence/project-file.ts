@@ -1,5 +1,5 @@
 import type { Association, Attribute, Entity, Project } from '@/domain'
-import { CONCEPTUAL_TYPES, createProject, isCardinality } from '@/domain'
+import { CONCEPTUAL_TYPES, createProject, isCardinality, parseAttributeTypeConfig } from '@/domain'
 
 export type ProjectFile = Project
 
@@ -14,13 +14,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function validateTypeConfig(value: unknown, context: string): Attribute['typeConfig'] | undefined {
-  if (value === undefined) return undefined
-  if (!isRecord(value)) invalid(`${context}.typeConfig doit être un objet.`)
-  for (const section of ['text', 'numeric', 'dateTime', 'other']) {
-    const sectionValue = value[section]
-    if (sectionValue !== undefined && !isRecord(sectionValue)) invalid(`${context}.typeConfig.${section} doit être un objet.`)
+  try {
+    return parseAttributeTypeConfig(value)
+  } catch (error) {
+    return invalid(`${context} : ${error instanceof Error ? error.message : 'type invalide.'}`)
   }
-  return value as Attribute['typeConfig']
 }
 
 function validateAttribute(value: unknown, context: string): Attribute {
@@ -31,7 +29,7 @@ function validateAttribute(value: unknown, context: string): Attribute {
   if (value.nullable !== undefined && typeof value.nullable !== 'boolean') invalid(`${context}.nullable doit être booléen.`)
   if (value.unique !== undefined && typeof value.unique !== 'boolean') invalid(`${context}.unique doit être booléen.`)
   if (value.description !== undefined && typeof value.description !== 'string') invalid(`${context}.description doit être texte.`)
-  if (value.identifierOrder !== undefined && (!Number.isInteger(value.identifierOrder) || value.identifierOrder < 1)) invalid(`${context}.identifierOrder doit être un entier positif.`)
+  if (value.identifierOrder !== undefined && (typeof value.identifierOrder !== 'number' || !Number.isInteger(value.identifierOrder) || value.identifierOrder < 1)) invalid(`${context}.identifierOrder doit être un entier positif.`)
   const typeConfig = validateTypeConfig(value.typeConfig, context)
   return {
     id: value.id,
@@ -65,8 +63,11 @@ function validateEntity(value: unknown, index: number): Entity {
       invalid(`${identifierContext} a une structure invalide.`)
     }
     if (identifier.name !== undefined && typeof identifier.name !== 'string') invalid(`${identifierContext}.name doit être texte.`)
-    return { id: identifier.id, attributeIds: identifier.attributeIds, ...(identifier.name !== undefined ? { name: identifier.name } : {}) }
+    if (identifier.isPrimary !== undefined && typeof identifier.isPrimary !== 'boolean') invalid(`${identifierContext}.isPrimary doit être booléen.`)
+    if (new Set(identifier.attributeIds).size !== identifier.attributeIds.length) invalid(`${identifierContext} contient des propriétés dupliquées.`)
+    return { id: identifier.id, attributeIds: identifier.attributeIds, ...(identifier.name !== undefined ? { name: identifier.name } : {}), ...(identifier.isPrimary !== undefined ? { isPrimary: identifier.isPrimary } : {}) }
   })
+  if (identifiers.filter((identifier) => identifier.isPrimary === true).length > 1) invalid(`${context} possède plusieurs identifiants principaux.`)
   const attributeIds = new Set(attributes.map((attribute) => attribute.id))
   if (new Set(attributes.map((attribute) => attribute.id)).size !== attributes.length) invalid(`${context} contient des identifiants de propriétés dupliqués.`)
   if (identifiers.some((identifier) => identifier.attributeIds.length === 0 || identifier.attributeIds.some((id) => !attributeIds.has(id)))) invalid(`${context} contient un identifiant qui référence une propriété absente.`)

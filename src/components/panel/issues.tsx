@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CheckCircle2, ChevronDown, ChevronRight, EyeOff } from 'lucide-react'
 import { useProjectStore } from '@/store/project-store'
 import { cn } from '@/lib/utils'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 const SEVERITY_STYLE: Record<string, { dot: string; label: string }> = {
   error: { dot: 'bg-destructive', label: 'Erreur' },
@@ -41,7 +41,7 @@ export function IssuesPanel() {
             <span className="truncate">{ruleId} — {first.title}</span>
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{ruleIssues.length}</span>
           </button>
-            <TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label={`Ignorer la règle ${ruleId}`} onClick={() => ignoreRule(ruleId)} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><EyeOff className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Ignorer la règle {ruleId}</TooltipContent></Tooltip></TooltipProvider>
+            <Tooltip><TooltipTrigger asChild><button type="button" aria-label={`Ignorer la règle ${ruleId}`} onClick={() => ignoreRule(ruleId)} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><EyeOff className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Ignorer la règle {ruleId}</TooltipContent></Tooltip>
         </div>
         {open && <div className="space-y-3 border-t border-border/60 px-10 py-4 text-xs">
           <p className="text-muted-foreground">{first.explanation}</p>

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from './tooltip'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 type ModalProps = {
   open: boolean
@@ -28,12 +28,12 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
           'relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl',
           className,
         )}
-      > 
+      >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
-          <TooltipProvider><Tooltip><TooltipTrigger><button type="button" onClick={onClose} aria-label="Fermer" className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+          <Tooltip><TooltipTrigger asChild><button type="button" onClick={onClose} aria-label="Fermer" className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
               <X className="h-4 w-4" aria-hidden />
-            </button></TooltipTrigger><TooltipContent>Fermer</TooltipContent></Tooltip></TooltipProvider>
+            </button></TooltipTrigger><TooltipContent>Fermer</TooltipContent></Tooltip>
         </div>
         <div className="scrollbar-subtle min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-5 py-4">{children}</div>
       </div>

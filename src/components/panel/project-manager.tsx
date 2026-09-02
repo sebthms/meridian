@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { ArrowRight, Boxes, Check, Filter, LayoutTemplate, Pencil, Plus, Search, Sparkles, Trash2, X } from 'lucide-react'
-import { Modal } from '@/components/ui/Modal'
+import { PanelShell } from '@/components/panel/shell'
 import { useProjectStore } from '@/store/project-store'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
-import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ConfirmPopover } from '@/components/shared/confirm-popover'
 import type { Project } from '@/domain'
 import templateCatalog from '@/templates/catalog.json'
 import templateProjects from '@/templates/projects.json'
@@ -12,7 +12,17 @@ type TemplateOption = { id: string; label: string; category: string; description
 const templates = templateCatalog as TemplateOption[]
 const projectsByTemplate = templateProjects as Record<string, Project>
 
-export function ProjectManagerModal({ open, onClose, panel = false, embedded = false }: { open: boolean; onClose: () => void; panel?: boolean; embedded?: boolean }) {
+export function ProjectManagerPanel({
+  open,
+  onClose,
+  variant = 'modal',
+  embedded = false,
+}: {
+  open: boolean
+  onClose: () => void
+  variant?: 'modal' | 'panel'
+  embedded?: boolean
+}) {
   const projects = useProjectStore((state) => state.projects)
   const activeProjectId = useProjectStore((state) => state.activeProjectId)
   const createProject = useProjectStore((state) => state.createProject)
@@ -52,7 +62,7 @@ export function ProjectManagerModal({ open, onClose, panel = false, embedded = f
         <div className="relative min-w-0 flex-1">
           {adding ? <input autoFocus value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') submitCreate(); if (event.key === 'Escape') setAdding(false) }} placeholder="Nom du diagramme" aria-label="Nom du nouveau diagramme" className="h-8 w-full rounded-md border bg-background px-2 text-xs outline-none focus:border-primary" /> : <><Search className="pointer-events-none absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground" /><input value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="Filtrer les diagrammes" aria-label="Filtrer les diagrammes" className="h-8 w-full rounded-md border bg-background pl-7 pr-2 text-xs outline-none focus:border-primary" /></>}
         </div>
-        {adding ? <><TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Créer le diagramme" onClick={submitCreate} disabled={!inputValue.trim() || (useTemplate && !selectedTemplate)} className="rounded-md p-1.5 text-success hover:bg-accent disabled:opacity-40"><Check className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Créer le diagramme</TooltipContent></Tooltip></TooltipProvider><TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Annuler la création" onClick={() => { setAdding(false); setUseTemplate(false); setSelectedTemplate(null) }} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Annuler la création</TooltipContent></Tooltip></TooltipProvider></> : <><TooltipProvider><Tooltip><TooltipTrigger><span className="rounded-md p-1.5 text-muted-foreground"><Filter className="h-4 w-4" /></span></TooltipTrigger><TooltipContent>Trier par modification récente</TooltipContent></Tooltip></TooltipProvider><TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Nouveau diagramme" onClick={() => setAdding(true)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><Plus className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Nouveau diagramme</TooltipContent></Tooltip></TooltipProvider></>}
+        {adding ? <><Tooltip><TooltipTrigger asChild><button type="button" aria-label="Créer le diagramme" onClick={submitCreate} disabled={!inputValue.trim() || (useTemplate && !selectedTemplate)} className="rounded-md p-1.5 text-success hover:bg-accent disabled:opacity-40"><Check className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Créer le diagramme</TooltipContent></Tooltip><Tooltip><TooltipTrigger asChild><button type="button" aria-label="Annuler la création" onClick={() => { setAdding(false); setUseTemplate(false); setSelectedTemplate(null) }} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Annuler la création</TooltipContent></Tooltip></> : <><Tooltip><TooltipTrigger asChild><span className="rounded-md p-1.5 text-muted-foreground"><Filter className="h-4 w-4" /></span></TooltipTrigger><TooltipContent>Trier par modification récente</TooltipContent></Tooltip><Tooltip><TooltipTrigger asChild><button type="button" aria-label="Nouveau diagramme" onClick={() => setAdding(true)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><Plus className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Nouveau diagramme</TooltipContent></Tooltip></>}
       </div>
       {adding && <div className="relative z-50 space-y-3 border-y border-border/60 py-3">
         <div className="flex items-center justify-between gap-2">
@@ -88,8 +98,8 @@ export function ProjectManagerModal({ open, onClose, panel = false, embedded = f
             <span className="flex shrink-0 items-center gap-1">
               <span className="text-[10px] text-muted-foreground transition-opacity duration-150 group-hover/project:opacity-0">{new Date(item.updatedAt).toLocaleDateString('fr-FR')}</span>
               <span className="absolute right-0 z-20 flex items-center gap-0.5 rounded-md bg-card px-0.5 opacity-0 shadow-sm transition-opacity duration-150 group-hover/project:opacity-100">
-                {editing ? <TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Valider le renommage" onClick={() => { renameProject(item.id, editingName); setEditingId(null) }} className="rounded p-1 text-success hover:bg-accent"><Check className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Valider le renommage</TooltipContent></Tooltip></TooltipProvider> : <TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Renommer" onClick={() => { setEditingId(item.id); setEditingName(item.project.name) }} className="rounded p-1 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Renommer</TooltipContent></Tooltip></TooltipProvider>}
-                <TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Supprimer" onClick={() => setDeleteId(deleteId === item.id ? null : item.id)} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Supprimer</TooltipContent></Tooltip></TooltipProvider>
+                {editing ? <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Valider le renommage" onClick={() => { renameProject(item.id, editingName); setEditingId(null) }} className="rounded p-1 text-success hover:bg-accent"><Check className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Valider le renommage</TooltipContent></Tooltip> : <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Renommer" onClick={() => { setEditingId(item.id); setEditingName(item.project.name) }} className="rounded p-1 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Renommer</TooltipContent></Tooltip>}
+                <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Supprimer" onClick={() => setDeleteId(deleteId === item.id ? null : item.id)} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Supprimer</TooltipContent></Tooltip>
               </span>
             </span>
             {deleteId === item.id && <div className="absolute right-0 top-8 z-30 w-56"><ConfirmPopover message={<>Supprimer « {item.project.name} » ?</>} onCancel={() => setDeleteId(null)} onConfirm={() => { deleteProject(item.id); setDeleteId(null) }} confirmLabel="Supprimer" /></div>}
@@ -99,6 +109,17 @@ export function ProjectManagerModal({ open, onClose, panel = false, embedded = f
     </div>
   )
 
-  if (!open) return null
-  return panel ? <aside className={`relative z-50 w-80 ${embedded ? 'p-4' : 'rounded-xl border border-border bg-card/95 p-5 shadow-xl backdrop-blur'}`} aria-label="Mes diagrammes">{content}</aside> : <Modal open onClose={onClose} title="Mes diagrammes" className="max-w-xl">{content}</Modal>
+  return (
+    <PanelShell
+      open={open}
+      onClose={onClose}
+      ariaLabel="Mes diagrammes"
+      title="Mes diagrammes"
+      variant={variant}
+      embedded={embedded}
+      modalClassName="max-w-xl"
+    >
+      {content}
+    </PanelShell>
+  )
 }
