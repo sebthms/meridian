@@ -5,7 +5,7 @@ import type {
   Project,
 } from '@/domain'
 import { getAlternateIdentifiers, getPrimaryIdentifier, isReflexive } from '@/domain'
-import { conceptualToSql } from '@/sql/model'
+import { attributeToSql } from '@/sql/model'
 import type { MldColumn, MldModel, MldRelation } from './model'
 
 function primaryKeyAttributes(entity: Entity) {
@@ -40,7 +40,7 @@ function primaryKeyColumns(entity: Entity): MldColumn[] {
     isPrimaryKey: true,
     isForeignKey: false,
     partOfPrimaryKey: true,
-    sqlType: conceptualToSql(a.conceptualType),
+    sqlType: attributeToSql(a),
     notNull: true,
     unique: Boolean(a.unique),
   }))
@@ -55,7 +55,7 @@ function entityRelation(entity: Entity): MldRelation {
     isPrimaryKey: pkNames.has(a.name),
     isForeignKey: false,
     partOfPrimaryKey: pkNames.has(a.name),
-    sqlType: conceptualToSql(a.conceptualType),
+    sqlType: attributeToSql(a),
     notNull: Boolean(a.nullable) === false && pkNames.has(a.name) ? true : !a.nullable,
     unique: Boolean(a.unique) || alternateSingleIds.has(a.id),
   }))
@@ -110,7 +110,7 @@ function foreignKeyColumns(
     return makeFkColumn(
       name,
       { table: entity.name, column: attribute.name },
-      conceptualToSql(attribute.conceptualType),
+      attributeToSql(attribute),
       options.notNull,
       Boolean(options.unique),
       options.group,
@@ -131,7 +131,7 @@ function associationPropertyColumns(association: Association): MldColumn[] {
     isPrimaryKey: false,
     isForeignKey: false,
     partOfPrimaryKey: false,
-    sqlType: conceptualToSql(a.conceptualType),
+    sqlType: attributeToSql(a),
     notNull: !a.nullable,
     unique: Boolean(a.unique),
   }))

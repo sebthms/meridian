@@ -8,7 +8,7 @@ export type MldColumn = {
   }
   // a foreign key that also takes part in the primary key of an associative table
   partOfPrimaryKey: boolean
-  sqlType: 'TEXT' | 'INTEGER' | 'NUMERIC' | 'DATE' | 'BOOLEAN'
+  sqlType: string
   notNull: boolean
   unique: boolean
   /** Regroupe les colonnes d'une même FK, notamment pour les clés composées. */

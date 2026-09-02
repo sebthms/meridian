@@ -13,20 +13,36 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function validateTypeConfig(value: unknown, context: string): Attribute['typeConfig'] | undefined {
+  if (value === undefined) return undefined
+  if (!isRecord(value)) invalid(`${context}.typeConfig doit être un objet.`)
+  for (const section of ['text', 'numeric', 'dateTime', 'other']) {
+    const sectionValue = value[section]
+    if (sectionValue !== undefined && !isRecord(sectionValue)) invalid(`${context}.typeConfig.${section} doit être un objet.`)
+  }
+  return value as Attribute['typeConfig']
+}
+
 function validateAttribute(value: unknown, context: string): Attribute {
   if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim()) invalid(`${context} doit avoir un identifiant.`)
   if (typeof value.name !== 'string') invalid(`${context} doit avoir un nom texte.`)
+  if (value.logicalName !== undefined && typeof value.logicalName !== 'string') invalid(`${context}.logicalName doit être texte.`)
   if (!CONCEPTUAL_TYPES.includes(value.conceptualType as never)) invalid(`${context} utilise un type conceptuel invalide.`)
   if (value.nullable !== undefined && typeof value.nullable !== 'boolean') invalid(`${context}.nullable doit être booléen.`)
   if (value.unique !== undefined && typeof value.unique !== 'boolean') invalid(`${context}.unique doit être booléen.`)
   if (value.description !== undefined && typeof value.description !== 'string') invalid(`${context}.description doit être texte.`)
+  if (value.identifierOrder !== undefined && (!Number.isInteger(value.identifierOrder) || value.identifierOrder < 1)) invalid(`${context}.identifierOrder doit être un entier positif.`)
+  const typeConfig = validateTypeConfig(value.typeConfig, context)
   return {
     id: value.id,
     name: value.name,
+    ...(value.logicalName !== undefined ? { logicalName: value.logicalName } : {}),
     conceptualType: value.conceptualType as Attribute['conceptualType'],
     ...(value.nullable !== undefined ? { nullable: value.nullable } : {}),
     ...(value.unique !== undefined ? { unique: value.unique } : {}),
     ...(value.description !== undefined ? { description: value.description } : {}),
+    ...(typeConfig ? { typeConfig } : {}),
+    ...(value.identifierOrder !== undefined ? { identifierOrder: value.identifierOrder } : {}),
   }
 }
 

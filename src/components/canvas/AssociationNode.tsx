@@ -15,7 +15,7 @@ import { updateAssociationName, deleteAssociation, removeAssociationAttribute } 
 import { useRename } from './useRename'
 import { PropertyRow } from './PropertyRow'
 import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
-import { InfoPopover } from '@/components/ui/InfoPopover'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 
 const sourceHandleClass =
   '!h-3 !w-3 !opacity-0'
@@ -55,7 +55,7 @@ function AssociationNode({ data, selected }: NodeProps) {
 
   const actions = !rename.editing && (
     <span className="flex max-w-0 -translate-x-1 items-center gap-0.5 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover/header:max-w-14 group-hover/header:translate-x-0 group-hover/header:opacity-100">
-      <InfoPopover label="Ajouter une propriété"><button
+      <TooltipProvider><Tooltip><TooltipTrigger><button
         type="button"
         onClick={(e) => {
           e.stopPropagation()
@@ -65,8 +65,8 @@ function AssociationNode({ data, selected }: NodeProps) {
         aria-label="Ajouter une propriété"
       >
         <Plus className="h-3.5 w-3.5" />
-      </button></InfoPopover>
-      <InfoPopover label="Supprimer l'association"><button
+      </button></TooltipTrigger><TooltipContent>Ajouter une propriété</TooltipContent></Tooltip></TooltipProvider>
+      <TooltipProvider><Tooltip><TooltipTrigger><button
         type="button"
         onClick={(e) => {
           e.stopPropagation()
@@ -76,7 +76,7 @@ function AssociationNode({ data, selected }: NodeProps) {
         aria-label="Supprimer l'association"
       >
         <Trash2 className="h-3.5 w-3.5" />
-      </button></InfoPopover>
+      </button></TooltipTrigger><TooltipContent>Supprimer l'association</TooltipContent></Tooltip></TooltipProvider>
     </span>
   )
 
@@ -140,12 +140,12 @@ function AssociationNode({ data, selected }: NodeProps) {
               <DatabaseSchemaTableRow key={c.name}>
                 <DatabaseSchemaTableCell className="flex items-center gap-1.5 py-1.5 pl-2 pr-2 ">
                   {c.isPrimaryKey ? (
-                    <KeyRound className="h-3 w-3 shrink-0 text-amber-500" aria-hidden />
+                    <KeyRound className="h-3 w-3 shrink-0 text-warning" aria-hidden />
                   ) : c.isForeignKey ? (
                     <KeyRound
                       className={cn(
                         'h-3 w-3 shrink-0',
-                        c.reflexive ? 'text-emerald-600' : 'text-blue-500',
+                        c.reflexive ? 'text-success' : 'text-info',
                       )}
                       aria-hidden
                     />
@@ -157,7 +157,7 @@ function AssociationNode({ data, selected }: NodeProps) {
                     <span
                       className={cn(
                         'truncate',
-                        c.isPrimaryKey ? 'font-semibold text-amber-600 dark:text-amber-400' : 'font-semibold text-blue-500',
+                        c.isPrimaryKey ? 'font-semibold text-warning' : 'font-semibold text-info',
                       )}
                     >
                       {c.name}
@@ -166,7 +166,7 @@ function AssociationNode({ data, selected }: NodeProps) {
                     <span
                       className={cn(
                         'truncate',
-                        c.isPrimaryKey ? 'font-semibold text-amber-600 dark:text-amber-400' : c.reflexive ? 'font-semibold text-blue-500' : 'text-foreground',
+                        c.isPrimaryKey ? 'font-semibold text-warning' : c.reflexive ? 'font-semibold text-info' : 'text-foreground',
                       )}
                     >
                       {c.name}
@@ -183,7 +183,7 @@ function AssociationNode({ data, selected }: NodeProps) {
           'flex min-w-[90px] flex-col items-center rounded-full border-2 bg-card px-3 py-1 text-center shadow-sm transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md',
           selected ? 'border-primary shadow-lg ring-2 ring-primary/30' : 'border-border',
           isUML &&
-            'rounded-md border-blue-400/50 shadow-blue-500/10'
+            'rounded-md border-info/40 shadow-info/10'
         )}
 
       >
@@ -231,12 +231,12 @@ function RenameView({
         <button
           type="button"
           onClick={commit}
-          className="nodrag nopan rounded p-0.5 text-emerald-600 hover:bg-accent"
+          className="nodrag nopan rounded p-0.5 text-success hover:bg-accent"
           aria-label="Valider"
         >
           <Check className="h-3.5 w-3.5" />
         </button>
-        {draft.trim() && !isValidModelName(draft.trim()) && <span className="max-w-40 text-[9px] font-normal text-red-600">{modelNameError('Le nom')}</span>}
+        {draft.trim() && !isValidModelName(draft.trim()) && <span className="max-w-40 text-[9px] font-normal text-destructive">{modelNameError('Le nom')}</span>}
         </div>
         <button
           type="button"

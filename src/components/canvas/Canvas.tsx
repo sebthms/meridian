@@ -2,20 +2,14 @@ import {
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
-  Database,
   Link2,
   LoaderCircle,
-  ListTree,
-  PanelLeftClose,
-  PanelLeftOpen,
   Plus,
   Redo2,
-  FolderOpen,
   Save,
-  Settings2,
   Undo2,
 } from 'lucide-react'
-import { useCallback, useEffect, useState, type ComponentProps } from 'react'
+import { useCallback, useEffect, useState, type ComponentProps, type ReactNode } from 'react'
 import {
   ReactFlow,
   Background,
@@ -48,13 +42,10 @@ import { cn } from '@/lib/utils'
 import EntityNode from './EntityNode'
 import AssociationNode from './AssociationNode'
 import AssociationEdge from './AssociationEdge'
-import { ProjectTreePanel } from './ProjectTreePanel'
-import { ProjectManagerModal } from '@/components/projects/ProjectManagerModal'
-import { SettingsModal } from '@/components/projects/SettingsModal'
-import { SqlPanel } from '@/components/sql/SqlPanel'
-import { InfoPopover } from '@/components/ui/InfoPopover'
 import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
-import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from '@/components/ui/sidebar'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { DiagramSidebar } from './DiagramSidebar'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 
 const nodeTypes = { entity: EntityNode, association: AssociationNode }
 const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge }
@@ -74,16 +65,22 @@ function statusLabel(status: Status): string {
 }
 
 function StatusIcon({ status }: { status: Status }) {
-  if (status === 'error') return <AlertCircle className="h-4 w-4 text-red-500" aria-hidden />
-  if (status === 'warning') return <AlertTriangle className="h-4 w-4 text-amber-500" aria-hidden />
-  return <CheckCircle2 className="h-4 w-4 text-green-600" aria-hidden />
+  if (status === 'error') return <AlertCircle className="h-4 w-4 text-destructive" aria-hidden />
+  if (status === 'warning') return <AlertTriangle className="h-4 w-4 text-warning" aria-hidden />
+  return <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
 }
 
-function DockButton({ className, title, 'aria-label': ariaLabel, ...props }: ComponentProps<'button'>) {
+function DockButton({ className, title, 'aria-label': ariaLabel, children, ...props }: ComponentProps<'button'> & { children: ReactNode }) {
   return (
-    <InfoPopover label={title ?? ariaLabel ?? 'Action'}>
-      <button type="button" aria-label={ariaLabel ?? title} className={cn('inline-flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-40', className)} {...props} />
-    </InfoPopover>
+      <TooltipProvider><Tooltip><TooltipTrigger><button
+      type="button"
+      aria-label={ariaLabel ?? title}
+      className={cn('inline-flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-40', className)}
+      {...props}
+      >
+        {children}
+    </button>
+    </TooltipTrigger><TooltipContent>{title ?? ariaLabel ?? 'Action'}</TooltipContent></Tooltip></TooltipProvider>
   )
 }
 
@@ -124,12 +121,8 @@ export function Canvas({
     participantIndex: number
   } | null>(null)
   const [confirmingSelectionDelete, setConfirmingSelectionDelete] = useState(false)
+  const [sidebarWidth, setSidebarWidth] = useState(352)
   const selectedNodes = nodes.filter((node) => node.selected)
-  const togglePanel = (view: 'tree' | 'projects' | 'sql' | 'settings') => {
-    if (panelView === view) onClosePanel()
-    else onOpenModal(view)
-  }
-
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement
@@ -234,42 +227,37 @@ export function Canvas({
       >
         <Background />
         <Controls className="!m-4 !overflow-hidden !rounded-xl !border-border/60 !bg-card/90 !shadow-lg [&>button]:!border-border/60 [&>button]:!bg-card [&>button]:!text-muted-foreground [&>button:hover]:!bg-accent [&>button:hover]:!text-foreground" />
-        <SidebarProvider open={Boolean(panelView)} onOpenChange={(open) => { if (!open) onClosePanel() }} className="pointer-events-none absolute inset-0 z-[80] min-h-0 w-full" style={{ '--sidebar-width': '24rem' } as React.CSSProperties}>
-          <Sidebar collapsible="icon" variant="floating" className="pointer-events-auto !bottom-auto !left-4 !top-6 !h-auto !overflow-visible [&_[data-sidebar=sidebar]]:rounded-xl [&_[data-sidebar=sidebar]]:border [&_[data-sidebar=sidebar]]:border-border/60 [&_[data-sidebar=sidebar]]:bg-card/95 [&_[data-sidebar=sidebar]]:shadow-xl [&_[data-sidebar=sidebar]]:backdrop-blur">
-            <div className="flex items-start p-1">
-              <SidebarHeader className="flex w-12 flex-none flex-col items-center gap-1 p-0.5">
-            <div className="flex w-8 flex-none flex-col items-center gap-1">
-            <DockButton title={panelView ? 'Réduire le panneau' : 'Ouvrir le panneau'} onClick={panelView ? onClosePanel : () => onOpenModal('tree')} className="text-muted-foreground">
-              {panelView ? <PanelLeftClose className="h-4 w-4" aria-hidden /> : <PanelLeftOpen className="h-4 w-4" aria-hidden />}
-            </DockButton>
-            <DockSeparator />
-            <DockButton title="Arborescence" onClick={() => togglePanel('tree')} className={panelView === 'tree' ? 'bg-accent text-primary' : undefined}>
-              <ListTree className="h-4 w-4" aria-hidden />
-            </DockButton>
-            <DockButton title="Gérer mes diagrammes" onClick={() => togglePanel('projects')} className={panelView === 'projects' ? 'bg-accent text-primary' : undefined}><FolderOpen className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Ouvrir le SQL" onClick={() => togglePanel('sql')} className={panelView === 'sql' ? 'bg-accent text-primary' : undefined}><Database className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Paramètres" onClick={() => togglePanel('settings')} className={panelView === 'settings' ? 'bg-accent text-primary' : undefined}><Settings2 className="h-4 w-4" aria-hidden /></DockButton>
-            </div>
-              </SidebarHeader>
-            {panelView && <SidebarContent className="scrollbar-subtle animate-panel-in ml-2 max-h-[calc(100vh-3.5rem)] min-h-0 w-80 flex-none overflow-x-hidden overflow-y-auto border-l border-border/60 pl-2 pr-0">
-              <div key={panelView ?? 'closed'} className={panelView ? 'animate-panel-content' : undefined}>
-                {panelView === 'tree' && <ProjectTreePanel embedded />}
-                {panelView === 'projects' && <div className="relative z-50"><ProjectManagerModal open panel embedded onClose={onClosePanel} /></div>}
-                {panelView === 'sql' && <div className="w-80"><SqlPanel /></div>}
-                {panelView === 'settings' && <SettingsModal open panel embedded onClose={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} />}
-              </div>
-            </SidebarContent>}
-            </div>
-          </Sidebar>
+        <SidebarProvider
+          open={Boolean(panelView)}
+          onOpenChange={(open) => { if (!open) onClosePanel() }}
+          className="pointer-events-none absolute inset-0 z-[80] min-h-0 w-full"
+          style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
+        >
+          <DiagramSidebar
+            panelView={panelView}
+            onOpenPanel={onOpenModal}
+            onClosePanel={onClosePanel}
+            colorMode={colorMode}
+            onToggleTheme={onToggleTheme}
+            width={sidebarWidth}
+            onWidthChange={setSidebarWidth}
+          />
         </SidebarProvider>
 
         <Panel position="top-right" className="!m-4">
           <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
-            <InfoPopover label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
-              <span className="inline-flex h-8 w-8 items-center justify-center text-muted-foreground" aria-label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
-                {saveStatus === 'saving' ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              </span>
-            </InfoPopover>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="inline-flex h-8 w-8 items-center justify-center text-muted-foreground" aria-label={saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}>
+                    {saveStatus === 'saving' ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {saveStatus === 'saving' ? 'Sauvegarde en cours' : 'Diagramme sauvegardé'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <div className="mx-0.5 h-5 w-px bg-border" aria-hidden />
             <DockButton title={statusLabel(status)} onClick={() => onOpenModal('issues')}>
               <StatusIcon status={status} />

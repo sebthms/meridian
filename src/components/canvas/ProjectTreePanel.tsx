@@ -43,7 +43,7 @@ export function ProjectTreePanel({ embedded = false }: { embedded?: boolean }) {
             </div>
             {open && <div className="ml-7 space-y-0.5 border-l border-border/40 py-1 pl-2">{entity.attributes.map((attribute) => {
               const isIdentifier = entity.identifiers.some((identifier) => identifier.attributeIds.includes(attribute.id))
-              return <div key={attribute.id} className={cn('flex items-center gap-1.5 truncate py-0.5 text-[11px]', isIdentifier ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground')} aria-label={attribute.name}>{isIdentifier ? <KeyRound className="h-3 w-3 shrink-0 text-amber-500" aria-label="Identifiant" /> : <TableProperties className="h-3 w-3 shrink-0" aria-hidden />}{attribute.name || 'Sans nom'}</div>
+              return <div key={attribute.id} className={cn('flex items-center gap-1.5 truncate py-0.5 text-[11px]', isIdentifier ? 'text-warning' : 'text-muted-foreground')} aria-label={attribute.name}>{isIdentifier ? <KeyRound className="h-3 w-3 shrink-0 text-warning" aria-label="Identifiant" /> : <TableProperties className="h-3 w-3 shrink-0" aria-hidden />}{attribute.name || 'Sans nom'}</div>
             })}</div>}
           </div>
         })}</div>}

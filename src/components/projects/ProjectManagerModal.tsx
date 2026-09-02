@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react'
-import { Check, Filter, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
+import { ArrowRight, Boxes, Check, Filter, LayoutTemplate, Pencil, Plus, Search, Sparkles, Trash2, X } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
 import { useProjectStore } from '@/store/project-store'
-import { InfoPopover } from '@/components/ui/InfoPopover'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
 import type { Project } from '@/domain'
 import templateCatalog from '@/templates/catalog.json'
 import templateProjects from '@/templates/projects.json'
 
-type TemplateOption = { id: string; label: string; description: string }
+type TemplateOption = { id: string; label: string; category: string; description: string }
 const templates = templateCatalog as TemplateOption[]
 const projectsByTemplate = templateProjects as Record<string, Project>
 
@@ -33,6 +33,8 @@ export function ProjectManagerModal({ open, onClose, panel = false, embedded = f
     .filter((item) => item.project.name.toLowerCase().includes(filter.trim().toLowerCase()))
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()), [projects, filter])
 
+  const selectedProjectTemplate = selectedTemplate ? projectsByTemplate[selectedTemplate] : null
+
   const submitCreate = () => {
     if (!inputValue.trim() || (useTemplate && !selectedTemplate)) return
     if (useTemplate && selectedTemplate) createProjectFromTemplate(inputValue.trim(), projectsByTemplate[selectedTemplate]!)
@@ -50,18 +52,32 @@ export function ProjectManagerModal({ open, onClose, panel = false, embedded = f
         <div className="relative min-w-0 flex-1">
           {adding ? <input autoFocus value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') submitCreate(); if (event.key === 'Escape') setAdding(false) }} placeholder="Nom du diagramme" aria-label="Nom du nouveau diagramme" className="h-8 w-full rounded-md border bg-background px-2 text-xs outline-none focus:border-primary" /> : <><Search className="pointer-events-none absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground" /><input value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="Filtrer les diagrammes" aria-label="Filtrer les diagrammes" className="h-8 w-full rounded-md border bg-background pl-7 pr-2 text-xs outline-none focus:border-primary" /></>}
         </div>
-        {adding ? <><InfoPopover label="Créer"><button type="button" aria-label="Créer le diagramme" onClick={submitCreate} disabled={!inputValue.trim() || (useTemplate && !selectedTemplate)} className="rounded-md p-1.5 text-emerald-600 hover:bg-accent disabled:opacity-40"><Check className="h-4 w-4" /></button></InfoPopover><InfoPopover label="Annuler"><button type="button" aria-label="Annuler la création" onClick={() => { setAdding(false); setUseTemplate(false); setSelectedTemplate(null) }} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button></InfoPopover></> : <><InfoPopover label="Trier par modification récente"><span className="rounded-md p-1.5 text-muted-foreground"><Filter className="h-4 w-4" /></span></InfoPopover><InfoPopover label="Nouveau diagramme"><button type="button" aria-label="Nouveau diagramme" onClick={() => setAdding(true)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><Plus className="h-4 w-4" /></button></InfoPopover></>}
+        {adding ? <><TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Créer le diagramme" onClick={submitCreate} disabled={!inputValue.trim() || (useTemplate && !selectedTemplate)} className="rounded-md p-1.5 text-success hover:bg-accent disabled:opacity-40"><Check className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Créer le diagramme</TooltipContent></Tooltip></TooltipProvider><TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Annuler la création" onClick={() => { setAdding(false); setUseTemplate(false); setSelectedTemplate(null) }} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Annuler la création</TooltipContent></Tooltip></TooltipProvider></> : <><TooltipProvider><Tooltip><TooltipTrigger><span className="rounded-md p-1.5 text-muted-foreground"><Filter className="h-4 w-4" /></span></TooltipTrigger><TooltipContent>Trier par modification récente</TooltipContent></Tooltip></TooltipProvider><TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Nouveau diagramme" onClick={() => setAdding(true)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><Plus className="h-4 w-4" /></button></TooltipTrigger><TooltipContent>Nouveau diagramme</TooltipContent></Tooltip></TooltipProvider></>}
       </div>
-      {adding && <div className="relative z-50 space-y-2 px-0.5 py-1">
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
-          <input type="checkbox" checked={useTemplate} onChange={(event) => { setUseTemplate(event.target.checked); if (!event.target.checked) setSelectedTemplate(null) }} className="h-3.5 w-3.5 accent-primary" />
-          use template ?
-        </label>
-        {useTemplate && <div className="flex flex-wrap gap-1.5" aria-label="Catégories de templates">
-          {templates.map((template) => <InfoPopover key={template.id} label={template.description}>
-            <button type="button" aria-pressed={selectedTemplate === template.id} onClick={() => setSelectedTemplate(template.id)} className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${selectedTemplate === template.id ? 'border-primary bg-primary/10 text-foreground' : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground'}`}>{template.label}</button>
-          </InfoPopover>)}
-        </div>}
+      {adding && <div className="relative z-50 space-y-3 border-y border-border/60 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="flex items-center gap-1.5 text-xs font-semibold"><Sparkles className="h-3.5 w-3.5 text-warning" aria-hidden />Démarrer avec une base</p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground">Choisissez un modèle prêt à explorer.</p>
+          </div>
+          <button type="button" onClick={() => { setUseTemplate(false); setSelectedTemplate(null) }} className={`rounded-md px-2 py-1 text-[10px] transition-colors ${!useTemplate ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:bg-accent'}`}>Projet vide</button>
+        </div>
+        <div className="grid gap-2" aria-label="Modèles de diagramme">
+          {templates.map((template) => {
+            const templateProject = projectsByTemplate[template.id]
+            const selected = selectedTemplate === template.id
+            return <button key={template.id} type="button" aria-pressed={selected} onClick={() => { setUseTemplate(true); setSelectedTemplate(template.id) }} className={`group/template flex w-full items-start gap-3 rounded-xl p-3 text-left transition-colors ${selected ? 'bg-primary/10 text-foreground ring-1 ring-primary/40' : 'bg-muted/45 text-foreground hover:bg-accent'}`}>
+              <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${selected ? 'bg-primary text-primary-foreground' : 'bg-background text-primary shadow-sm'}`}><LayoutTemplate className="h-4 w-4" aria-hidden /></span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 text-xs font-semibold"><span className="truncate">{template.label}</span><span className="rounded-full bg-background/70 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">{template.category}</span></span>
+                <span className="mt-1 block text-[10px] leading-4 text-muted-foreground">{template.description}</span>
+                <span className="mt-2 flex items-center gap-3 text-[10px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Boxes className="h-3 w-3" aria-hidden />{templateProject.entities.length} entités</span><span>{templateProject.associations.length} associations</span></span>
+              </span>
+              <ArrowRight className={`mt-1 h-3.5 w-3.5 shrink-0 transition-transform group-hover/template:translate-x-0.5 ${selected ? 'text-primary' : 'text-muted-foreground'}`} aria-hidden />
+            </button>
+          })}
+        </div>
+        {useTemplate && selectedProjectTemplate && <p className="text-[10px] text-primary">Le modèle « {selectedProjectTemplate.name} » sera copié et tu pourras le modifier librement.</p>}
       </div>}
       <div className="scrollbar-subtle max-h-[52vh] overflow-x-hidden overflow-y-auto pr-1" aria-label="Liste des diagrammes">
         {visibleProjects.length === 0 && <p className="py-5 text-center text-xs text-muted-foreground">Aucun diagramme trouvé.</p>}
@@ -72,8 +88,8 @@ export function ProjectManagerModal({ open, onClose, panel = false, embedded = f
             <span className="flex shrink-0 items-center gap-1">
               <span className="text-[10px] text-muted-foreground transition-opacity duration-150 group-hover/project:opacity-0">{new Date(item.updatedAt).toLocaleDateString('fr-FR')}</span>
               <span className="absolute right-0 z-20 flex items-center gap-0.5 rounded-md bg-card px-0.5 opacity-0 shadow-sm transition-opacity duration-150 group-hover/project:opacity-100">
-                {editing ? <InfoPopover label="Valider"><button type="button" aria-label="Valider le renommage" onClick={() => { renameProject(item.id, editingName); setEditingId(null) }} className="rounded p-1 text-emerald-600 hover:bg-accent"><Check className="h-3.5 w-3.5" /></button></InfoPopover> : <InfoPopover label="Renommer"><button type="button" aria-label="Renommer" onClick={() => { setEditingId(item.id); setEditingName(item.project.name) }} className="rounded p-1 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button></InfoPopover>}
-                <InfoPopover label="Supprimer"><button type="button" aria-label="Supprimer" onClick={() => setDeleteId(deleteId === item.id ? null : item.id)} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button></InfoPopover>
+                {editing ? <TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Valider le renommage" onClick={() => { renameProject(item.id, editingName); setEditingId(null) }} className="rounded p-1 text-success hover:bg-accent"><Check className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Valider le renommage</TooltipContent></Tooltip></TooltipProvider> : <TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Renommer" onClick={() => { setEditingId(item.id); setEditingName(item.project.name) }} className="rounded p-1 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Renommer</TooltipContent></Tooltip></TooltipProvider>}
+                <TooltipProvider><Tooltip><TooltipTrigger><button type="button" aria-label="Supprimer" onClick={() => setDeleteId(deleteId === item.id ? null : item.id)} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Supprimer</TooltipContent></Tooltip></TooltipProvider>
               </span>
             </span>
             {deleteId === item.id && <div className="absolute right-0 top-8 z-30 w-56"><ConfirmPopover message={<>Supprimer « {item.project.name} » ?</>} onCancel={() => setDeleteId(null)} onConfirm={() => { deleteProject(item.id); setDeleteId(null) }} confirmLabel="Supprimer" /></div>}

@@ -224,6 +224,26 @@ export function updateIdentifier(project: Project, entityId: string, identifierI
   }
 }
 
+/** Réordonne une propriété dans son identifiant composé et persiste son rang. */
+export function setIdentifierOrder(project: Project, entityId: string, attributeId: string, order: number): Project {
+  return {
+    ...project,
+    entities: project.entities.map((entity) => {
+      if (entity.id !== entityId) return entity
+      const identifier = entity.identifiers.find((item) => item.attributeIds.includes(attributeId))
+      if (!identifier) return entity
+      const ids = identifier.attributeIds.filter((id) => id !== attributeId)
+      ids.splice(Math.min(Math.max(order - 1, 0), ids.length), 0, attributeId)
+      const ranked = new Map(ids.map((id, index) => [id, index + 1]))
+      return {
+        ...entity,
+        attributes: entity.attributes.map((attribute) => ranked.has(attribute.id) ? { ...attribute, identifierOrder: ranked.get(attribute.id) } : attribute),
+        identifiers: entity.identifiers.map((item) => item.id === identifier.id ? { ...item, attributeIds: ids } : item),
+      }
+    }),
+  }
+}
+
 export function removeIdentifier(project: Project, entityId: string, identifierId: string): Project {
   return {
     ...project,

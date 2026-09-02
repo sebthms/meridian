@@ -1,8 +1,8 @@
 [
-  { "id": "blog", "label": "Blog", "description": "Articles, auteurs et commentaires" },
-  { "id": "marketplace", "label": "Marketplace", "description": "Vendeurs, produits et commandes" },
-  { "id": "ecommerce", "label": "E-commerce", "description": "Catalogue et panier client" },
-  { "id": "crm", "label": "CRM", "description": "Contacts, entreprises et opportunités" },
-  { "id": "library", "label": "Bibliothèque", "description": "Livres, membres et emprunts" },
-  { "id": "events", "label": "Événements", "description": "Événements, lieux et inscriptions" }
+  { "id": "blog", "label": "Blog éditorial", "category": "Contenu", "description": "Auteurs, articles, commentaires et tags" },
+  { "id": "marketplace", "label": "Marketplace", "category": "Commerce", "description": "Vendeurs, produits, commandes et lignes" },
+  { "id": "ecommerce", "label": "Boutique en ligne", "category": "Commerce", "description": "Clients, catalogue, paniers et produits" },
+  { "id": "crm", "label": "CRM commercial", "category": "Vente", "description": "Entreprises, contacts, opportunités et activités" },
+  { "id": "library", "label": "Bibliothèque", "category": "Service", "description": "Livres, auteurs, membres et emprunts" },
+  { "id": "events", "label": "Événements", "category": "Organisation", "description": "Événements, lieux, participants et inscriptions" }
 ]

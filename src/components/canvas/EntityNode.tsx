@@ -17,7 +17,7 @@ import { renameEntity, deleteEntity, removeAttribute } from '@/editor'
 import { isValidModelName, modelNameError } from '@/domain'
 import { useRename } from './useRename'
 import { ConfirmPopover } from '@/components/ui/ConfirmPopover'
-import { InfoPopover } from '@/components/ui/InfoPopover'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 
 const sourceHandleClass =
   '!h-3 !w-3 !opacity-0'
@@ -58,8 +58,8 @@ function EntityNode({ data, selected }: NodeProps) {
       className={cn(
         'group min-w-[190px]',
         selected && 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg',
-        isUML && 'border-blue-400/50 shadow-blue-500/10',
-        isMLD && 'border-slate-400/50 shadow-slate-500/10',
+        isUML && 'border-info/40 shadow-info/10',
+        isMLD && 'border-node-border shadow-foreground/5',
       )}
     >
       {/* Les handles restent montés dans toutes les vues : les arêtes MLD sont
@@ -118,7 +118,7 @@ function EntityNode({ data, selected }: NodeProps) {
         className={targetHandleClass}
       />
 
-      <DatabaseSchemaNodeHeader className={cn('group/header', isUML && 'bg-blue-50/50 dark:bg-blue-950/20')}>
+      <DatabaseSchemaNodeHeader className={cn('group/header', isUML && 'bg-info/10')}>
         <div className="flex w-full items-center justify-between gap-2 px-1">
           {rename.editing ? (
             <span className="flex items-center gap-1">
@@ -135,24 +135,24 @@ function EntityNode({ data, selected }: NodeProps) {
                   placeholder="Sans nom"
                   pattern="[A-Za-z_][A-Za-z0-9_]*"
                 />
-                {rename.draft.trim() && !isValidModelName(rename.draft.trim()) && <span className="max-w-40 text-[9px] font-normal text-red-600">{modelNameError('Le nom')}</span>}
+                {rename.draft.trim() && !isValidModelName(rename.draft.trim()) && <span className="max-w-40 text-[9px] font-normal text-destructive">{modelNameError('Le nom')}</span>}
               </div>
-              <InfoPopover label="Valider"><button
+              <TooltipProvider><Tooltip><TooltipTrigger><button
                 type="button"
                 onClick={rename.commit}
-                className="nodrag nopan rounded p-0.5 text-emerald-600 hover:bg-accent"
+                className="nodrag nopan rounded p-0.5 text-success hover:bg-accent"
                 aria-label="Valider"
               >
                 <Check className="h-3.5 w-3.5" />
-              </button></InfoPopover>
-              <InfoPopover label="Annuler"><button
+              </button></TooltipTrigger><TooltipContent>Valider</TooltipContent></Tooltip></TooltipProvider>
+              <TooltipProvider><Tooltip><TooltipTrigger><button
                 type="button"
                 onClick={rename.cancel}
                 className="nodrag nopan rounded p-0.5 text-muted-foreground hover:bg-accent"
                 aria-label="Annuler"
               >
                 <X className="h-3.5 w-3.5" />
-              </button></InfoPopover>
+              </button></TooltipTrigger><TooltipContent>Annuler</TooltipContent></Tooltip></TooltipProvider>
             </span>
           ) : (
             <span onDoubleClick={(event) => { event.stopPropagation(); rename.start() }} aria-label="Double-cliquer pour renommer" className="cursor-text truncate text-sm font-semibold text-foreground">
@@ -173,7 +173,7 @@ function EntityNode({ data, selected }: NodeProps) {
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>
-              <InfoPopover label="Supprimer l'entité"><button
+              <TooltipProvider><Tooltip><TooltipTrigger><button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -183,7 +183,7 @@ function EntityNode({ data, selected }: NodeProps) {
                 aria-label="Supprimer l'entité"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </button></InfoPopover>
+              </button></TooltipTrigger><TooltipContent>Supprimer l'entité</TooltipContent></Tooltip></TooltipProvider>
             </span>
           )}
           {confirmingDelete && <div className="absolute right-1 top-8 z-40 w-52"><ConfirmPopover message={<>Supprimer l'entité « {d.label} » ?</>} onCancel={() => setConfirmingDelete(false)} onConfirm={handleDelete} confirmLabel="Supprimer" /></div>}
@@ -206,14 +206,14 @@ function EntityNode({ data, selected }: NodeProps) {
               <KeyRound
                 className={cn(
                   'h-2.5 w-2.5 shrink-0',
-                  fk.reflexive ? 'text-emerald-600' : 'text-blue-500',
+                  fk.reflexive ? 'text-success' : 'text-info',
                 )}
                 aria-hidden
               />
               <span
                 className={cn(
                   'truncate',
-                  fk.reflexive ? 'font-semibold text-emerald-600' : 'text-foreground',
+                  fk.reflexive ? 'font-semibold text-success' : 'text-foreground',
                 )}
               >
                 {fk.name}
