@@ -27,12 +27,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
     background-color: hsl(var(--background));
   }
 
   .react-flow {
     background-color: hsl(var(--canvas));
+    font-family: inherit;
   }
 }
 
@@ -123,5 +124,17 @@
   }
   .animate-side-panel-in {
     animation: side-panel-in 0.22s ease-out;
+  }
+
+  .text-constraint-null {
+    color: hsl(var(--constraint-null));
+  }
+
+  .text-constraint-required {
+    color: hsl(var(--constraint-required));
+  }
+
+  .text-constraint-unique {
+    color: hsl(var(--constraint-unique));
   }
 }

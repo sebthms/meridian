@@ -2,7 +2,6 @@ export type Severity = 'error' | 'warning' | 'info'
 export type RuleContext = {
   category?: 'model' | 'normalization' | 'export'
   certainty?: 'certain' | 'heuristic' | 'manual'
-  suggestion?: string
   source?: { label: string; url: string }
 }
 
@@ -20,7 +19,6 @@ export type RuleDefinition = RuleContext & {
   severity: Severity
   title: string
   explanation: string
-  autoFixable?: boolean
 }
 
 export function makeIssue(
@@ -38,7 +36,6 @@ export function makeIssue(
     targetIds,
     category: rule.category ?? 'model',
     certainty: rule.certainty ?? (rule.severity === 'error' ? 'certain' : 'heuristic'),
-    suggestion: rule.suggestion,
     source: rule.source,
   }
 }

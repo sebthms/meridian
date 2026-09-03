@@ -14,21 +14,14 @@ import { type PointerEvent as ReactPointerEvent } from 'react'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar'
 import { AppTooltip, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { ClearProjectsButton } from '@/components/shared/clear-projects-button'
 import { useProjectStore } from '@/store/project-store'
-import { PanelContent, type PanelView } from '@/components/panel'
+import { PanelContent, sidebarLayout, type PanelView } from '@/components/panel'
 import { cn } from '@/lib/utils'
 
 const navigation: Array<{ id: PanelView; label: string; description: string; icon: typeof FolderOpen }> = [
@@ -90,80 +83,88 @@ export function DiagramSidebar({
         side="left"
         collapsible="offcanvas"
         variant="floating"
-        className="pointer-events-auto z-[90] [&_[data-sidebar=sidebar]]:border-transparent [&_[data-sidebar=sidebar]]:bg-background/95 [&_[data-sidebar=sidebar]]:shadow-2xl [&_[data-sidebar=sidebar]]:backdrop-blur-xl"
+        className="pointer-events-auto z-[90] [&_[data-sidebar=sidebar]]:flex [&_[data-sidebar=sidebar]]:h-full [&_[data-sidebar=sidebar]]:flex-col [&_[data-sidebar=sidebar]]:border-transparent [&_[data-sidebar=sidebar]]:bg-background/95 [&_[data-sidebar=sidebar]]:shadow-2xl [&_[data-sidebar=sidebar]]:backdrop-blur-xl"
       >
-        <SidebarHeader className="gap-3 p-4">
+        <SidebarHeader className={sidebarLayout.header}>
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
                 <Network className="size-4" aria-hidden />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold tracking-tight">Diagramme - <span className="text-muted-foreground">{project.name || 'Projet sans nom'}</span></p>
-                <p className="truncate text-[11px] text-muted-foreground"> {project.entities.length} entité{project.entities.length > 1 ? 's' : ''} · {project.associations.length} association{project.associations.length > 1 ? 's' : ''}</p>
+                <p className="truncate text-sm font-semibold tracking-tight">
+                  Diagramme - <span className="text-muted-foreground">{project.name || 'Projet sans nom'}</span>
+                </p>
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {project.entities.length} entité{project.entities.length > 1 ? 's' : ''} · {project.associations.length} association
+                  {project.associations.length > 1 ? 's' : ''}
+                </p>
               </div>
             </div>
-            <AppTooltip content="Fermer la barre latérale"><SidebarTrigger className="size-8 shrink-0 rounded-lg" aria-label="Fermer la barre latérale">
-              <ChevronLeft className="size-4" />
-            </SidebarTrigger></AppTooltip>
+            <AppTooltip content="Fermer la barre latérale">
+              <SidebarTrigger className="size-8 shrink-0 rounded-lg" aria-label="Fermer la barre latérale">
+                <ChevronLeft className="size-4" />
+              </SidebarTrigger>
+            </AppTooltip>
           </div>
         </SidebarHeader>
 
         <SidebarSeparator />
-        <SidebarContent className="scrollbar-subtle">
-          <SidebarGroup className="p-3">
-            <SidebarGroupContent>
-              <SidebarMenu className="flex-row gap-1">
+
+        <SidebarContent className="min-h-0 flex-1 gap-0 overflow-hidden">
+          <div className="flex min-h-0 flex-1">
+            <nav aria-label="Navigation des panneaux" className={sidebarLayout.navRail}>
+              <div className="flex flex-col items-center gap-0.5">
                 {navigation.map(({ id, label, description, icon: Icon }) => (
-                  <SidebarMenuItem key={id}>
-                    <AppTooltip content={`${label} · ${description}`} side="bottom">
-                      <SidebarMenuButton
-                        type="button"
-                        isActive={panelView === id}
-                        onClick={() => selectPanel(id)}
-                        aria-label={label}
-                        className="relative size-9 shrink-0 justify-center rounded-xl p-0 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
-                      >
-                        <Icon className="size-4" aria-hidden />
-                        {id === 'issues' && hasErrors && <span className="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" aria-label="Erreurs bloquantes" />}
-                        {id === 'issues' && !hasErrors && hasWarnings && <span className="absolute right-1 top-1 size-1.5 rounded-full bg-warning" aria-label="Avertissements" />}
-                        {id === 'sql' && hasErrors && <span className="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" aria-label="SQL bloqué par des erreurs" />}
-                      </SidebarMenuButton>
-                    </AppTooltip>
-                  </SidebarMenuItem>
+                  <AppTooltip key={id} content={`${label} · ${description}`} side="right">
+                    <button
+                      type="button"
+                      data-active={panelView === id ? true : undefined}
+                      onClick={() => selectPanel(id)}
+                      aria-label={label}
+                      aria-current={panelView === id ? 'page' : undefined}
+                      className={sidebarLayout.navButton}
+                    >
+                      <Icon className="size-4" aria-hidden />
+                      {id === 'issues' && hasErrors && (
+                        <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="Erreurs bloquantes" />
+                      )}
+                      {id === 'issues' && !hasErrors && hasWarnings && (
+                        <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-label="Avertissements" />
+                      )}
+                      {id === 'sql' && hasErrors && (
+                        <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="SQL bloqué par des erreurs" />
+                      )}
+                    </button>
+                  </AppTooltip>
                 ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          {panelView && (
-            <SidebarGroup className="-mt-3 min-h-0 flex-1 gap-0 p-3 pt-0">
-              <SidebarGroupContent className="min-h-0 flex-1 overflow-hidden bg-transparent">
-                <div key={panelView} className="scrollbar-subtle h-full min-h-0 overflow-y-auto animate-panel-in">
-                  <PanelContent panelView={panelView} onClosePanel={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} />
-                </div>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          )}
-        </SidebarContent>
-
-        <SidebarFooter className="gap-2 p-3">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <div className="flex items-center gap-1 justify-end">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <SidebarMenuButton type="button" onClick={onToggleTheme} aria-label={colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'} className="size-9 justify-center rounded-xl p-0 text-muted-foreground hover:text-foreground">
-                      {colorMode === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
-                    </SidebarMenuButton>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">{colorMode === 'dark' ? 'Thème clair' : 'Thème sombre'}</TooltipContent>
-                </Tooltip>
-                
               </div>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={onToggleTheme}
+                    aria-label={colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'}
+                    className={cn(sidebarLayout.navButton, 'mt-auto')}
+                  >
+                    {colorMode === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">{colorMode === 'dark' ? 'Thème clair' : 'Thème sombre'}</TooltipContent>
+              </Tooltip>
+            </nav>
+
+            <div className={sidebarLayout.main}>
+              {panelView && (
+                <div className={sidebarLayout.body}>
+                  <div key={panelView} className="scrollbar-subtle h-full min-h-0 overflow-y-auto animate-panel-in">
+                    <PanelContent panelView={panelView} onClosePanel={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </SidebarContent>
       </Sidebar>
 
       {open && !isMobile && (
@@ -181,7 +182,10 @@ export function DiagramSidebar({
           <button
             type="button"
             onClick={() => onOpenPanel('tree')}
-            className={cn('pointer-events-auto absolute left-4 top-6 z-[85] flex size-10 items-center justify-center rounded-xl border border-border/70 bg-card/95 text-muted-foreground shadow-lg backdrop-blur transition-all hover:-translate-y-0.5 hover:text-foreground', isMobile && 'left-3 top-3')}
+            className={cn(
+              'pointer-events-auto absolute left-4 top-6 z-[85] flex size-10 items-center justify-center rounded-xl border border-border/70 bg-card/95 text-muted-foreground shadow-lg backdrop-blur transition-all hover:-translate-y-0.5 hover:text-foreground',
+              isMobile && 'left-3 top-3',
+            )}
             aria-label="Ouvrir la barre latérale"
           >
             <PanelLeftOpen className="size-4" aria-hidden />

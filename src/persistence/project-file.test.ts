@@ -44,6 +44,10 @@ function sampleProject(): Project {
         attributes: [],
       },
     ],
+    inheritances: [],
+    constraints: [],
+    cifs: [],
+    businessRules: [],
     ignoredRules: ['MERISE-W001'],
     ignoredIssueIds: ['MERISE-E002:e1'],
   }

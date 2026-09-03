@@ -1,10 +1,14 @@
 import {
+  ArrowRightLeft,
   Link2,
   Network,
   Box,
   Database,
+  GitFork,
   Plus,
   Redo2,
+  ScrollText,
+  ShieldAlert,
   Undo2,
 } from 'lucide-react'
 import { useCallback, useEffect, useState, type ComponentProps, type ReactNode } from 'react'
@@ -22,31 +26,46 @@ import {
 import { useProjectStore } from '@/store/project-store'
 import { projectToNodes, projectToEdges } from '@/editor/nodes/adapter'
 import { AddPropertyModal } from './AddPropertyModal'
+import { ConceptualEditModal } from './ConceptualEditModal'
 import { CanvasControls } from './CanvasControls'
 import {
   createEntityCommand,
   createAssociationCommand,
-  createAssociationBetween,
-  addAssociationParticipant,
-  moveEntity,
-  moveAssociation,
+  createInheritanceCommand,
+  createConstraintCommand,
+  createCifCommand,
+  createBusinessRuleCommand,
+  applyCanvasConnection,
+  applyNodeMove,
+  deleteCanvasNode,
+  isConceptualKind,
   updateCardinality,
-  deleteEntity,
-  deleteAssociation,
 } from '@/editor'
 import { type Cardinality } from '@/domain'
 import { cn } from '@/lib/utils'
 import EntityNode from './EntityNode'
 import AssociationNode from './AssociationNode'
 import AssociationEdge from './AssociationEdge'
+import InheritanceNode from './InheritanceNode'
+import ConstraintNode from './ConstraintNode'
+import CifNode from './CifNode'
+import BusinessRuleNode from './BusinessRuleNode'
+import ConceptualEdge from './ConceptualEdge'
 import { ConfirmPopover } from '@/components/shared/confirm-popover'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { DiagramSidebar } from './DiagramSidebar'
 import type { PanelView } from '@/components/panel'
 import { AppTooltip } from '@/components/ui/tooltip'
 
-const nodeTypes = { entity: EntityNode, association: AssociationNode }
-const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge }
+const nodeTypes = {
+  entity: EntityNode,
+  association: AssociationNode,
+  inheritance: InheritanceNode,
+  constraint: ConstraintNode,
+  cif: CifNode,
+  businessRule: BusinessRuleNode,
+}
+const edgeTypes = { assoc: AssociationEdge, loop: AssociationEdge, conceptual: ConceptualEdge }
 
 function DockButton({ className, title, 'aria-label': ariaLabel, children, ...props }: ComponentProps<'button'> & { children: ReactNode }) {
   return (
@@ -89,6 +108,7 @@ export function Canvas({
   const future = useProjectStore((s) => s.future)
   const viewMode = useProjectStore((s) => s.viewMode)
   const setViewMode = useProjectStore((s) => s.setViewMode)
+  const openEditConceptual = useProjectStore((s) => s.openEditConceptual)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
@@ -113,7 +133,7 @@ export function Canvas({
   const confirmSelectionDelete = () => {
     let next = project
     for (const node of selectedNodes) {
-      next = node.type === 'entity' ? deleteEntity(next, node.id) : deleteAssociation(next, node.id)
+      next = deleteCanvasNode(next, node)
     }
     apply(next)
     setConfirmingSelectionDelete(false)
@@ -153,27 +173,7 @@ export function Canvas({
   const onConnect = useCallback(
     (connection: Connection) => {
       if (!connection.source || !connection.target) return
-      // Connexion manuelle : on relie une entité à une pastille d'association.
-      const sourceEntity = project.entities.find((e) => e.id === connection.source)
-      const targetEntity = project.entities.find((e) => e.id === connection.target)
-      const sourceAssoc = project.associations.find((a) => a.id === connection.source)
-      const targetAssoc = project.associations.find((a) => a.id === connection.target)
-
-      // cas 1 : entité → pastille
-      if (sourceEntity && targetAssoc) {
-        apply(addAssociationParticipant(project, targetAssoc.id, sourceEntity.id))
-        return
-      }
-      // cas 2 : pastille → entité
-      if (sourceAssoc && targetEntity) {
-        apply(addAssociationParticipant(project, sourceAssoc.id, targetEntity.id))
-        return
-      }
-      // cas 3 : entité → entité → création directe d'une association binaire
-      if (sourceEntity && targetEntity) {
-        apply(createAssociationBetween(project, sourceEntity.id, targetEntity.id, 'N:N'))
-        return
-      }
+      apply(applyCanvasConnection(project, connection.source, connection.target))
     },
     [project, apply],
   )
@@ -189,11 +189,11 @@ export function Canvas({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={(_, node) => select(node.id)}
-        onPaneClick={() => select(undefined)}
-        onNodeDragStop={(_, node) => {
-          if (node.type === 'entity') apply(moveEntity(project, node.id, node.position))
-          if (node.type === 'association') apply(moveAssociation(project, node.id, node.position))
+        onNodeDoubleClick={(_, node) => {
+          if (isConceptualKind(node.type)) openEditConceptual({ kind: node.type, id: node.id })
         }}
+        onPaneClick={() => select(undefined)}
+        onNodeDragStop={(_, node) => apply(applyNodeMove(project, node))}
         onConnect={onConnect}
         connectionMode={ConnectionMode.Loose}
         selectionOnDrag
@@ -219,8 +219,8 @@ export function Canvas({
         </SidebarProvider>
 
         {/* Dock intégré au canvas (remplace la topbar) */}
-        <Panel position="bottom-center" className="!m-4">
-          <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
+        <Panel position="bottom-center" className="!m-4 max-w-[calc(100vw-2rem)]">
+          <div className="flex flex-wrap items-center justify-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
             <div className="flex items-center gap-0.5 rounded-lg bg-muted/50 p-0.5">
               <DockButton title="Modèle conceptuel (MCD)" aria-label="Modèle conceptuel (MCD)" onClick={() => setViewMode('MCD')} className={cn(viewMode === 'MCD' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Network className="h-4 w-4" aria-hidden /></DockButton>
               <DockButton title="Vue UML" aria-label="Vue UML" onClick={() => setViewMode('UML')} className={cn(viewMode === 'UML' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Box className="h-4 w-4" aria-hidden /></DockButton>
@@ -230,6 +230,10 @@ export function Canvas({
             <DockSeparator />
             <DockButton title="Ajouter une entité" onClick={() => apply(createEntityCommand(project))}><Plus className="h-4 w-4" aria-hidden /></DockButton>
             <DockButton title="Ajouter une association" onClick={() => apply(createAssociationCommand(project))}><Link2 className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Ajouter un héritage" onClick={() => apply(createInheritanceCommand(project))}><GitFork className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Ajouter une contrainte" onClick={() => apply(createConstraintCommand(project))}><ShieldAlert className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Ajouter une CIF" onClick={() => apply(createCifCommand(project))}><ArrowRightLeft className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Ajouter une règle métier" onClick={() => apply(createBusinessRuleCommand(project))}><ScrollText className="h-4 w-4" aria-hidden /></DockButton>
             <DockSeparator />
             <DockButton title="Annuler (Ctrl+Z)" onClick={undo} disabled={past.length === 0}><Undo2 className="h-4 w-4" aria-hidden /></DockButton>
             <DockButton title="Rétablir (Ctrl+Y)" onClick={redo} disabled={future.length === 0}><Redo2 className="h-4 w-4" aria-hidden /></DockButton>
@@ -238,6 +242,7 @@ export function Canvas({
       </ReactFlow>
 
       <AddPropertyModal />
+      <ConceptualEditModal />
       {confirmingSelectionDelete && (
         <div className="absolute bottom-20 left-1/2 z-50 w-64 -translate-x-1/2">
           <ConfirmPopover message={`Supprimer les ${selectedNodes.length} éléments sélectionnés ?`} onCancel={() => setConfirmingSelectionDelete(false)} onConfirm={confirmSelectionDelete} confirmLabel="Supprimer" />

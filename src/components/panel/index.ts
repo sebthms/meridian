@@ -1,5 +1,6 @@
 export type { PanelView } from './view'
 export { SIDEBAR_PANELS } from './view'
+export { sidebarLayout } from './layout'
 export { PanelShell } from './shell'
 export { PanelContent } from './content'
 export { IssuesPanel } from './issues'

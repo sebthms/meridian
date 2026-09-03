@@ -28,8 +28,10 @@ identifiants ; la clé restante est promue si la clé principale disparaît.
 
 Tous les tooltips utilisent `components/ui/tooltip.tsx` (primitives Radix/shadcn).
 Un seul `TooltipProvider`, dans `main.tsx`, contrôle le délai (300 ms par défaut).
-Son paramètre `contentProps` permet de définir globalement `side`, `align`,
+Le paramètre `contentProps` permet de définir globalement `side`, `align`,
 `sideOffset` et `className`. Les mêmes options sont ajustables par tooltip.
+Les nœuds conceptuels (héritage, contrainte, CIF, règle métier) passent par
+`ConceptualNodeShell` + `AppTooltip`.
 
 Composition conseillée :
 

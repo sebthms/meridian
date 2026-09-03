@@ -64,8 +64,21 @@ function foreignKeySql(model: MldModel): string[] {
   return statements
 }
 
+function conceptualCommentSql(model: MldModel): string[] {
+  const notes = model.conceptualNotes ?? []
+  if (notes.length === 0) return []
+  return [
+    [
+      '-- Concepts MERISE conceptuels : non projetés en tables ni en contraintes SQL.',
+      '-- L’héritage, les contraintes d’intégrité, les CIF et les règles métier restent documentaires.',
+      '-- Aucune dépendance fonctionnelle n’est déduite des noms d’entités.',
+      ...notes.map((note) => `-- ${note.text}`),
+    ].join('\n'),
+  ]
+}
+
 export function generateSql(model: MldModel): string {
   const usesPostgis = model.relations.some((relation) => relation.columns.some((column) => /^(geometry|geography)(?:\s*\(|\s*\[|$)/i.test(column.sqlType)))
   const extensions = usesPostgis ? ['-- Les types spatiaux nécessitent PostGIS installé sur le serveur.\nCREATE EXTENSION IF NOT EXISTS postgis;'] : []
-  return [...extensions, ...createTableSql(model), ...foreignKeySql(model)].join('\n\n')
+  return [...conceptualCommentSql(model), ...extensions, ...createTableSql(model), ...foreignKeySql(model)].join('\n\n')
 }

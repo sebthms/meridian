@@ -13,6 +13,15 @@ export function validateModelIntegrity(project: Project, issues: ValidationIssue
         first ? `« ${first.label} » et « ${label} » partagent l’ID interne « ${id} ».` : `« ${label} » possède un ID interne vide.`, occurrence))
     } else ids.set(id, { ownerId, label })
   }
+  const conceptual = [
+    ...(project.inheritances ?? []),
+    ...(project.constraints ?? []),
+    ...(project.cifs ?? []),
+    ...(project.businessRules ?? []),
+  ]
+  for (const [index, owner] of conceptual.entries()) {
+    register(owner.id, owner.id, owner.name || `concept-${index}`, `concept-${index}`)
+  }
   for (const [index, owner] of [...project.entities, ...project.associations].entries()) {
     register(owner.id, owner.id, owner.name, `object-${index}`)
     for (const [attrIndex, attr] of owner.attributes.entries()) {

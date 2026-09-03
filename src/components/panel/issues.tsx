@@ -41,11 +41,12 @@ export function IssuesPanel() {
             <span className="truncate">{ruleId} — {first.title}</span>
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{ruleIssues.length}</span>
           </button>
-            <Tooltip><TooltipTrigger asChild><button type="button" aria-label={`Ignorer la règle ${ruleId}`} onClick={() => ignoreRule(ruleId)} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><EyeOff className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Ignorer la règle {ruleId}</TooltipContent></Tooltip>
+          <Tooltip><TooltipTrigger asChild><button type="button" aria-label={`Ignorer la règle ${ruleId}`} onClick={() => ignoreRule(ruleId)} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"><EyeOff className="h-3.5 w-3.5" /></button></TooltipTrigger><TooltipContent>Ignorer la règle {ruleId}</TooltipContent></Tooltip>
         </div>
         {open && <div className="space-y-3 border-t border-border/60 px-10 py-4 text-xs">
-          <p className="text-muted-foreground">{first.explanation}</p>
-          {affected.length > 0 && <div><p className="mb-1 font-medium text-foreground">Éléments affectés</p><ul className="space-y-0.5 text-muted-foreground">{affected.map((id) => <li key={id}><button type="button" onClick={() => select(id)} className="text-left hover:text-foreground hover:underline">{project.entities.find((entity) => entity.id === id)?.name ?? project.associations.find((association) => association.id === id)?.name ?? id}</button></li>)}</ul></div>}
+          <p className="italic text-muted-foreground">{first.explanation}</p>
+          {ruleIssues.length > 1 && <ul className="space-y-1 text-muted-foreground">{ruleIssues.map((issue) => <li key={issue.id}>{issue.explanation}</li>)}</ul>}
+          {affected.length > 0 && <div><p className="mb-1 font-medium text-foreground">Éléments concernés</p><ul className="space-y-0.5 text-muted-foreground">{affected.map((id) => <li key={id}><button type="button" onClick={() => select(id)} className="text-left hover:text-foreground hover:underline">{project.entities.find((entity) => entity.id === id)?.name ?? project.associations.find((association) => association.id === id)?.name ?? id}</button></li>)}</ul></div>}
         </div>}
       </section>
     })}

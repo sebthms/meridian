@@ -1,86 +1,2674 @@
 {
   "blog": {
-    "version": 1, "name": "Blog éditorial", "ignoredRules": [], "ignoredIssueIds": [],
+    "version": 1,
+    "name": "Blog",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "blog_cif_article",
+        "name": "CIF_ARTICLE",
+        "sourceEntityId": "blog_auteur",
+        "targetEntityId": "blog_article",
+        "description": "Chaque article n’a qu’un auteur (max cible = 1).",
+        "associationId": "blog_redige",
+        "position": {
+          "x": 250,
+          "y": 20
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "blog_br_publi",
+        "name": "DATE_PUBLICATION",
+        "description": "Un article publié doit avoir une date de publication.",
+        "level": "warning",
+        "targetIds": [
+          "blog_article"
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      }
+    ],
     "entities": [
-      { "id": "blog_author", "name": "AUTEUR", "attributes": [{ "id": "ba_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ba_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "ba_email", "name": "email", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "ba_pk", "attributeIds": ["ba_id"], "isPrimary": true }], "position": { "x": 80, "y": 120 } },
-      { "id": "blog_article", "name": "ARTICLE", "attributes": [{ "id": "bp_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "bp_title", "name": "titre", "conceptualType": "TEXT", "nullable": false }, { "id": "bp_body", "name": "contenu", "conceptualType": "TEXT", "nullable": false }, { "id": "bp_date", "name": "publie_le", "conceptualType": "DATE", "nullable": true }], "identifiers": [{ "id": "bp_pk", "attributeIds": ["bp_id"], "isPrimary": true }], "position": { "x": 430, "y": 100 } },
-      { "id": "blog_comment", "name": "COMMENTAIRE", "attributes": [{ "id": "bc_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "bc_body", "name": "contenu", "conceptualType": "TEXT", "nullable": false }, { "id": "bc_date", "name": "publie_le", "conceptualType": "DATE", "nullable": false }], "identifiers": [{ "id": "bc_pk", "attributeIds": ["bc_id"], "isPrimary": true }], "position": { "x": 430, "y": 380 } },
-      { "id": "blog_tag", "name": "TAG", "attributes": [{ "id": "bt_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "bt_name", "name": "nom", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "bt_pk", "attributeIds": ["bt_id"], "isPrimary": true }], "position": { "x": 780, "y": 230 } }
+      {
+        "id": "blog_auteur",
+        "name": "AUTEUR",
+        "attributes": [
+          {
+            "id": "ba_id",
+            "name": "id_auteur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ba_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ba_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ba_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "ba_bio",
+            "name": "biographie",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "LARGE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_auteur_pk",
+            "attributeIds": [
+              "ba_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "blog_rubrique",
+        "name": "RUBRIQUE",
+        "attributes": [
+          {
+            "id": "br_id",
+            "name": "id_rubrique",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "br_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "br_slug",
+            "name": "slug",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_rubrique_pk",
+            "attributeIds": [
+              "br_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "blog_article",
+        "name": "ARTICLE",
+        "attributes": [
+          {
+            "id": "bt_id",
+            "name": "id_article",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "bt_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 180
+              }
+            }
+          },
+          {
+            "id": "bt_slug",
+            "name": "slug",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 180
+              }
+            }
+          },
+          {
+            "id": "bt_resume",
+            "name": "resume",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 500
+              }
+            }
+          },
+          {
+            "id": "bt_contenu",
+            "name": "contenu",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "LARGE"
+              }
+            }
+          },
+          {
+            "id": "bt_publie",
+            "name": "publie",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          },
+          {
+            "id": "bt_date",
+            "name": "publie_le",
+            "conceptualType": "DATE",
+            "nullable": true,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_article_pk",
+            "attributeIds": [
+              "bt_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "blog_commentaire",
+        "name": "COMMENTAIRE",
+        "attributes": [
+          {
+            "id": "bc_id",
+            "name": "id_commentaire",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "bc_texte",
+            "name": "contenu",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "LARGE"
+              }
+            }
+          },
+          {
+            "id": "bc_date",
+            "name": "poste_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "bc_visible",
+            "name": "visible",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_commentaire_pk",
+            "attributeIds": [
+              "bc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 420
+        }
+      },
+      {
+        "id": "blog_motcle",
+        "name": "MOT_CLE",
+        "attributes": [
+          {
+            "id": "bm_id",
+            "name": "id_mot_cle",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "bm_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 60
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_motcle_pk",
+            "attributeIds": [
+              "bm_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 220
+        }
+      }
     ],
     "associations": [
-      { "id": "blog_writes", "name": "REDIGE", "participants": [{ "entityId": "blog_author", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "blog_article", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "blog_receives", "name": "RECOIT", "participants": [{ "entityId": "blog_article", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "blog_comment", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "blog_classifies", "name": "CLASSE", "participants": [{ "entityId": "blog_article", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "blog_tag", "cardinality": { "min": 0, "max": "N" } }], "attributes": [] }
+      {
+        "id": "blog_redige",
+        "name": "REDIGE",
+        "participants": [
+          {
+            "entityId": "blog_auteur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "blog_classe",
+        "name": "CLASSE",
+        "participants": [
+          {
+            "entityId": "blog_rubrique",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 260
+        }
+      },
+      {
+        "id": "blog_commente",
+        "name": "COMMENTE",
+        "participants": [
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_commentaire",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 270
+        }
+      },
+      {
+        "id": "blog_signe",
+        "name": "SIGNE",
+        "participants": [
+          {
+            "entityId": "blog_auteur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_commentaire",
+            "cardinality": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 420
+        }
+      },
+      {
+        "id": "blog_etiquete",
+        "name": "ETIQUETE",
+        "participants": [
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_motcle",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 160
+        }
+      }
     ]
   },
-  "marketplace": {
-    "version": 1, "name": "Marketplace", "ignoredRules": [], "ignoredIssueIds": [],
+  "boutique": {
+    "version": 1,
+    "name": "Boutique",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "shop_cif_commande",
+        "name": "CIF_COMMANDE",
+        "sourceEntityId": "shop_client",
+        "targetEntityId": "shop_commande",
+        "description": "Chaque commande n’a qu’un client (max cible = 1).",
+        "associationId": "shop_passe",
+        "position": {
+          "x": 250,
+          "y": 330
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "shop_br_stock",
+        "name": "STOCK_POSITIF",
+        "description": "La quantité commandée ne peut pas dépasser le stock du produit.",
+        "level": "warning",
+        "targetIds": [
+          "shop_contient",
+          "shop_produit"
+        ],
+        "position": {
+          "x": 620,
+          "y": 250
+        }
+      }
+    ],
     "entities": [
-      { "id": "market_seller", "name": "VENDEUR", "attributes": [{ "id": "ms_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ms_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "ms_email", "name": "email", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "ms_pk", "attributeIds": ["ms_id"], "isPrimary": true }], "position": { "x": 50, "y": 100 } },
-      { "id": "market_product", "name": "PRODUIT", "attributes": [{ "id": "mp_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "mp_title", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "mp_price", "name": "prix", "conceptualType": "DECIMAL", "nullable": false }, { "id": "mp_stock", "name": "stock", "conceptualType": "INTEGER", "nullable": false }], "identifiers": [{ "id": "mp_pk", "attributeIds": ["mp_id"], "isPrimary": true }], "position": { "x": 400, "y": 100 } },
-      { "id": "market_customer", "name": "CLIENT", "attributes": [{ "id": "mc_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "mc_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "mc_email", "name": "email", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "mc_pk", "attributeIds": ["mc_id"], "isPrimary": true }], "position": { "x": 50, "y": 420 } },
-      { "id": "market_order", "name": "COMMANDE", "attributes": [{ "id": "mo_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "mo_date", "name": "date_commande", "conceptualType": "DATE", "nullable": false }, { "id": "mo_status", "name": "statut", "conceptualType": "TEXT", "nullable": false }], "identifiers": [{ "id": "mo_pk", "attributeIds": ["mo_id"], "isPrimary": true }], "position": { "x": 400, "y": 420 } },
-      { "id": "market_line", "name": "LIGNE_COMMANDE", "attributes": [{ "id": "ml_order", "name": "commande_id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ml_product", "name": "produit_id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ml_qty", "name": "quantite", "conceptualType": "INTEGER", "nullable": false }, { "id": "ml_price", "name": "prix_unitaire", "conceptualType": "DECIMAL", "nullable": false }], "identifiers": [{ "id": "ml_pk", "attributeIds": ["ml_order", "ml_product"], "isPrimary": true }], "position": { "x": 760, "y": 280 } }
+      {
+        "id": "shop_vendeur",
+        "name": "VENDEUR",
+        "attributes": [
+          {
+            "id": "sv_id",
+            "name": "id_vendeur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sv_nom",
+            "name": "raison_sociale",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "sv_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_vendeur_pk",
+            "attributeIds": [
+              "sv_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "shop_client",
+        "name": "CLIENT",
+        "attributes": [
+          {
+            "id": "sc_id",
+            "name": "id_client",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sc_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "sc_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "sc_inscrit",
+            "name": "inscrit_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_client_pk",
+            "attributeIds": [
+              "sc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 400
+        }
+      },
+      {
+        "id": "shop_produit",
+        "name": "PRODUIT",
+        "attributes": [
+          {
+            "id": "sp_id",
+            "name": "id_produit",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sp_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "sp_sku",
+            "name": "sku",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "sp_prix",
+            "name": "prix",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "sp_stock",
+            "name": "stock",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "sp_actif",
+            "name": "actif",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_produit_pk",
+            "attributeIds": [
+              "sp_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "shop_commande",
+        "name": "COMMANDE",
+        "attributes": [
+          {
+            "id": "so_id",
+            "name": "id_commande",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "so_ref",
+            "name": "reference",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          },
+          {
+            "id": "so_date",
+            "name": "passee_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "so_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_commande_pk",
+            "attributeIds": [
+              "so_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 400
+        }
+      }
     ],
     "associations": [
-      { "id": "market_lists", "name": "PUBLIE", "participants": [{ "entityId": "market_seller", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "market_product", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "market_places", "name": "PASSE", "participants": [{ "entityId": "market_customer", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "market_order", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "market_contains", "name": "CONTIENT", "participants": [{ "entityId": "market_order", "cardinality": { "min": 1, "max": "N" } }, { "entityId": "market_line", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "market_refers", "name": "CONCERNE", "participants": [{ "entityId": "market_product", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "market_line", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] }
-    ]
-  },
-  "ecommerce": {
-    "version": 1, "name": "Boutique en ligne", "ignoredRules": [], "ignoredIssueIds": [],
-    "entities": [
-      { "id": "shop_customer", "name": "CLIENT", "attributes": [{ "id": "sc_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "sc_email", "name": "email", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "sc_pk", "attributeIds": ["sc_id"], "isPrimary": true }], "position": { "x": 70, "y": 150 } },
-      { "id": "shop_product", "name": "PRODUIT", "attributes": [{ "id": "sp_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "sp_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "sp_price", "name": "prix", "conceptualType": "DECIMAL", "nullable": false }], "identifiers": [{ "id": "sp_pk", "attributeIds": ["sp_id"], "isPrimary": true }], "position": { "x": 430, "y": 80 } },
-      { "id": "shop_cart", "name": "PANIER", "attributes": [{ "id": "sct_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "sct_created", "name": "cree_le", "conceptualType": "DATE", "nullable": false }], "identifiers": [{ "id": "sct_pk", "attributeIds": ["sct_id"], "isPrimary": true }], "position": { "x": 430, "y": 390 } }
-    ],
-    "associations": [
-      { "id": "shop_owns", "name": "POSSEDE", "participants": [{ "entityId": "shop_customer", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "shop_cart", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "shop_contains", "name": "CONTIENT", "participants": [{ "entityId": "shop_cart", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "shop_product", "cardinality": { "min": 0, "max": "N" } }], "attributes": [{ "id": "scl_qty", "name": "quantite", "conceptualType": "INTEGER", "nullable": false }] }
+      {
+        "id": "shop_publie",
+        "name": "PUBLIE",
+        "participants": [
+          {
+            "entityId": "shop_vendeur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "shop_produit",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "shop_passe",
+        "name": "PASSE",
+        "participants": [
+          {
+            "entityId": "shop_client",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "shop_commande",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 400
+        }
+      },
+      {
+        "id": "shop_contient",
+        "name": "CONTIENT",
+        "participants": [
+          {
+            "entityId": "shop_commande",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "shop_produit",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "sl_qty",
+            "name": "quantite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "sl_prix",
+            "name": "prix_unitaire",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 250
+        }
+      }
     ]
   },
   "crm": {
-    "version": 1, "name": "CRM commercial", "ignoredRules": [], "ignoredIssueIds": [],
+    "version": 1,
+    "name": "CRM",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "crm_cif_opp",
+        "name": "CIF_OPPORTUNITE",
+        "sourceEntityId": "crm_entreprise",
+        "targetEntityId": "crm_opportunite",
+        "description": "Chaque opportunité n’a qu’une entreprise (max cible = 1).",
+        "associationId": "crm_porte",
+        "position": {
+          "x": 250,
+          "y": 200
+        }
+      }
+    ],
+    "businessRules": [],
     "entities": [
-      { "id": "crm_company", "name": "ENTREPRISE", "attributes": [{ "id": "cc_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "cc_name", "name": "raison_sociale", "conceptualType": "TEXT", "nullable": false }, { "id": "cc_domain", "name": "domaine", "conceptualType": "TEXT", "nullable": true }], "identifiers": [{ "id": "cc_pk", "attributeIds": ["cc_id"], "isPrimary": true }], "position": { "x": 70, "y": 90 } },
-      { "id": "crm_contact", "name": "CONTACT", "attributes": [{ "id": "ct_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ct_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "ct_email", "name": "email", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "ct_pk", "attributeIds": ["ct_id"], "isPrimary": true }], "position": { "x": 430, "y": 90 } },
-      { "id": "crm_opportunity", "name": "OPPORTUNITE", "attributes": [{ "id": "co_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "co_title", "name": "titre", "conceptualType": "TEXT", "nullable": false }, { "id": "co_amount", "name": "montant", "conceptualType": "DECIMAL", "nullable": false }, { "id": "co_stage", "name": "etape", "conceptualType": "TEXT", "nullable": false }], "identifiers": [{ "id": "co_pk", "attributeIds": ["co_id"], "isPrimary": true }], "position": { "x": 430, "y": 400 } },
-      { "id": "crm_activity", "name": "ACTIVITE", "attributes": [{ "id": "ca_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ca_subject", "name": "objet", "conceptualType": "TEXT", "nullable": false }, { "id": "ca_date", "name": "date_activite", "conceptualType": "DATE", "nullable": false }], "identifiers": [{ "id": "ca_pk", "attributeIds": ["ca_id"], "isPrimary": true }], "position": { "x": 790, "y": 210 } }
+      {
+        "id": "crm_entreprise",
+        "name": "ENTREPRISE",
+        "attributes": [
+          {
+            "id": "ce_id",
+            "name": "id_entreprise",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ce_nom",
+            "name": "raison_sociale",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "ce_siret",
+            "name": "siret",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 14
+              }
+            }
+          },
+          {
+            "id": "ce_secteur",
+            "name": "secteur",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_entreprise_pk",
+            "attributeIds": [
+              "ce_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "crm_contact",
+        "name": "CONTACT",
+        "attributes": [
+          {
+            "id": "cc_id",
+            "name": "id_contact",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cc_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "cc_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "cc_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "cc_fonction",
+            "name": "fonction",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_contact_pk",
+            "attributeIds": [
+              "cc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "crm_commercial",
+        "name": "COMMERCIAL",
+        "attributes": [
+          {
+            "id": "cm_id",
+            "name": "id_commercial",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cm_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "cm_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_commercial_pk",
+            "attributeIds": [
+              "cm_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 400
+        }
+      },
+      {
+        "id": "crm_opportunite",
+        "name": "OPPORTUNITE",
+        "attributes": [
+          {
+            "id": "co_id",
+            "name": "id_opportunite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "co_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "co_montant",
+            "name": "montant",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "co_etape",
+            "name": "etape",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "co_echeance",
+            "name": "echeance",
+            "conceptualType": "DATE",
+            "nullable": true,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_opportunite_pk",
+            "attributeIds": [
+              "co_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 400
+        }
+      },
+      {
+        "id": "crm_activite",
+        "name": "ACTIVITE",
+        "attributes": [
+          {
+            "id": "ca_id",
+            "name": "id_activite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ca_objet",
+            "name": "objet",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "ca_type",
+            "name": "type_activite",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "ca_date",
+            "name": "planifiee_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "ca_fait",
+            "name": "terminee",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_activite_pk",
+            "attributeIds": [
+              "ca_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 240
+        }
+      }
     ],
     "associations": [
-      { "id": "crm_employs", "name": "REGROUPE", "participants": [{ "entityId": "crm_company", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "crm_contact", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "crm_opportunity_contact", "name": "PORTEE_PAR", "participants": [{ "entityId": "crm_contact", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "crm_opportunity", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "crm_tracks", "name": "SUIT", "participants": [{ "entityId": "crm_contact", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "crm_activity", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] }
+      {
+        "id": "crm_regroupe",
+        "name": "REGROUPE",
+        "participants": [
+          {
+            "entityId": "crm_entreprise",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_contact",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "crm_porte",
+        "name": "PORTE_SUR",
+        "participants": [
+          {
+            "entityId": "crm_entreprise",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_opportunite",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 260
+        }
+      },
+      {
+        "id": "crm_pilote",
+        "name": "PILOTE",
+        "participants": [
+          {
+            "entityId": "crm_commercial",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_opportunite",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 400
+        }
+      },
+      {
+        "id": "crm_suit",
+        "name": "SUIT",
+        "participants": [
+          {
+            "entityId": "crm_contact",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_activite",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 140
+        }
+      },
+      {
+        "id": "crm_relie",
+        "name": "RELIE",
+        "participants": [
+          {
+            "entityId": "crm_opportunite",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_activite",
+            "cardinality": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 340
+        }
+      }
     ]
   },
-  "library": {
-    "version": 1, "name": "Bibliothèque", "ignoredRules": [], "ignoredIssueIds": [],
+  "bibliotheque": {
+    "version": 1,
+    "name": "Bibliotheque",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "lib_cif_emprunt",
+        "name": "CIF_EMPRUNT",
+        "sourceEntityId": "lib_exemplaire",
+        "targetEntityId": "lib_emprunt",
+        "description": "Chaque emprunt n’a qu’un exemplaire (max cible = 1).",
+        "associationId": "lib_porte",
+        "position": {
+          "x": 590,
+          "y": 240
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "lib_br_retour",
+        "name": "RETOUR_COHERENT",
+        "description": "La date de retour prévue est postérieure à la date d’emprunt.",
+        "level": "warning",
+        "targetIds": [
+          "lib_emprunt"
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      }
+    ],
     "entities": [
-      { "id": "library_book", "name": "LIVRE", "attributes": [{ "id": "lb_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "lb_isbn", "name": "isbn", "conceptualType": "TEXT", "nullable": false, "unique": true }, { "id": "lb_title", "name": "titre", "conceptualType": "TEXT", "nullable": false }], "identifiers": [{ "id": "lb_pk", "attributeIds": ["lb_id"], "isPrimary": true }], "position": { "x": 70, "y": 90 } },
-      { "id": "library_author", "name": "AUTEUR", "attributes": [{ "id": "la_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "la_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }], "identifiers": [{ "id": "la_pk", "attributeIds": ["la_id"], "isPrimary": true }], "position": { "x": 430, "y": 90 } },
-      { "id": "library_member", "name": "ADHERENT", "attributes": [{ "id": "lm_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "lm_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "lm_email", "name": "email", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "lm_pk", "attributeIds": ["lm_id"], "isPrimary": true }], "position": { "x": 70, "y": 410 } },
-      { "id": "library_loan", "name": "EMPRUNT", "attributes": [{ "id": "le_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "le_start", "name": "emprunte_le", "conceptualType": "DATE", "nullable": false }, { "id": "le_return", "name": "retour_prevu", "conceptualType": "DATE", "nullable": false }], "identifiers": [{ "id": "le_pk", "attributeIds": ["le_id"], "isPrimary": true }], "position": { "x": 430, "y": 410 } }
+      {
+        "id": "lib_oeuvre",
+        "name": "OEUVRE",
+        "attributes": [
+          {
+            "id": "lo_id",
+            "name": "id_oeuvre",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lo_isbn",
+            "name": "isbn",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 17
+              }
+            }
+          },
+          {
+            "id": "lo_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 200
+              }
+            }
+          },
+          {
+            "id": "lo_annee",
+            "name": "annee_publication",
+            "conceptualType": "INTEGER",
+            "nullable": true,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_oeuvre_pk",
+            "attributeIds": [
+              "lo_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "lib_auteur",
+        "name": "AUTEUR",
+        "attributes": [
+          {
+            "id": "la_id",
+            "name": "id_auteur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "la_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "la_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_auteur_pk",
+            "attributeIds": [
+              "la_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "lib_exemplaire",
+        "name": "EXEMPLAIRE",
+        "attributes": [
+          {
+            "id": "lx_id",
+            "name": "id_exemplaire",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lx_cote",
+            "name": "cote",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "lx_etat",
+            "name": "etat",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_exemplaire_pk",
+            "attributeIds": [
+              "lx_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "lib_adherent",
+        "name": "ADHERENT",
+        "attributes": [
+          {
+            "id": "ld_id",
+            "name": "id_adherent",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ld_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ld_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "ld_fin",
+            "name": "adhesion_fin",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_adherent_pk",
+            "attributeIds": [
+              "ld_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "lib_emprunt",
+        "name": "EMPRUNT",
+        "attributes": [
+          {
+            "id": "le_id",
+            "name": "id_emprunt",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "le_debut",
+            "name": "emprunte_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "le_retour",
+            "name": "retour_prevu",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "le_rendu",
+            "name": "rendu_le",
+            "conceptualType": "DATE",
+            "nullable": true,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_emprunt_pk",
+            "attributeIds": [
+              "le_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 240
+        }
+      }
     ],
     "associations": [
-      { "id": "library_writes", "name": "ECRIT", "participants": [{ "entityId": "library_author", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "library_book", "cardinality": { "min": 1, "max": "N" } }], "attributes": [] },
-      { "id": "library_borrows", "name": "EMPRUNTE", "participants": [{ "entityId": "library_member", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "library_loan", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "library_concerns", "name": "PORTE_SUR", "participants": [{ "entityId": "library_book", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "library_loan", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] }
+      {
+        "id": "lib_ecrit",
+        "name": "ECRIT",
+        "participants": [
+          {
+            "entityId": "lib_auteur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_oeuvre",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "lib_materialise",
+        "name": "MATERIALISE",
+        "participants": [
+          {
+            "entityId": "lib_oeuvre",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_exemplaire",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 80,
+          "y": 230
+        }
+      },
+      {
+        "id": "lib_emprunte",
+        "name": "EFFECTUE",
+        "participants": [
+          {
+            "entityId": "lib_adherent",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_emprunt",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      },
+      {
+        "id": "lib_porte",
+        "name": "PORTE_SUR",
+        "participants": [
+          {
+            "entityId": "lib_exemplaire",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_emprunt",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 300
+        }
+      }
     ]
   },
-  "events": {
-    "version": 1, "name": "Événements", "ignoredRules": [], "ignoredIssueIds": [],
+  "scolarite": {
+    "version": 1,
+    "name": "Scolarite",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "edu_cif_cours",
+        "name": "CIF_COURS",
+        "sourceEntityId": "edu_enseignant",
+        "targetEntityId": "edu_cours",
+        "description": "Chaque cours n’a qu’un enseignant responsable (max cible = 1).",
+        "associationId": "edu_enseigne",
+        "position": {
+          "x": 250,
+          "y": 20
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "edu_br_note",
+        "name": "NOTE_BORNEE",
+        "description": "Une note, si présente, est comprise entre 0 et 20.",
+        "level": "info",
+        "targetIds": [
+          "edu_inscrit"
+        ],
+        "position": {
+          "x": 80,
+          "y": 560
+        }
+      }
+    ],
     "entities": [
-      { "id": "events_event", "name": "EVENEMENT", "attributes": [{ "id": "ee_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ee_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "ee_date", "name": "date_evenement", "conceptualType": "DATE", "nullable": false }], "identifiers": [{ "id": "ee_pk", "attributeIds": ["ee_id"], "isPrimary": true }], "position": { "x": 400, "y": 70 } },
-      { "id": "events_place", "name": "LIEU", "attributes": [{ "id": "el_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "el_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "el_city", "name": "ville", "conceptualType": "TEXT", "nullable": false }], "identifiers": [{ "id": "el_pk", "attributeIds": ["el_id"], "isPrimary": true }], "position": { "x": 50, "y": 100 } },
-      { "id": "events_person", "name": "PARTICIPANT", "attributes": [{ "id": "ep_id", "name": "id", "conceptualType": "INTEGER", "nullable": false }, { "id": "ep_name", "name": "nom", "conceptualType": "TEXT", "nullable": false }, { "id": "ep_email", "name": "email", "conceptualType": "TEXT", "nullable": false, "unique": true }], "identifiers": [{ "id": "ep_pk", "attributeIds": ["ep_id"], "isPrimary": true }], "position": { "x": 50, "y": 430 } },
-      { "id": "events_registration", "name": "INSCRIPTION", "attributes": [{ "id": "er_person", "name": "participant_id", "conceptualType": "INTEGER", "nullable": false }, { "id": "er_event", "name": "evenement_id", "conceptualType": "INTEGER", "nullable": false }, { "id": "er_date", "name": "inscrit_le", "conceptualType": "DATE", "nullable": false }, { "id": "er_status", "name": "statut", "conceptualType": "TEXT", "nullable": false }], "identifiers": [{ "id": "er_pk", "attributeIds": ["er_person", "er_event"], "isPrimary": true }], "position": { "x": 430, "y": 390 } }
+      {
+        "id": "edu_enseignant",
+        "name": "ENSEIGNANT",
+        "attributes": [
+          {
+            "id": "ee_id",
+            "name": "id_enseignant",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ee_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ee_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ee_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_enseignant_pk",
+            "attributeIds": [
+              "ee_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "edu_etudiant",
+        "name": "ETUDIANT",
+        "attributes": [
+          {
+            "id": "et_id",
+            "name": "id_etudiant",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "et_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "et_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "et_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "et_promo",
+            "name": "promotion",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_etudiant_pk",
+            "attributeIds": [
+              "et_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 400
+        }
+      },
+      {
+        "id": "edu_cours",
+        "name": "COURS",
+        "attributes": [
+          {
+            "id": "ec_id",
+            "name": "id_cours",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ec_code",
+            "name": "code",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 16
+              }
+            }
+          },
+          {
+            "id": "ec_intitule",
+            "name": "intitule",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "ec_credits",
+            "name": "credits",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_cours_pk",
+            "attributeIds": [
+              "ec_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "edu_session",
+        "name": "SESSION",
+        "attributes": [
+          {
+            "id": "es_id",
+            "name": "id_session",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "es_annee",
+            "name": "annee",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "es_semestre",
+            "name": "semestre",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_session_pk",
+            "attributeIds": [
+              "es_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 400
+        }
+      }
     ],
     "associations": [
-      { "id": "events_takes_place", "name": "SE_DEROULE_A", "participants": [{ "entityId": "events_place", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "events_event", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "events_registers", "name": "INSCRIT", "participants": [{ "entityId": "events_person", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "events_registration", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] },
-      { "id": "events_for", "name": "CONCERNE", "participants": [{ "entityId": "events_event", "cardinality": { "min": 0, "max": "N" } }, { "entityId": "events_registration", "cardinality": { "min": 1, "max": 1 } }], "attributes": [] }
+      {
+        "id": "edu_enseigne",
+        "name": "ENSEIGNE",
+        "participants": [
+          {
+            "entityId": "edu_enseignant",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_cours",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "edu_ouvre",
+        "name": "OUVRE",
+        "participants": [
+          {
+            "entityId": "edu_cours",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_session",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 240
+        }
+      },
+      {
+        "id": "edu_inscrit",
+        "name": "INSCRIT",
+        "participants": [
+          {
+            "entityId": "edu_etudiant",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_session",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "ei_note",
+            "name": "note",
+            "conceptualType": "DECIMAL",
+            "nullable": true,
+            "typeConfig": {
+              "numeric": {
+                "kind": "DECIMAL",
+                "precision": 4,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "ei_valide",
+            "name": "valide",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 250,
+          "y": 400
+        }
+      }
+    ]
+  },
+  "rh": {
+    "version": 1,
+    "name": "RH",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [
+      {
+        "id": "rh_herit",
+        "name": "SPECIALISATION",
+        "parentEntityId": "rh_personne",
+        "childEntityIds": [
+          "rh_salarie",
+          "rh_stagiaire"
+        ],
+        "coverage": "total",
+        "exclusivity": "exclusive",
+        "position": {
+          "x": 420,
+          "y": 220
+        }
+      }
+    ],
+    "constraints": [],
+    "cifs": [],
+    "businessRules": [
+      {
+        "id": "rh_br_exclu",
+        "name": "PARTITION",
+        "description": "Toute personne est soit salariée, soit stagiaire, jamais les deux.",
+        "level": "info",
+        "targetIds": [
+          "rh_herit"
+        ],
+        "position": {
+          "x": 620,
+          "y": 80
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "rh_personne",
+        "name": "PERSONNE",
+        "attributes": [
+          {
+            "id": "rp_id",
+            "name": "id_personne",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rp_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rp_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rp_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_personne_pk",
+            "attributeIds": [
+              "rp_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "rh_salarie",
+        "name": "SALARIE",
+        "attributes": [
+          {
+            "id": "rs_id",
+            "name": "id_salarie",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rs_matricule",
+            "name": "matricule",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 16
+              }
+            }
+          },
+          {
+            "id": "rs_embauche",
+            "name": "embauche_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_salarie_pk",
+            "attributeIds": [
+              "rs_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 320
+        }
+      },
+      {
+        "id": "rh_stagiaire",
+        "name": "STAGIAIRE",
+        "attributes": [
+          {
+            "id": "rt_id",
+            "name": "id_stagiaire",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rt_ecole",
+            "name": "ecole",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "rt_fin",
+            "name": "stage_fin",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_stagiaire_pk",
+            "attributeIds": [
+              "rt_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 320
+        }
+      },
+      {
+        "id": "rh_service",
+        "name": "SERVICE",
+        "attributes": [
+          {
+            "id": "rv_id",
+            "name": "id_service",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rv_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rv_code",
+            "name": "code",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 8
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_service_pk",
+            "attributeIds": [
+              "rv_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 520
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "rh_affecte",
+        "name": "AFFECTE",
+        "participants": [
+          {
+            "entityId": "rh_salarie",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rh_service",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 430
+        }
+      },
+      {
+        "id": "rh_accueille",
+        "name": "ACCUEILLE",
+        "participants": [
+          {
+            "entityId": "rh_service",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rh_stagiaire",
+            "cardinality": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 430
+        }
+      }
     ]
   }
 }

@@ -2,6 +2,13 @@
 
 Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → MLD → SQL).
 
+## Unreleased — Concepts MERISE, templates et architecture UI
+
+- Héritage, contraintes, CIF et règles métier dans le domaine, le canvas, l’arbre, la persistance, la validation (E020–E028, BR001) et l’export MLD/SQL (commentaires, sans DDL inventé).
+- Templates MCD pédagogiques (blog, boutique, CRM, bibliothèque, scolarité, RH) sans clés étrangères dans le MCD ; `pnpm generate:templates`.
+- Connexions canvas extraites dans `editor/connect.ts` ; nœuds conceptuels unifiés via `ConceptualNodeShell`.
+- Création de diagramme compacte ; contraste des nœuds CIF en thème sombre.
+
 ## Unreleased — Fiabilisation SQL, persistance et arborescence
 
 - SQL généré en deux phases : création des tables, puis ajout des contraintes FK par `ALTER TABLE`.

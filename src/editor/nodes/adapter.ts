@@ -1,6 +1,20 @@
 import type { Edge, Node } from '@xyflow/react'
 import type { Project } from '@/domain'
-import { isIdentifierAttribute, isReflexive, associationMidpoint, cardinalityToString, type ConceptualType, type Cardinality } from '@/domain'
+import {
+  isIdentifierAttribute,
+  isReflexive,
+  associationMidpoint,
+  cardinalityToString,
+  inheritanceMark,
+  CONSTRAINT_KIND_META,
+  normalizeProject,
+  type ConceptualType,
+  type Cardinality,
+  type InheritanceCoverage,
+  type InheritanceExclusivity,
+  type ModelConstraintKind,
+  type BusinessRuleLevel,
+} from '@/domain'
 import { generateMld } from '@/mld'
 import type { ViewMode } from '@/store/project-store'
 
@@ -41,6 +55,51 @@ export type AssociationNodeData = {
     nullable?: boolean
     unique?: boolean
   }>
+}
+
+export type InheritanceNodeData = {
+  id: string
+  label: string
+  viewMode: ViewMode
+  parentLabel: string
+  childLabels: string[]
+  coverage: InheritanceCoverage
+  exclusivity: InheritanceExclusivity
+  mark: string
+}
+
+export type ConstraintNodeData = {
+  id: string
+  label: string
+  viewMode: ViewMode
+  kind: ModelConstraintKind
+  mark: string
+  kindLabel: string
+  description: string
+  targetLabels: string[]
+}
+
+export type CifNodeData = {
+  id: string
+  label: string
+  viewMode: ViewMode
+  sourceLabel: string
+  targetLabel: string
+  description: string
+}
+
+export type BusinessRuleNodeData = {
+  id: string
+  label: string
+  viewMode: ViewMode
+  description: string
+  level: BusinessRuleLevel
+  targetLabels: string[]
+}
+
+export type ConceptualEdgeData = {
+  kind: 'inheritance' | 'constraint' | 'cif' | 'businessRule'
+  dashed?: boolean
 }
 
 export type AssocEdgeData = {
@@ -170,7 +229,86 @@ export function projectToNodes(
     })
   }
 
-  return [...entityNodes, ...associationNodes]
+  const conceptual = normalizeProject(project)
+  const entityName = (id: string) => conceptual.entities.find((entity) => entity.id === id)?.name || ''
+  const objectName = (id: string) =>
+    conceptual.entities.find((entity) => entity.id === id)?.name
+    || conceptual.associations.find((association) => association.id === id)?.name
+    || conceptual.inheritances.find((item) => item.id === id)?.name
+    || conceptual.constraints.find((item) => item.id === id)?.name
+    || conceptual.cifs.find((item) => item.id === id)?.name
+    || conceptual.businessRules.find((item) => item.id === id)?.name
+    || ''
+
+  const inheritanceNodes: Node[] = conceptual.inheritances.map((item) => ({
+    id: item.id,
+    type: 'inheritance',
+    position: item.position,
+    selected: item.id === selectedId,
+    measured: { width: 88, height: 88 },
+    data: {
+      id: item.id,
+      label: item.name,
+      viewMode,
+      parentLabel: entityName(item.parentEntityId),
+      childLabels: item.childEntityIds.map(entityName).filter(Boolean),
+      coverage: item.coverage,
+      exclusivity: item.exclusivity,
+      mark: inheritanceMark(item),
+    } satisfies InheritanceNodeData,
+  }))
+
+  const constraintNodes: Node[] = conceptual.constraints.map((item) => ({
+    id: item.id,
+    type: 'constraint',
+    position: item.position,
+    selected: item.id === selectedId,
+    measured: { width: 72, height: 72 },
+    data: {
+      id: item.id,
+      label: item.name,
+      viewMode,
+      kind: item.kind,
+      mark: CONSTRAINT_KIND_META[item.kind].mark,
+      kindLabel: CONSTRAINT_KIND_META[item.kind].label,
+      description: item.description,
+      targetLabels: item.targetIds.map(objectName).filter(Boolean),
+    } satisfies ConstraintNodeData,
+  }))
+
+  const cifNodes: Node[] = conceptual.cifs.map((item) => ({
+    id: item.id,
+    type: 'cif',
+    position: item.position,
+    selected: item.id === selectedId,
+    measured: { width: 120, height: 56 },
+    data: {
+      id: item.id,
+      label: item.name,
+      viewMode,
+      sourceLabel: entityName(item.sourceEntityId),
+      targetLabel: entityName(item.targetEntityId),
+      description: item.description,
+    } satisfies CifNodeData,
+  }))
+
+  const businessRuleNodes: Node[] = conceptual.businessRules.map((item) => ({
+    id: item.id,
+    type: 'businessRule',
+    position: item.position,
+    selected: item.id === selectedId,
+    measured: { width: 160, height: 72 },
+    data: {
+      id: item.id,
+      label: item.name,
+      viewMode,
+      description: item.description,
+      level: item.level,
+      targetLabels: item.targetIds.map(objectName).filter(Boolean),
+    } satisfies BusinessRuleNodeData,
+  }))
+
+  return [...entityNodes, ...associationNodes, ...inheritanceNodes, ...constraintNodes, ...cifNodes, ...businessRuleNodes]
 }
 
 export function projectToEdges(
@@ -365,6 +503,70 @@ export function projectToEdges(
           onClose: opts.onClose,
         } satisfies AssocEdgeData,
         ...(viewMode === 'MLD' ? { markerEnd: { type: 'arrowclosed' as any } } : {}),
+      })
+    }
+  }
+
+  const conceptual = normalizeProject(project)
+  for (const inheritance of conceptual.inheritances) {
+    if (inheritance.parentEntityId) {
+      edges.push({
+        id: `inh__${inheritance.id}__parent`,
+        source: inheritance.parentEntityId,
+        target: inheritance.id,
+        type: 'conceptual',
+        data: { kind: 'inheritance' } satisfies ConceptualEdgeData,
+      })
+    }
+    for (const childId of inheritance.childEntityIds) {
+      edges.push({
+        id: `inh__${inheritance.id}__${childId}`,
+        source: inheritance.id,
+        target: childId,
+        type: 'conceptual',
+        data: { kind: 'inheritance' } satisfies ConceptualEdgeData,
+      })
+    }
+  }
+  for (const constraint of conceptual.constraints) {
+    for (const targetId of constraint.targetIds) {
+      edges.push({
+        id: `cst__${constraint.id}__${targetId}`,
+        source: constraint.id,
+        target: targetId,
+        type: 'conceptual',
+        data: { kind: 'constraint', dashed: true } satisfies ConceptualEdgeData,
+      })
+    }
+  }
+  for (const cif of conceptual.cifs) {
+    if (cif.sourceEntityId) {
+      edges.push({
+        id: `cif__${cif.id}__source`,
+        source: cif.sourceEntityId,
+        target: cif.id,
+        type: 'conceptual',
+        data: { kind: 'cif' } satisfies ConceptualEdgeData,
+      })
+    }
+    if (cif.targetEntityId) {
+      edges.push({
+        id: `cif__${cif.id}__target`,
+        source: cif.id,
+        target: cif.targetEntityId,
+        type: 'conceptual',
+        data: { kind: 'cif' } satisfies ConceptualEdgeData,
+      })
+    }
+  }
+  for (const rule of conceptual.businessRules) {
+    for (const targetId of rule.targetIds) {
+      edges.push({
+        id: `br__${rule.id}__${targetId}`,
+        source: rule.id,
+        target: targetId,
+        type: 'conceptual',
+        data: { kind: 'businessRule', dashed: true } satisfies ConceptualEdgeData,
       })
     }
   }

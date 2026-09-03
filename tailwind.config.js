@@ -11,6 +11,9 @@ export default {
   		}
   	},
   	extend: {
+  		fontFamily: {
+  			sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+  		},
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
@@ -62,6 +65,11 @@ export default {
   				DEFAULT: 'hsl(var(--node))',
   				header: 'hsl(var(--node-header))',
   				border: 'hsl(var(--node-border))'
+  			},
+  			constraint: {
+  				null: 'hsl(var(--constraint-null))',
+  				required: 'hsl(var(--constraint-required))',
+  				unique: 'hsl(var(--constraint-unique))'
   			},
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',

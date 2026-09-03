@@ -1,10 +1,9 @@
-import { Moon, Sun } from 'lucide-react'
 import { PanelShell } from '@/components/panel/shell'
+import { sidebarLayout } from '@/components/panel/layout'
 import { ClearProjectsButton } from '@/components/shared/clear-projects-button'
 import { PaletteSelect } from '@/components/panel/palette-select'
 import { useTheme } from '@/hooks/use-theme'
 import { Label } from '@/components/ui/label'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function SettingsPanel({
   open,
@@ -17,10 +16,10 @@ export function SettingsPanel({
   variant?: 'modal' | 'panel'
   embedded?: boolean
 }) {
-  const { theme, palette, setPalette, toggleTheme } = useTheme()
+  const { palette, setPalette } = useTheme()
 
   const content = (
-    <section className="space-y-4">
+    <section className={sidebarLayout.section}>
       <div className="w-full space-y-2">
         <Label htmlFor="palette-select">Palette</Label>
         <PaletteSelect value={palette} onChange={setPalette} />

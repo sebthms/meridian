@@ -6,7 +6,7 @@ import { validateProject } from '@/merise'
 
 describe('bibliothèque de templates', () => {
   it('contient un projet valide pour chaque entrée du catalogue', () => {
-    const projectMap = projects as Record<string, Project>
+    const projectMap = projects as unknown as Record<string, Project>
 
     for (const template of catalog) {
       const project = projectMap[template.id]

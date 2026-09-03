@@ -9,11 +9,14 @@ function columnLabel(col: { name: string; isPrimaryKey: boolean; isForeignKey: b
 }
 
 export function formatMld(model: MldModel): string {
-  return model.relations
+  const tables = model.relations
     .map((relation: MldRelation) => {
       const line = '─'.repeat(Math.max(relation.name.length, 12))
       const cols = relation.columns.map((c) => columnLabel(c)).join('\n')
       return `${relation.name}\n${line}\n${cols}`
     })
     .join('\n\n')
+  const notes = (model.conceptualNotes ?? []).map((note) => `· ${note.text}`).join('\n')
+  if (!notes) return tables
+  return tables ? `${tables}\n\nConcepts MERISE (non exportés en tables)\n${'─'.repeat(36)}\n${notes}` : notes
 }

@@ -1,5 +1,6 @@
 import { getPrimaryIdentifier, isCardinality, parseAttributeTypeConfig, type Project } from '@/domain'
 import { physicalIdentifier } from '@/sql/naming'
+import { isCalculatedCandidate, normalizedAttrName } from '../semantic/patterns'
 import { makeIssue, type ValidationIssue } from '../../types'
 import { ADVANCED_RULES as R } from './definitions'
 
@@ -27,15 +28,11 @@ export function reviewIdentifiers(project: Project, issues: ValidationIssue[]) {
 
 export function reviewAttributes(project: Project, issues: ValidationIssue[]) {
   for (const owner of [...project.entities, ...project.associations]) {
-    const names = new Map(owner.attributes.map((attr) => [normalized(attr.name), attr]))
     for (const attr of owner.attributes) {
-      const name = normalized(attr.name)
-      const dependencies = name === 'age' ? ['date_naissance', 'birth_date', 'date_of_birth']
-        : name === 'montant_ttc' ? ['montant_ht', 'montant_tva'] : name === 'line_total' ? ['quantity', 'unit_price']
-          : name === 'montant_ligne' ? ['quantite', 'prix_unitaire'] : []
-      const present = dependencies.filter((dependency) => names.has(dependency))
-      if (present.length && (name === 'age' || present.length === dependencies.length)) {
-        issues.push(makeIssue(R.W010, [owner.id, attr.id], `« ${owner.name}.${attr.name} » pourrait se calculer depuis ${present.map((dependency) => `« ${names.get(dependency)!.name} »`).join(' et ')}. Un instantané historique peut cependant être légitime.`))
+      const siblings = new Map(owner.attributes.map((item) => [normalizedAttrName(item.name), item.name]))
+      const calculated = isCalculatedCandidate(attr.name, siblings)
+      if (calculated) {
+        issues.push(makeIssue(R.W010, [owner.id, attr.id], `« ${owner.name}.${attr.name} ».`))
       }
       let config
       try { config = parseAttributeTypeConfig(attr.typeConfig) } catch { continue }
@@ -54,7 +51,11 @@ export function reviewAttributes(project: Project, issues: ValidationIssue[]) {
 
 export function reviewAssociations(project: Project, issues: ValidationIssue[]) {
   const entities = new Map(project.entities.map((entity) => [entity.id, entity]))
-  const connected = new Set(project.associations.flatMap((association) => association.participants.map((participant) => participant.entityId)))
+  const connected = new Set([
+    ...project.associations.flatMap((association) => association.participants.map((participant) => participant.entityId)),
+    ...(project.inheritances ?? []).flatMap((inheritance) => [inheritance.parentEntityId, ...inheritance.childEntityIds]),
+    ...(project.cifs ?? []).flatMap((cif) => [cif.sourceEntityId, cif.targetEntityId]),
+  ])
   const signatures = new Map<string, string>()
   for (const association of project.associations) {
     const participants = association.participants
@@ -95,7 +96,7 @@ export function reviewAssociations(project: Project, issues: ValidationIssue[]) 
       const likelyNames = new Set([`id_${normalized(other.name)}`, `${normalized(other.name)}_id`, ...keyNames])
       for (const attr of owner.attributes) {
         if (owner.identifiers.some((identifier) => identifier.attributeIds.includes(attr.id))) continue
-        if (likelyNames.has(normalized(attr.name))) issues.push(makeIssue(R.W009, [owner.id, attr.id, association.id], `« ${owner.name}.${attr.name} » ressemble à une référence vers « ${other.name} », déjà reliée par « ${association.name} ».`))
+        if (likelyNames.has(normalized(attr.name))) issues.push(makeIssue(R.W009, [owner.id, attr.id, association.id], `« ${owner.name}.${attr.name} » / « ${other.name} ».`))
       }
     }
   }

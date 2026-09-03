@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "generate:palettes": "node scripts/generate-palettes-css.mjs",
+    "generate:templates": "node scripts/build-templates.mjs",
     "lint": "eslint ."
   },
   "dependencies": {

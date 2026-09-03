@@ -17,6 +17,13 @@ import {
   cardinalityIsValid,
   cardinalityIsComplete,
 } from './association-rules'
+import {
+  inheritanceReferencesAreValid,
+  inheritanceHasNoCycle,
+  constraintReferencesAreValid,
+  cifReferencesAreValid,
+  businessRulesAreValid,
+} from './conceptual-rules'
 
 export const structuralRules: Array<(project: Project, issues: ValidationIssue[]) => void> = [
   entityHasName,
@@ -30,6 +37,11 @@ export const structuralRules: Array<(project: Project, issues: ValidationIssue[]
   cardinalityIsValid,
   cardinalityIsComplete,
   physicalNamesAreUnique,
+  inheritanceReferencesAreValid,
+  inheritanceHasNoCycle,
+  constraintReferencesAreValid,
+  cifReferencesAreValid,
+  businessRulesAreValid,
 ]
 
 export { RULE_E003 }

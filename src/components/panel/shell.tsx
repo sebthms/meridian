@@ -39,9 +39,7 @@ export function PanelShell({
     <aside
       className={cn(
         'relative z-50 w-full',
-        embedded
-          ? 'p-1'
-          : 'rounded-xl border border-border bg-card/95 p-5 shadow-xl backdrop-blur',
+        !embedded && 'rounded-xl border border-border bg-card/95 p-5 shadow-xl backdrop-blur',
         panelClassName,
       )}
       aria-label={ariaLabel}

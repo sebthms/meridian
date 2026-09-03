@@ -6,6 +6,8 @@ import { downloadText } from '@/persistence'
 import { Check, Copy, Download } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { sidebarLayout } from './layout'
+
 export function SqlPanel() {
   const project = useProjectStore((s) => s.project)
   const issues = useProjectStore((s) => s.issues)
@@ -25,7 +27,7 @@ export function SqlPanel() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className={sidebarLayout.stack}>
       <div className="min-h-0 flex-1">
         {canExport ? (
           <div className="relative h-full">
@@ -39,7 +41,7 @@ export function SqlPanel() {
                 </button>
               </TooltipTrigger><TooltipContent>Exporter le script SQL</TooltipContent></Tooltip>
             </div>
-            <pre className="scrollbar-subtle h-full overflow-auto rounded-xl bg-black/30 p-4 pr-20 font-mono text-xs leading-6 text-foreground dark:bg-black/45">
+            <pre className="scrollbar-subtle h-full overflow-auto rounded-xl border border-border bg-muted p-4 pr-20 font-mono text-xs leading-6 text-foreground">
               {sql || '-- Le diagramme ne contient aucune relation.'}
             </pre>
           </div>

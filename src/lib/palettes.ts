@@ -1,4 +1,4 @@
-export type PaletteId = 'ocean' | 'forest' | 'sunset' | 'rose' | 'violet'
+export type PaletteId = 'noisette' | 'ardoise'
 
 export type PalettePreview = {
   primary: string
@@ -14,7 +14,18 @@ export type PaletteDefinition = {
 
 const STORAGE_KEY = 'merise-palette'
 
-export const DEFAULT_PALETTE_ID: PaletteId = 'ocean'
+export const DEFAULT_PALETTE_ID: PaletteId = 'ardoise'
+
+const LEGACY_PALETTE_MAP: Record<string, PaletteId> = {
+  ocean: 'ardoise',
+  forest: 'noisette',
+  amber: 'noisette',
+  violet: 'ardoise',
+  sunset: 'noisette',
+  rose: 'noisette',
+  lin: 'ardoise',
+  brume: 'ardoise',
+}
 
 /** Nettoie d’anciennes surcharges inline avant d’activer une palette CSS. */
 const INLINE_PALETTE_VARS = [
@@ -48,6 +59,9 @@ const INLINE_PALETTE_VARS = [
   '--warning-foreground',
   '--info',
   '--info-foreground',
+  '--constraint-null',
+  '--constraint-required',
+  '--constraint-unique',
   '--ring',
   '--selection',
   '--sidebar-primary',
@@ -59,29 +73,14 @@ const INLINE_PALETTE_VARS = [
 
 export const PALETTES: PaletteDefinition[] = [
   {
-    id: 'ocean',
-    label: 'Océan',
-    preview: { primary: '231 84% 60%', secondary: '183 74% 38%', accent: '38 92% 50%' },
+    id: 'noisette',
+    label: 'Noisette',
+    preview: { primary: '25 28% 38%', secondary: '30 20% 68%', accent: '18 24% 52%' },
   },
   {
-    id: 'forest',
-    label: 'Forêt',
-    preview: { primary: '142 72% 38%', secondary: '158 64% 32%', accent: '48 96% 53%' },
-  },
-  {
-    id: 'sunset',
-    label: 'Sunset',
-    preview: { primary: '14 85% 55%', secondary: '280 65% 52%', accent: '45 95% 55%' },
-  },
-  {
-    id: 'rose',
-    label: 'Rose',
-    preview: { primary: '340 75% 55%', secondary: '260 60% 50%', accent: '25 90% 58%' },
-  },
-  {
-    id: 'violet',
-    label: 'Violet',
-    preview: { primary: '262 80% 58%', secondary: '199 75% 45%', accent: '152 60% 45%' },
+    id: 'ardoise',
+    label: 'Ardoise',
+    preview: { primary: '215 22% 42%', secondary: '210 16% 68%', accent: '200 20% 55%' },
   },
 ]
 
@@ -91,6 +90,11 @@ export function isPaletteId(value: string): value is PaletteId {
   return paletteMap.has(value as PaletteId)
 }
 
+export function resolvePaletteId(value: string): PaletteId {
+  if (isPaletteId(value)) return value
+  return LEGACY_PALETTE_MAP[value] ?? DEFAULT_PALETTE_ID
+}
+
 export function getPalette(id: PaletteId): PaletteDefinition {
   return paletteMap.get(id) ?? paletteMap.get(DEFAULT_PALETTE_ID)!
 }
@@ -98,7 +102,7 @@ export function getPalette(id: PaletteId): PaletteDefinition {
 export function getInitialPalette(): PaletteId {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored && isPaletteId(stored)) return stored
+    if (stored) return resolvePaletteId(stored)
   } catch {
     /* localStorage indisponible */
   }

@@ -4,9 +4,18 @@ import type {
   Entity,
   Project,
 } from '@/domain'
-import { getAlternateIdentifiers, getPrimaryIdentifier, isReflexive } from '@/domain'
+import {
+  CONSTRAINT_KIND_META,
+  getAlternateIdentifiers,
+  getPrimaryIdentifier,
+  inheritanceCoverageLabel,
+  inheritanceExclusivityLabel,
+  isReflexive,
+  normalizeProject,
+} from '@/domain'
 import { attributeToSql } from '@/sql/model'
-import type { MldColumn, MldModel, MldRelation } from './model'
+import { findFunctionalAssociation } from '@/domain'
+import type { MldColumn, MldConceptualNote, MldModel, MldRelation } from './model'
 
 function primaryKeyAttributes(entity: Entity) {
   const id = getPrimaryIdentifier(entity)
@@ -243,6 +252,49 @@ function reflexiveFkPlacement(
  *  - N:N (y compris réflexive) → table associative.
  *  - 1:N / 1:1 → la FK migre dans le côté « 1 » (réflexive 1:N : côté enfant).
  */
+function conceptualNotes(project: Project): MldConceptualNote[] {
+  const next = normalizeProject(project)
+  const notes: MldConceptualNote[] = []
+  const entityName = (id: string) => next.entities.find((entity) => entity.id === id)?.name || id
+  const objectName = (id: string) =>
+    next.entities.find((entity) => entity.id === id)?.name
+    || next.associations.find((association) => association.id === id)?.name
+    || id
+
+  for (const inheritance of next.inheritances) {
+    const children = inheritance.childEntityIds.map(entityName).join(', ') || '(aucun enfant)'
+    notes.push({
+      kind: 'inheritance',
+      sourceId: inheritance.id,
+      text: `Héritage ${inheritance.name || inheritance.id} : ${entityName(inheritance.parentEntityId)} → ${children} (${inheritanceCoverageLabel(inheritance.coverage).toLowerCase()}, ${inheritanceExclusivityLabel(inheritance.exclusivity).toLowerCase()}). Non projeté en tables : le MLD conserve les entités telles quelles.`,
+    })
+  }
+  for (const constraint of next.constraints) {
+    const targets = constraint.targetIds.map(objectName).join(', ') || '(aucun objet)'
+    notes.push({
+      kind: 'constraint',
+      sourceId: constraint.id,
+      text: `Contrainte ${CONSTRAINT_KIND_META[constraint.kind].mark} ${constraint.name || constraint.id} sur ${targets}${constraint.description ? ` — ${constraint.description}` : ''}. Conceptuelle uniquement.`,
+    })
+  }
+  for (const cif of next.cifs) {
+    const association = findFunctionalAssociation(next, cif.sourceEntityId, cif.targetEntityId, cif.associationId)
+    notes.push({
+      kind: 'cif',
+      sourceId: cif.id,
+      text: `CIF ${cif.name || cif.id} : ${entityName(cif.sourceEntityId)} → ${entityName(cif.targetEntityId)}${association ? ` (association ${association.name})` : ''}${cif.description ? ` — ${cif.description}` : ''}. Documentée seulement : aucune clé étrangère n’est inventée à partir de ce concept.`,
+    })
+  }
+  for (const rule of next.businessRules) {
+    notes.push({
+      kind: 'business-rule',
+      sourceId: rule.id,
+      text: `Règle métier [${rule.level}] ${rule.name || rule.id} : ${rule.description || '(sans description)'}.`,
+    })
+  }
+  return notes
+}
+
 export function generateMld(project: Project): MldModel {
   const relations = new Map<string, MldRelation>()
 
@@ -288,5 +340,6 @@ export function generateMld(project: Project): MldModel {
 
   return {
     relations: [...relations.values()].map((r) => ({ ...r, columns: dedupeColumns(r.columns) })),
+    conceptualNotes: conceptualNotes(project),
   }
 }

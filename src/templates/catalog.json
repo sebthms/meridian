@@ -1,8 +1,8 @@
 [
-  { "id": "blog", "label": "Blog éditorial", "category": "Contenu", "description": "Auteurs, articles, commentaires et tags" },
-  { "id": "marketplace", "label": "Marketplace", "category": "Commerce", "description": "Vendeurs, produits, commandes et lignes" },
-  { "id": "ecommerce", "label": "Boutique en ligne", "category": "Commerce", "description": "Clients, catalogue, paniers et produits" },
-  { "id": "crm", "label": "CRM commercial", "category": "Vente", "description": "Entreprises, contacts, opportunités et activités" },
-  { "id": "library", "label": "Bibliothèque", "category": "Service", "description": "Livres, auteurs, membres et emprunts" },
-  { "id": "events", "label": "Événements", "category": "Organisation", "description": "Événements, lieux, participants et inscriptions" }
+  { "id": "blog", "label": "Blog", "category": "Contenu", "description": "Auteurs, rubriques, articles, commentaires et mots-clés" },
+  { "id": "boutique", "label": "Boutique", "category": "Commerce", "description": "Vendeurs, catalogue, clients et commandes" },
+  { "id": "crm", "label": "CRM", "category": "Vente", "description": "Entreprises, contacts, opportunités et activités" },
+  { "id": "bibliotheque", "label": "Bibliothèque", "category": "Service", "description": "Œuvres, exemplaires, adhérents et emprunts" },
+  { "id": "scolarite", "label": "Scolarité", "category": "Formation", "description": "Enseignants, cours, sessions et inscriptions" },
+  { "id": "rh", "label": "RH", "category": "Organisation", "description": "Personnes, salariés, stagiaires et services" }
 ]

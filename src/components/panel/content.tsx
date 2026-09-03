@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { useProjectStore } from '@/store/project-store'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { sidebarLayout } from './layout'
 import type { PanelView } from './view'
 import { ProjectTreePanel } from './project-tree'
 import { ProjectManagerPanel } from './project-manager'
@@ -25,24 +26,18 @@ export function PanelContent({
   const issues = useProjectStore((state) => state.issues)
   if (panelView === 'issues') {
     return (
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex items-center justify-between pb-1 pt-1">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 ">
-              <span className="text-xs text-destructive">
-                {issues.filter((issue) => issue.severity === 'error').length} erreur{issues.filter((issue) => issue.severity === 'error').length > 1 ? 's' : ''}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-yellow-500">
-                {issues.filter((issue) => issue.severity === 'warning').length} avertissement{issues.filter((issue) => issue.severity === 'warning').length > 1 ? 's' : ''}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-blue-500">
-                {issues.filter((issue) => issue.severity === 'info').length} information{issues.filter((issue) => issue.severity === 'info').length > 1 ? 's' : ''}
-              </span>
-            </div>
+      <div className={sidebarLayout.stack}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="text-xs text-destructive">
+              {issues.filter((issue) => issue.severity === 'error').length} erreur{issues.filter((issue) => issue.severity === 'error').length > 1 ? 's' : ''}
+            </span>
+            <span className="text-xs text-yellow-500">
+              {issues.filter((issue) => issue.severity === 'warning').length} avertissement{issues.filter((issue) => issue.severity === 'warning').length > 1 ? 's' : ''}
+            </span>
+            <span className="text-xs text-blue-500">
+              {issues.filter((issue) => issue.severity === 'info').length} information{issues.filter((issue) => issue.severity === 'info').length > 1 ? 's' : ''}
+            </span>
           </div>
           <Tooltip>
             <TooltipTrigger asChild>

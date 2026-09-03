@@ -7,6 +7,12 @@ export default [
   {
     ignores: ['dist/**', 'node_modules/**', '*.config.js', 'tsconfig.tsbuildinfo'],
   },
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: { console: 'readonly', process: 'readonly' },
+    },
+  },
   eslint.configs.recommended,
   {
     files: ['src/**/*.{ts,tsx}'],

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Project } from '@/domain'
-import { createProject as createEmptyProject, ensureAssociationPositions } from '@/domain'
+import { createProject as createEmptyProject, ensureAssociationPositions, normalizeProject } from '@/domain'
 import type { ValidationIssue } from '@/merise'
 import { validateProject } from '@/merise'
 import {
@@ -11,6 +11,7 @@ import {
   saveProjectToStorage,
   clearProjectStorage,
 } from '@/persistence'
+import type { ConceptualKind } from '@/editor/conceptual-kind'
 
 export type HistoryState = {
   past: Project[]
@@ -29,6 +30,7 @@ type ProjectStore = {
   selectedElementId?: string
   // UI transitoire : cible (entité ou association) du modal d'ajout de propriété.
   addPropertyTarget?: { kind: 'entity' | 'association'; id: string; attributeId?: string } | null
+  editConceptualTarget?: { kind: ConceptualKind; id: string } | null
   issues: ValidationIssue[]
   past: Project[]
   future: Project[]
@@ -37,6 +39,8 @@ type ProjectStore = {
   select: (id?: string) => void
   openAddProperty: (target: { kind: 'entity' | 'association'; id: string; attributeId?: string }) => void
   closeAddProperty: () => void
+  openEditConceptual: (target: { kind: ConceptualKind; id: string }) => void
+  closeEditConceptual: () => void
   undo: () => void
   redo: () => void
   reset: () => void
@@ -55,7 +59,7 @@ type ProjectStore = {
 }
 
 function revalidate(project: Project): ValidationIssue[] {
-  return validateProject(project).issues
+  return validateProject(normalizeProject(project)).issues
 }
 
 const MAX_HISTORY = 100
@@ -86,13 +90,14 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   saveStatus: 'saved',
   selectedElementId: undefined,
   addPropertyTarget: null,
+  editConceptualTarget: null,
   issues: revalidate(initialProject),
   past: [],
   future: [],
 
   apply: (next) => {
     if (next === get().project) return
-    const project = { ...next, associations: ensureAssociationPositions(next) }
+    const project = normalizeProject({ ...next, associations: ensureAssociationPositions(next) })
     set({ saveStatus: 'saving' })
     set((state) => {
       const projects = state.projects.map((item) => item.id === state.activeProjectId
@@ -115,6 +120,10 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   openAddProperty: (target) => set({ addPropertyTarget: target }),
 
   closeAddProperty: () => set({ addPropertyTarget: null }),
+
+  openEditConceptual: (target) => set({ editConceptualTarget: target }),
+
+  closeEditConceptual: () => set({ editConceptualTarget: null }),
 
   undo: () => {
     let restored: Project | undefined
@@ -156,7 +165,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   load: (project) => {
-    const next = { ...project, associations: ensureAssociationPositions(project) }
+    const next = normalizeProject({ ...project, associations: ensureAssociationPositions(project) })
     set({ saveStatus: 'saving' })
     set((state) => {
       const projects = state.activeProjectId
@@ -190,7 +199,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   createProjectFromTemplate: (name, template) => {
-    const project: Project = JSON.parse(JSON.stringify({ ...template, name: name.trim() || template.name })) as Project
+    const project: Project = normalizeProject(JSON.parse(JSON.stringify({ ...template, name: name.trim() || template.name })) as Project)
     const item = { id: newProjectId(), project, updatedAt: new Date().toISOString() }
     set({ saveStatus: 'saving' })
     set((state) => {

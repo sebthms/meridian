@@ -120,8 +120,6 @@ export const physicalNamesAreUnique: StructuralRule = (project, issues) => {
   }
 }
 
-// Re-export helper for auto-fix: give an entity its first attribute as identifier.
 export function ensureMinimumIdentifier(entityId: string) {
-  // pure helper exposed for auto-correction logic
   return createIdentifier(`id-${entityId}-default`)
 }

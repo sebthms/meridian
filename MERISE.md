@@ -101,9 +101,10 @@ Combinaisons usuelles : `(0,1)`, `(1,1)`, `(0,n)`, `(1,n)`.
 
 ### 4.4 Notions avancées
 
-- **Héritage / spécialisation** : une entité générique (mère) peut se décliner en sous-entités (filles) qui héritent de ses propriétés et identifiant, tout en ajoutant leurs propres attributs (ex. : PERSONNE → CLIENT / FOURNISSEUR).
-- **Contraintes d'intégrité fonctionnelle (CIF)** : une association dont une des entités a systématiquement une cardinalité maximale de 1 (ex. : une COMMANDE est passée par un et un seul CLIENT).
-- **Historisation** : notée par un `(H)` sur la propriété concernée, elle indique que l'on souhaite conserver l'historique des valeurs prises par cet attribut.
+- **Héritage / spécialisation** : une entité générique (mère) peut se décliner en sous-entités (filles) qui héritent de ses propriétés et identifiant, tout en ajoutant leurs propres attributs (ex. : PERSONNE → CLIENT / FOURNISSEUR). Dans cet éditeur : nœud héritage, couverture totale/partielle, exclusivité exclusive/chevauchante.
+- **Contraintes d'intégrité fonctionnelle (CIF)** : une association dont une des entités a systématiquement une cardinalité maximale de 1 (ex. : une COMMANDE est passée par un et un seul CLIENT). L’outil n’invente pas la dépendance : la CIF s’appuie sur une association déjà présente avec max cible = 1.
+- **Contraintes** (exclusion, totalité, partition, etc.) et **règles métier** : annotations du MCD ; une règle de niveau erreur bloque l’export SQL.
+- **Historisation** : notée par un `(H)` sur la propriété concernée (non éditée comme primitive dédiée dans l’outil).
 
 ---
 

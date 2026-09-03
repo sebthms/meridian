@@ -1,5 +1,6 @@
 import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
-import { ChevronDown, ChevronRight, CircleDot, Database, Network } from 'lucide-react'
+import { ArrowRightLeft, ChevronDown, ChevronRight, CircleDot, Database, GitFork, Network, ScrollText, ShieldAlert } from 'lucide-react'
+import { CONSTRAINT_KIND_META, inheritanceMark } from '@/domain'
 import { cardinalityToString } from '@/domain'
 import { useProjectStore } from '@/store/project-store'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,10 @@ export function ProjectTreePanel({ embedded = false }: { embedded?: boolean }) {
   const selectedId = useProjectStore((state) => state.selectedElementId)
   const [openEntities, setOpenEntities] = useState(true)
   const [openAssociations, setOpenAssociations] = useState(true)
+  const [openInheritances, setOpenInheritances] = useState(true)
+  const [openConstraints, setOpenConstraints] = useState(true)
+  const [openCifs, setOpenCifs] = useState(true)
+  const [openRules, setOpenRules] = useState(true)
   const [expandedEntities, setExpandedEntities] = useState<Set<string>>(new Set())
   const [expandedAssociations, setExpandedAssociations] = useState<Set<string>>(new Set())
 
@@ -31,8 +36,8 @@ export function ProjectTreePanel({ embedded = false }: { embedded?: boolean }) {
   })
 
   return (
-    <aside className={embedded ? 'w-full overflow-hidden' : 'w-full overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur'} aria-label="Arborescence du diagramme">
-      <div className={embedded ? 'scrollbar-subtle max-h-[60vh] overflow-x-hidden overflow-y-auto text-xs' : 'scrollbar-subtle max-h-[60vh] overflow-x-hidden overflow-y-auto p-3 text-xs'}>
+    <aside className={embedded ? 'w-full overflow-hidden' : 'w-full overflow-hidden rounded-xl border bg-card/95 p-5 shadow-xl backdrop-blur'} aria-label="Arborescence du diagramme">
+      <div className="scrollbar-subtle max-h-[60vh] overflow-x-hidden overflow-y-auto text-xs">
         <TreeToggle open={openEntities} label="les entités" onClick={() => setOpenEntities((open) => !open)}><Database className="h-3.5 w-3.5" aria-hidden />Entités</TreeToggle>
         {openEntities && <div className="ml-2 border-l border-border/60 pl-1">{project.entities.map((entity) => {
           const open = expandedEntities.has(entity.id)
@@ -56,6 +61,37 @@ export function ProjectTreePanel({ embedded = false }: { embedded?: boolean }) {
             {open && <div className="ml-7 space-y-0.5 border-l border-border/40 py-1 pl-2">{association.participants.map((participant, index) => <div key={`${participant.entityId}-${index}`} className="truncate py-0.5 text-[10px] text-muted-foreground">{project.entities.find((entity) => entity.id === participant.entityId)?.name || 'Entité inconnue'}{participant.role ? ` · ${participant.role}` : ''} · {cardinalityToString(participant.cardinality)}</div>)}{association.attributes.map((attribute) => <TreeProperty key={attribute.id} attribute={attribute} />)}</div>}
           </div>
         })}</div>}
+
+        <div className="mt-2"><TreeToggle open={openInheritances} label="les héritages" onClick={() => setOpenInheritances((open) => !open)}><GitFork className="h-3.5 w-3.5" aria-hidden />Héritages</TreeToggle></div>
+        {openInheritances && <div className="ml-2 border-l border-border/60 pl-1">{project.inheritances.map((inheritance) => (
+          <button key={inheritance.id} type="button" onClick={() => select(inheritance.id)} aria-current={selectedId === inheritance.id ? 'true' : undefined} className={cn('flex w-full min-w-0 items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', selectedId === inheritance.id && 'bg-accent text-accent-foreground')}>
+            <span className="truncate">{inheritance.name || 'Héritage'}</span>
+            <span className="ml-auto text-[10px] text-muted-foreground">{inheritanceMark(inheritance)}</span>
+          </button>
+        ))}</div>}
+
+        <div className="mt-2"><TreeToggle open={openConstraints} label="les contraintes" onClick={() => setOpenConstraints((open) => !open)}><ShieldAlert className="h-3.5 w-3.5" aria-hidden />Contraintes</TreeToggle></div>
+        {openConstraints && <div className="ml-2 border-l border-border/60 pl-1">{project.constraints.map((constraint) => (
+          <button key={constraint.id} type="button" onClick={() => select(constraint.id)} aria-current={selectedId === constraint.id ? 'true' : undefined} className={cn('flex w-full min-w-0 items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', selectedId === constraint.id && 'bg-accent text-accent-foreground')}>
+            <span className="truncate">{constraint.name || 'Contrainte'}</span>
+            <span className="ml-auto text-[10px] text-muted-foreground">{CONSTRAINT_KIND_META[constraint.kind].mark}</span>
+          </button>
+        ))}</div>}
+
+        <div className="mt-2"><TreeToggle open={openCifs} label="les CIF" onClick={() => setOpenCifs((open) => !open)}><ArrowRightLeft className="h-3.5 w-3.5" aria-hidden />CIF</TreeToggle></div>
+        {openCifs && <div className="ml-2 border-l border-border/60 pl-1">{project.cifs.map((cif) => (
+          <button key={cif.id} type="button" onClick={() => select(cif.id)} aria-current={selectedId === cif.id ? 'true' : undefined} className={cn('flex w-full min-w-0 items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', selectedId === cif.id && 'bg-accent text-accent-foreground')}>
+            <span className="truncate">{cif.name || 'CIF'}</span>
+          </button>
+        ))}</div>}
+
+        <div className="mt-2"><TreeToggle open={openRules} label="les règles métier" onClick={() => setOpenRules((open) => !open)}><ScrollText className="h-3.5 w-3.5" aria-hidden />Règles métier</TreeToggle></div>
+        {openRules && <div className="ml-2 border-l border-border/60 pl-1">{project.businessRules.map((rule) => (
+          <button key={rule.id} type="button" onClick={() => select(rule.id)} aria-current={selectedId === rule.id ? 'true' : undefined} className={cn('flex w-full min-w-0 items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', selectedId === rule.id && 'bg-accent text-accent-foreground')}>
+            <span className="truncate">{rule.name || 'Règle métier'}</span>
+            <span className="ml-auto text-[10px] text-muted-foreground">{rule.level}</span>
+          </button>
+        ))}</div>}
       </div>
     </aside>
   )

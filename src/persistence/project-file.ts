@@ -1,5 +1,23 @@
-import type { Association, Attribute, Entity, Project } from '@/domain'
-import { CONCEPTUAL_TYPES, createProject, isCardinality, parseAttributeTypeConfig } from '@/domain'
+import type {
+  Association,
+  Attribute,
+  BusinessRule,
+  Entity,
+  FunctionalDependencyConstraint,
+  Inheritance,
+  ModelConstraint,
+  Project,
+} from '@/domain'
+import {
+  BUSINESS_RULE_LEVELS,
+  CONCEPTUAL_TYPES,
+  CONSTRAINT_KINDS,
+  createProject,
+  isCardinality,
+  isInheritanceCoverage,
+  isInheritanceExclusivity,
+  parseAttributeTypeConfig,
+} from '@/domain'
 
 export type ProjectFile = Project
 
@@ -89,6 +107,90 @@ function validateAssociation(value: unknown, index: number): Association {
   return { id: value.id, name: value.name, participants, attributes, ...(value.position !== undefined ? { position: validatePosition(value.position, `${context}.position`) } : {}) }
 }
 
+function validateStringIds(value: unknown, context: string): string[] {
+  if (!Array.isArray(value) || !value.every((id) => typeof id === 'string' && id.trim())) {
+    invalid(`${context} doit être un tableau d’identifiants texte.`)
+  }
+  if (new Set(value).size !== value.length) invalid(`${context} contient des références dupliquées.`)
+  return value
+}
+
+function validateInheritance(value: unknown, index: number): Inheritance {
+  const context = `L’héritage ${index + 1}`
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim() || typeof value.name !== 'string') {
+    invalid(`${context} a une structure invalide.`)
+  }
+  if (typeof value.parentEntityId !== 'string') invalid(`${context}.parentEntityId doit être texte.`)
+  if (!isInheritanceCoverage(value.coverage)) invalid(`${context} a un type de couverture invalide.`)
+  if (!isInheritanceExclusivity(value.exclusivity)) invalid(`${context} a un type d’exclusivité invalide.`)
+  return {
+    id: value.id,
+    name: value.name,
+    parentEntityId: value.parentEntityId,
+    childEntityIds: validateStringIds(value.childEntityIds, `${context}.childEntityIds`),
+    coverage: value.coverage,
+    exclusivity: value.exclusivity,
+    position: validatePosition(value.position, `${context}.position`),
+  }
+}
+
+function validateConstraint(value: unknown, index: number): ModelConstraint {
+  const context = `La contrainte ${index + 1}`
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim() || typeof value.name !== 'string') {
+    invalid(`${context} a une structure invalide.`)
+  }
+  if (typeof value.description !== 'string') invalid(`${context}.description doit être texte.`)
+  if (!CONSTRAINT_KINDS.includes(value.kind as never)) invalid(`${context} a un type de contrainte invalide.`)
+  return {
+    id: value.id,
+    name: value.name,
+    description: value.description,
+    kind: value.kind as ModelConstraint['kind'],
+    targetIds: validateStringIds(value.targetIds, `${context}.targetIds`),
+    position: validatePosition(value.position, `${context}.position`),
+  }
+}
+
+function validateCif(value: unknown, index: number): FunctionalDependencyConstraint {
+  const context = `La CIF ${index + 1}`
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim() || typeof value.name !== 'string') {
+    invalid(`${context} a une structure invalide.`)
+  }
+  if (typeof value.sourceEntityId !== 'string' || typeof value.targetEntityId !== 'string') {
+    invalid(`${context} doit déclarer une entité source et une entité cible.`)
+  }
+  if (typeof value.description !== 'string') invalid(`${context}.description doit être texte.`)
+  if (value.associationId !== undefined && (typeof value.associationId !== 'string' || !value.associationId.trim())) {
+    invalid(`${context}.associationId doit être texte.`)
+  }
+  return {
+    id: value.id,
+    name: value.name,
+    sourceEntityId: value.sourceEntityId,
+    targetEntityId: value.targetEntityId,
+    description: value.description,
+    ...(value.associationId !== undefined ? { associationId: value.associationId } : {}),
+    position: validatePosition(value.position, `${context}.position`),
+  }
+}
+
+function validateBusinessRule(value: unknown, index: number): BusinessRule {
+  const context = `La règle métier ${index + 1}`
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim() || typeof value.name !== 'string') {
+    invalid(`${context} a une structure invalide.`)
+  }
+  if (typeof value.description !== 'string') invalid(`${context}.description doit être texte.`)
+  if (!BUSINESS_RULE_LEVELS.includes(value.level as never)) invalid(`${context} a un niveau invalide.`)
+  return {
+    id: value.id,
+    name: value.name,
+    description: value.description,
+    level: value.level as BusinessRule['level'],
+    targetIds: validateStringIds(value.targetIds, `${context}.targetIds`),
+    position: validatePosition(value.position, `${context}.position`),
+  }
+}
+
 function migrateProject(raw: Record<string, unknown>): Record<string, unknown> {
   if (raw.version === 0) return { ...raw, version: CURRENT_PROJECT_VERSION }
   if (raw.version !== CURRENT_PROJECT_VERSION) invalid('version de projet non prise en charge.')
@@ -130,16 +232,47 @@ export function parseProject(raw: string): ProjectFile {
   const parsed = migrateProject(decoded)
   if (typeof parsed.name !== 'string' && parsed.name !== undefined) invalid('name doit être texte.')
   if (!Array.isArray(parsed.entities) || !Array.isArray(parsed.associations)) invalid('entities et associations doivent être des tableaux.')
+  const inheritancesRaw = parsed.inheritances ?? []
+  const constraintsRaw = parsed.constraints ?? []
+  const cifsRaw = parsed.cifs ?? []
+  const businessRulesRaw = parsed.businessRules ?? []
+  if (!Array.isArray(inheritancesRaw) || !Array.isArray(constraintsRaw) || !Array.isArray(cifsRaw) || !Array.isArray(businessRulesRaw)) {
+    invalid('inheritances, constraints, cifs et businessRules doivent être des tableaux.')
+  }
   const entities = parsed.entities.map(validateEntity)
   const associations = parsed.associations.map(validateAssociation)
+  const inheritances = inheritancesRaw.map(validateInheritance)
+  const constraints = constraintsRaw.map(validateConstraint)
+  const cifs = cifsRaw.map(validateCif)
+  const businessRules = businessRulesRaw.map(validateBusinessRule)
   const entityIds = new Set(entities.map((entity) => entity.id))
+  const associationIds = new Set(associations.map((association) => association.id))
   if (entityIds.size !== entities.length) invalid('les identifiants d’entités doivent être uniques.')
-  if (new Set(associations.map((association) => association.id)).size !== associations.length) invalid('les identifiants d’associations doivent être uniques.')
+  if (associationIds.size !== associations.length) invalid('les identifiants d’associations doivent être uniques.')
+  if (new Set(inheritances.map((item) => item.id)).size !== inheritances.length) invalid('les identifiants d’héritages doivent être uniques.')
+  if (new Set(constraints.map((item) => item.id)).size !== constraints.length) invalid('les identifiants de contraintes doivent être uniques.')
+  if (new Set(cifs.map((item) => item.id)).size !== cifs.length) invalid('les identifiants de CIF doivent être uniques.')
+  if (new Set(businessRules.map((item) => item.id)).size !== businessRules.length) invalid('les identifiants de règles métier doivent être uniques.')
   if (associations.some((association) => association.participants.some((participant) => !entityIds.has(participant.entityId)))) invalid('une association référence une entité inexistante.')
+  const objectIds = new Set([...entityIds, ...associationIds, ...inheritances.map((item) => item.id), ...constraints.map((item) => item.id), ...cifs.map((item) => item.id), ...businessRules.map((item) => item.id)])
+  if (objectIds.size !== entityIds.size + associationIds.size + inheritances.length + constraints.length + cifs.length + businessRules.length) {
+    invalid('les identifiants d’objets du projet doivent être uniques.')
+  }
   const ignoredRules = parsed.ignoredRules ?? []
   const ignoredIssueIds = parsed.ignoredIssueIds ?? []
   if (!Array.isArray(ignoredRules) || !ignoredRules.every((item) => typeof item === 'string') || !Array.isArray(ignoredIssueIds) || !ignoredIssueIds.every((item) => typeof item === 'string')) invalid('les listes d’ignorance doivent contenir uniquement du texte.')
-  return { version: CURRENT_PROJECT_VERSION, name: parsed.name ?? 'Projet importé', entities, associations, ignoredRules, ignoredIssueIds }
+  return {
+    version: CURRENT_PROJECT_VERSION,
+    name: parsed.name ?? 'Projet importé',
+    entities,
+    associations,
+    inheritances,
+    constraints,
+    cifs,
+    businessRules,
+    ignoredRules,
+    ignoredIssueIds,
+  }
 }
 
 export function emptyProject(): ProjectFile {

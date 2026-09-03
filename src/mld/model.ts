@@ -26,6 +26,17 @@ export type MldRelation = {
   sourceId: string
 }
 
+export type MldConceptualNote = {
+  kind: 'inheritance' | 'constraint' | 'cif' | 'business-rule'
+  sourceId: string
+  text: string
+}
+
 export type MldModel = {
   relations: MldRelation[]
+  /**
+   * Concepts MERISE non projetés en tables (héritage, contraintes, CIF, règles).
+   * Ils n’engendrent jamais de CREATE/ALTER : uniquement de la documentation.
+   */
+  conceptualNotes: MldConceptualNote[]
 }

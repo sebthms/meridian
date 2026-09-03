@@ -9,6 +9,7 @@ import {
   type Attribute,
   type ConceptualType,
 } from '@/domain'
+import { stripDeletedReferences } from './conceptual-commands'
 
 function uid(prefix: string): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}`
@@ -68,7 +69,13 @@ export function deleteEntity(project: Project, entityId: string): Project {
     }))
     .filter((a) => a.participants.length >= 2)
 
-  return { ...project, entities: project.entities.filter((e) => e.id !== entityId), associations }
+  const removedAssociationIds = project.associations
+    .filter((association) => !associations.some((item) => item.id === association.id))
+    .map((association) => association.id)
+  return stripDeletedReferences(
+    { ...project, entities: project.entities.filter((e) => e.id !== entityId), associations },
+    new Set([entityId, ...removedAssociationIds]),
+  )
 }
 
 export function moveEntity(project: Project, entityId: string, position: { x: number; y: number }): Project {
@@ -427,10 +434,13 @@ export function createAssociationBetween(
 }
 
 export function deleteAssociation(project: Project, associationId: string): Project {
-  return {
-    ...project,
-    associations: project.associations.filter((a) => a.id !== associationId),
-  }
+  return stripDeletedReferences(
+    {
+      ...project,
+      associations: project.associations.filter((a) => a.id !== associationId),
+    },
+    new Set([associationId]),
+  )
 }
 
 export function updateAssociationName(project: Project, associationId: string, name: string): Project {

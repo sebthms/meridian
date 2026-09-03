@@ -136,9 +136,11 @@ export function AddPropertyModal() {
 
   return <Modal open onClose={close} title={target.attributeId ? 'Modifier la propriété' : 'Ajouter une propriété'} className="max-w-2xl">
     <div className="max-h-[75vh] space-y-4 overflow-y-auto pr-1">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5"><Label htmlFor="property-name">Nom</Label><Input id="property-name" value={name} onChange={(event) => { setName(event.target.value); setError(null) }} placeholder="nom_propriete" autoFocus />{(nameFormatError || error) && <p className="text-xs text-destructive">{nameFormatError || error}</p>}</div>
-        <div className="space-y-1.5"><Label htmlFor="property-logical-name">Nom logique</Label><Input id="property-logical-name" value={logicalName} onChange={(event) => setLogicalName(event.target.value)} placeholder="Libellé métier" /></div>
+      <div className="w-full">
+        <fieldset className="space-y-3 rounded-lg border border-border/70 p-3 flex w-full justify-between gap-2"><legend className="px-1 text-xs font-semibold">Nom</legend>
+          <div className="w-full"><Input id="property-name" value={name} onChange={(event) => { setName(event.target.value); setError(null) }} placeholder="nom_propriete" autoFocus />{(nameFormatError || error) && <p className="text-xs text-destructive">{nameFormatError || error}</p>}</div>
+          <div className="w-full"><Input id="property-logical-name" value={logicalName} onChange={(event) => setLogicalName(event.target.value)} placeholder="Libellé métier" /></div>
+        </fieldset>
       </div>
 
       <fieldset onChange={() => { setTypeChanged(true); setError(null) }} className="space-y-3 rounded-lg border border-border/70 p-3"><legend className="px-1 text-xs font-semibold">Type</legend>
