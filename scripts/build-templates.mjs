@@ -5,74 +5,25 @@
  */
 import fs from 'node:fs'
 import { localizeProjects } from './template-localize-en.mjs'
-
-const C01 = { min: 0, max: 1 }
-const C11 = { min: 1, max: 1 }
-const C0N = { min: 0, max: 'N' }
-const C1N = { min: 1, max: 'N' }
-
-function text(length = 80, large = false) {
-  return { text: { charset: 'UNICODE', storage: large ? 'LARGE' : 'VARIABLE', ...(large ? {} : { length }) } }
-}
-function counter() {
-  return { numeric: { kind: 'COUNTER' } }
-}
-function int32() {
-  return { numeric: { kind: 'INTEGER', bits: 32 } }
-}
-function money() {
-  return { numeric: { kind: 'MONEY', precision: 12, scale: 2 } }
-}
-function datetime() {
-  return { dateTime: { kind: 'DATETIME', timezone: true } }
-}
-function dateOnly() {
-  return { dateTime: { kind: 'DATE' } }
-}
-function bool() {
-  return { other: { kind: 'BOOLEAN' } }
-}
-
-function a(id, name, conceptualType, extra = {}) {
-  return { id, name, conceptualType, nullable: false, ...extra }
-}
-
-function entity(id, name, x, y, attributes, pkIds = [attributes[0].id]) {
-  return {
-    id,
-    name,
-    attributes,
-    identifiers: [{ id: `${id}_pk`, attributeIds: pkIds, isPrimary: true }],
-    position: { x, y },
-  }
-}
-
-function assoc(id, name, leftId, leftCard, rightId, rightCard, attributes = [], position) {
-  return {
-    id,
-    name,
-    participants: [
-      { entityId: leftId, cardinality: leftCard },
-      { entityId: rightId, cardinality: rightCard },
-    ],
-    attributes,
-    ...(position ? { position } : {}),
-  }
-}
-
-function project(name, extras) {
-  return {
-    version: 1,
-    name,
-    ignoredRules: [],
-    ignoredIssueIds: [],
-    inheritances: [],
-    constraints: [],
-    cifs: [],
-    businessRules: [],
-    ...extras,
-  }
-}
+import { extraTemplates } from './templates/extra-templates.mjs'
+import {
+  a,
+  assoc,
+  bool,
+  C01,
+  C0N,
+  C11,
+  C1N,
+  counter,
+  dateOnly,
+  datetime,
+  decimal,
+  entity,
+  int32,
+  money,
+  project,
+  text,
+} from './templates/helpers.mjs'
 
 const blog = project('Blog', {
   entities: [
@@ -107,6 +58,11 @@ const blog = project('Blog', {
       a('bm_id', 'id_mot_cle', 'INTEGER', { typeConfig: counter() }),
       a('bm_libelle', 'libelle', 'TEXT', { unique: true, typeConfig: text(60) }),
     ]),
+    entity('blog_abonne', 'ABONNE', 760, 480, [
+      a('bo_id', 'id_abonne', 'INTEGER', { typeConfig: counter() }),
+      a('bo_email', 'email', 'TEXT', { unique: true, typeConfig: text(254) }),
+      a('bo_actif', 'actif', 'BOOLEAN', { typeConfig: bool() }),
+    ]),
   ],
   associations: [
     assoc('blog_redige', 'REDIGE', 'blog_auteur', C0N, 'blog_article', C11, [], { x: 250, y: 80 }),
@@ -114,6 +70,9 @@ const blog = project('Blog', {
     assoc('blog_commente', 'COMMENTE', 'blog_article', C0N, 'blog_commentaire', C11, [], { x: 420, y: 270 }),
     assoc('blog_signe', 'SIGNE', 'blog_auteur', C0N, 'blog_commentaire', C01, [], { x: 250, y: 420 }),
     assoc('blog_etiquete', 'ETIQUETE', 'blog_article', C0N, 'blog_motcle', C0N, [], { x: 590, y: 160 }),
+    assoc('blog_sabonne', 'SABONNE', 'blog_abonne', C0N, 'blog_rubrique', C0N, [
+      a('bs_date', 'abonne_le', 'DATE', { typeConfig: datetime() }),
+    ], { x: 250, y: 480 }),
   ],
   cifs: [
     { id: 'blog_cif_article', name: 'CIF_ARTICLE', sourceEntityId: 'blog_auteur', targetEntityId: 'blog_article', description: 'Chaque article n’a qu’un auteur (max cible = 1).', associationId: 'blog_redige', position: { x: 250, y: 20 } },
@@ -150,10 +109,15 @@ const boutique = project('Boutique', {
       a('so_date', 'passee_le', 'DATE', { typeConfig: datetime() }),
       a('so_statut', 'statut', 'TEXT', { typeConfig: text(20) }),
     ]),
+    entity('shop_categorie', 'CATEGORIE', 760, 80, [
+      a('sg_id', 'id_categorie', 'INTEGER', { typeConfig: counter() }),
+      a('sg_libelle', 'libelle', 'TEXT', { unique: true, typeConfig: text(60) }),
+    ]),
   ],
   associations: [
     assoc('shop_publie', 'PUBLIE', 'shop_vendeur', C0N, 'shop_produit', C11, [], { x: 250, y: 80 }),
     assoc('shop_passe', 'PASSE', 'shop_client', C0N, 'shop_commande', C11, [], { x: 250, y: 400 }),
+    assoc('shop_classe', 'CLASSE', 'shop_categorie', C0N, 'shop_produit', C11, [], { x: 590, y: 80 }),
     assoc('shop_contient', 'CONTIENT', 'shop_commande', C0N, 'shop_produit', C0N, [
       a('sl_qty', 'quantite', 'INTEGER', { typeConfig: int32() }),
       a('sl_prix', 'prix_unitaire', 'DECIMAL', { typeConfig: money() }),
@@ -201,6 +165,13 @@ const crm = project('CRM', {
       a('ca_date', 'planifiee_le', 'DATE', { typeConfig: datetime() }),
       a('ca_fait', 'terminee', 'BOOLEAN', { typeConfig: bool() }),
     ]),
+    entity('crm_devis', 'DEVIS', 760, 480, [
+      a('cd_id', 'id_devis', 'INTEGER', { typeConfig: counter() }),
+      a('cd_ref', 'reference', 'TEXT', { unique: true, typeConfig: text(20) }),
+      a('cd_montant', 'montant', 'DECIMAL', { typeConfig: money() }),
+      a('cd_date', 'emis_le', 'DATE', { typeConfig: dateOnly() }),
+      a('cd_statut', 'statut', 'TEXT', { typeConfig: text(20) }),
+    ]),
   ],
   associations: [
     assoc('crm_regroupe', 'REGROUPE', 'crm_entreprise', C0N, 'crm_contact', C11, [], { x: 250, y: 80 }),
@@ -208,6 +179,8 @@ const crm = project('CRM', {
     assoc('crm_pilote', 'PILOTE', 'crm_commercial', C0N, 'crm_opportunite', C11, [], { x: 250, y: 400 }),
     assoc('crm_suit', 'SUIT', 'crm_contact', C0N, 'crm_activite', C11, [], { x: 590, y: 140 }),
     assoc('crm_relie', 'RELIE', 'crm_opportunite', C0N, 'crm_activite', C01, [], { x: 590, y: 340 }),
+    assoc('crm_propose', 'PROPOSE', 'crm_commercial', C0N, 'crm_devis', C11, [], { x: 420, y: 480 }),
+    assoc('crm_concerne_devis', 'CONCERNE', 'crm_entreprise', C0N, 'crm_devis', C11, [], { x: 590, y: 480 }),
   ],
   cifs: [
     { id: 'crm_cif_opp', name: 'CIF_OPPORTUNITE', sourceEntityId: 'crm_entreprise', targetEntityId: 'crm_opportunite', description: 'Chaque opportunité n’a qu’une entreprise (max cible = 1).', associationId: 'crm_porte', position: { x: 250, y: 200 } },
@@ -244,9 +217,15 @@ const bibliotheque = project('Bibliotheque', {
       a('le_retour', 'retour_prevu', 'DATE', { typeConfig: dateOnly() }),
       a('le_rendu', 'rendu_le', 'DATE', { nullable: true, typeConfig: dateOnly() }),
     ]),
+    entity('lib_editeur', 'EDITEUR', 760, 80, [
+      a('lp_id', 'id_editeur', 'INTEGER', { typeConfig: counter() }),
+      a('lp_nom', 'nom', 'TEXT', { typeConfig: text(120) }),
+      a('lp_pays', 'pays', 'TEXT', { nullable: true, typeConfig: text(60) }),
+    ]),
   ],
   associations: [
     assoc('lib_ecrit', 'ECRIT', 'lib_auteur', C0N, 'lib_oeuvre', C1N, [], { x: 250, y: 80 }),
+    assoc('lib_publie', 'PUBLIE', 'lib_editeur', C0N, 'lib_oeuvre', C0N, [], { x: 590, y: 80 }),
     assoc('lib_materialise', 'MATERIALISE', 'lib_oeuvre', C1N, 'lib_exemplaire', C11, [], { x: 80, y: 230 }),
     assoc('lib_emprunte', 'EFFECTUE', 'lib_adherent', C0N, 'lib_emprunt', C11, [], { x: 590, y: 380 }),
     assoc('lib_porte', 'PORTE_SUR', 'lib_exemplaire', C0N, 'lib_emprunt', C11, [], { x: 420, y: 300 }),
@@ -285,14 +264,29 @@ const scolarite = project('Scolarite', {
       a('es_annee', 'annee', 'INTEGER', { typeConfig: int32() }),
       a('es_semestre', 'semestre', 'INTEGER', { typeConfig: int32() }),
     ]),
+    entity('edu_salle', 'SALLE', 760, 80, [
+      a('er_id', 'id_salle', 'INTEGER', { typeConfig: counter() }),
+      a('er_nom', 'nom', 'TEXT', { typeConfig: text(80) }),
+      a('er_capacite', 'capacite', 'INTEGER', { typeConfig: int32() }),
+    ]),
+    entity('edu_examen', 'EXAMEN', 760, 400, [
+      a('ex_id', 'id_examen', 'INTEGER', { typeConfig: counter() }),
+      a('ex_date', 'date_examen', 'DATE', { typeConfig: datetime() }),
+      a('ex_duree', 'duree_min', 'INTEGER', { typeConfig: int32() }),
+      a('ex_type', 'type_examen', 'TEXT', { typeConfig: text(40) }),
+    ]),
   ],
   associations: [
     assoc('edu_enseigne', 'ENSEIGNE', 'edu_enseignant', C0N, 'edu_cours', C11, [], { x: 250, y: 80 }),
     assoc('edu_ouvre', 'OUVRE', 'edu_cours', C1N, 'edu_session', C11, [], { x: 420, y: 240 }),
     assoc('edu_inscrit', 'INSCRIT', 'edu_etudiant', C0N, 'edu_session', C0N, [
-      a('ei_note', 'note', 'DECIMAL', { nullable: true, typeConfig: { numeric: { kind: 'DECIMAL', precision: 4, scale: 2 } } }),
+      a('ei_note', 'note', 'DECIMAL', { nullable: true, typeConfig: decimal(4, 2) }),
       a('ei_valide', 'valide', 'BOOLEAN', { typeConfig: bool() }),
     ], { x: 250, y: 400 }),
+    assoc('edu_accueille', 'ACCUEILLE', 'edu_salle', C0N, 'edu_examen', C11, [], { x: 590, y: 240 }),
+    assoc('edu_evaluer', 'EVALUE', 'edu_session', C0N, 'edu_examen', C11, [
+      a('ev_coef', 'coefficient', 'DECIMAL', { typeConfig: decimal(3, 1) }),
+    ], { x: 590, y: 400 }),
   ],
   cifs: [
     { id: 'edu_cif_cours', name: 'CIF_COURS', sourceEntityId: 'edu_enseignant', targetEntityId: 'edu_cours', description: 'Chaque cours n’a qu’un enseignant responsable (max cible = 1).', associationId: 'edu_enseigne', position: { x: 250, y: 20 } },
@@ -325,10 +319,19 @@ const rh = project('RH', {
       a('rv_nom', 'nom', 'TEXT', { unique: true, typeConfig: text(80) }),
       a('rv_code', 'code', 'TEXT', { unique: true, typeConfig: text(8) }),
     ]),
+    entity('rh_competence', 'COMPETENCE', 760, 520, [
+      a('rc_id', 'id_competence', 'INTEGER', { typeConfig: counter() }),
+      a('rc_libelle', 'libelle', 'TEXT', { unique: true, typeConfig: text(80) }),
+      a('rc_domaine', 'domaine', 'TEXT', { typeConfig: text(60) }),
+    ]),
   ],
   associations: [
     assoc('rh_affecte', 'AFFECTE', 'rh_salarie', C0N, 'rh_service', C11, [], { x: 250, y: 430 }),
     assoc('rh_accueille', 'ACCUEILLE', 'rh_service', C0N, 'rh_stagiaire', C01, [], { x: 590, y: 430 }),
+    assoc('rh_possede', 'POSSEDE', 'rh_salarie', C0N, 'rh_competence', C0N, [
+      a('rn_niveau', 'niveau', 'INTEGER', { typeConfig: int32() }),
+      a('rn_certifie', 'certifie', 'BOOLEAN', { typeConfig: bool() }),
+    ], { x: 250, y: 560 }),
   ],
   inheritances: [
     {
@@ -353,6 +356,7 @@ const projects = {
   bibliotheque,
   scolarite,
   rh,
+  ...extraTemplates,
 }
 
 const outDir = 'src/features/project-library/templates'
