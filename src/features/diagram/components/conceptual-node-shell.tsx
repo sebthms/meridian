@@ -60,7 +60,6 @@ export function ConceptualNodeShell({
           select(undefined)
           setConfirmingDelete(false)
         }}
-        widthClass="w-56"
       />
     </div>
   )
