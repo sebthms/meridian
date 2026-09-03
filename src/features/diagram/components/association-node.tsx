@@ -59,7 +59,6 @@ function AssociationNode({ data: d, selected }: NodeProps<Node<AssociationNodeDa
         message={<>Supprimer l'association « {d.label} » ?</>}
         onCancel={() => setConfirmingDelete(false)}
         onConfirm={handleDelete}
-        widthClass="w-56"
       />
     </>
   )
