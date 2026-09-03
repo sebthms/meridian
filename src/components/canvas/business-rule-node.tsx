@@ -4,7 +4,7 @@ import { ScrollText } from 'lucide-react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
 import { cn } from '@/lib/utils'
 import type { BusinessRuleNodeData } from '@/editor/nodes/adapter'
-import { BUSINESS_RULE_LEVEL_LABEL } from '@/domain'
+import { BUSINESS_RULE_LEVEL_LABEL } from '@/domain/index'
 
 const LEVEL_BAR: Record<BusinessRuleNodeData['level'], string> = {
   info: 'bg-blue-500',

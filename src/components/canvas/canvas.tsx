@@ -25,9 +25,9 @@ import {
 } from '@xyflow/react'
 import { useProjectStore } from '@/store/project-store'
 import { projectToNodes, projectToEdges } from '@/editor/nodes/adapter'
-import { AddPropertyModal } from './AddPropertyModal'
-import { ConceptualEditModal } from './ConceptualEditModal'
-import { CanvasControls } from './CanvasControls'
+import { AddPropertyModal } from './add-property-modal'
+import { ConceptualEditModal } from './conceptual-edit-modal'
+import { CanvasControls } from './canvas-controls'
 import {
   createEntityCommand,
   createAssociationCommand,
@@ -40,21 +40,21 @@ import {
   deleteCanvasNode,
   isConceptualKind,
   updateCardinality,
-} from '@/editor'
-import { type Cardinality } from '@/domain'
+} from '@/editor/index'
+import { type Cardinality } from '@/domain/index'
 import { cn } from '@/lib/utils'
-import EntityNode from './EntityNode'
-import AssociationNode from './AssociationNode'
-import AssociationEdge from './AssociationEdge'
-import InheritanceNode from './InheritanceNode'
-import ConstraintNode from './ConstraintNode'
-import CifNode from './CifNode'
-import BusinessRuleNode from './BusinessRuleNode'
-import ConceptualEdge from './ConceptualEdge'
+import EntityNode from './entity-node'
+import AssociationNode from './association-node'
+import AssociationEdge from './association-edge'
+import InheritanceNode from './inheritance-node'
+import ConstraintNode from './constraint-node'
+import CifNode from './cif-node'
+import BusinessRuleNode from './business-rule-node'
+import ConceptualEdge from './conceptual-edge'
 import { ConfirmPopover } from '@/components/shared/confirm-popover'
 import { SidebarProvider } from '@/components/ui/sidebar'
-import { DiagramSidebar } from './DiagramSidebar'
-import type { PanelView } from '@/components/panel'
+import { DiagramSidebar } from './diagram-sidebar'
+import type { PanelView } from '@/components/panel/index'
 import { AppTooltip } from '@/components/ui/tooltip'
 
 const nodeTypes = {

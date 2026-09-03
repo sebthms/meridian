@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/sidebar'
 import { AppTooltip, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useProjectStore } from '@/store/project-store'
-import { PanelContent, sidebarLayout, type PanelView } from '@/components/panel'
+import { PanelContent, sidebarLayout, type PanelView } from '@/components/panel/index'
 import { cn } from '@/lib/utils'
 
 const navigation: Array<{ id: PanelView; label: string; description: string; icon: typeof FolderOpen }> = [

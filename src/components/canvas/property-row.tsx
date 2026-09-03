@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { KeyRound, Pencil, Trash2 } from 'lucide-react'
-import type { ConceptualType } from '@/domain'
+import type { ConceptualType } from '@/domain/index'
 import { GenericPropertyIcon, TypeLabel } from '@/components/canvas/icons/type-icon'
 import { PropertyConstraintIcons } from '@/components/canvas/property-constraint-icons'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'

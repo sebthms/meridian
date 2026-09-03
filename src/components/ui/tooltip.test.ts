@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { AppTooltip, TooltipProvider } from './tooltip'
-import { PropertyRow } from '@/components/canvas/PropertyRow'
+import { PropertyRow } from '@/components/canvas/property-row'
 
 describe('Tooltips partagés', () => {
   it('garde un seul bouton et son nom accessible', () => {

@@ -18,7 +18,7 @@ import type { AssociationNodeData } from '@/editor/nodes/adapter'
 import { useProjectStore } from '@/store/project-store'
 import { updateAssociationName, deleteAssociation, removeAssociationAttribute } from '@/editor/commands'
 import { useRename } from '@/hooks/use-rename'
-import { PropertyRow } from './PropertyRow'
+import { PropertyRow } from './property-row'
 
 function AssociationNode({ data, selected }: NodeProps) {
   const d = data as AssociationNodeData

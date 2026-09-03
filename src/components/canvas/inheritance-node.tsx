@@ -3,7 +3,7 @@ import { type NodeProps } from '@xyflow/react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
 import { cn } from '@/lib/utils'
 import type { InheritanceNodeData } from '@/editor/nodes/adapter'
-import { inheritanceCoverageLabel, inheritanceExclusivityLabel } from '@/domain'
+import { inheritanceCoverageLabel, inheritanceExclusivityLabel } from '@/domain/index'
 
 function InheritanceNode({ data, selected }: NodeProps) {
   const d = data as InheritanceNodeData

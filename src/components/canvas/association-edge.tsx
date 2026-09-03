@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from '@xyflow/react'
 import type { AssocEdgeData } from '@/editor/nodes/adapter'
-import { CardinalityPopover } from './CardinalityPopover'
+import { CardinalityPopover } from './cardinality-popover'
 
 /**
  * Arête d'association : affiche le type (1:N, N:N, 1:1, réflexive) comme

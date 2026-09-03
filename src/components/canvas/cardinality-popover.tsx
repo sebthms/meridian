@@ -4,7 +4,7 @@ import {
   cardinalityToString,
   areCardinalitiesEqual,
   type Cardinality,
-} from '@/domain'
+} from '@/domain/index'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'

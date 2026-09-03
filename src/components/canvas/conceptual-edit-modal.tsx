@@ -11,7 +11,7 @@ import {
   updateConstraint,
   updateCif,
   updateBusinessRule,
-} from '@/editor'
+} from '@/editor/index'
 import {
   BUSINESS_RULE_LEVEL_LABEL,
   BUSINESS_RULE_LEVELS,
@@ -29,7 +29,7 @@ import {
   type InheritanceExclusivity,
   type ModelConstraintKind,
   type Project,
-} from '@/domain'
+} from '@/domain/index'
 
 const radioClass = 'h-4 w-4 accent-primary'
 
