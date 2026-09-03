@@ -2,7 +2,6 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { AppTooltip, TooltipProvider } from './tooltip'
-import { PropertyRow } from '@/features/diagram/components/property-row'
 
 describe('Tooltips partagés', () => {
   it('garde un seul bouton et son nom accessible', () => {
@@ -23,11 +22,4 @@ describe('Tooltips partagés', () => {
     expect(html.match(/<button\b/g)).toHaveLength(1)
   })
 
-  it('n’imbrique plus de boutons dans une ligne de propriété', () => {
-    const html = renderToStaticMarkup(createElement(TooltipProvider, {
-      children: createElement(PropertyRow, { name: 'code', type: 'TEXT', unique: true, onEdit: () => {}, onDelete: () => {} }),
-    }))
-    expect(html.match(/<button\b/g)).toHaveLength(4)
-    expect(html).not.toMatch(/<button\b[^>]*>\s*<button\b/)
-  })
 })

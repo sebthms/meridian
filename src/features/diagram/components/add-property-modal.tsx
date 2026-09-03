@@ -8,7 +8,7 @@ import { Button } from '@/shared/ui/button'
 import { useProjectStore } from '@/store/project-store'
 import { addAttributeWithName, updateAttribute, addAssociationAttribute, updateAssociationAttribute, setAttributeIdentifier } from '@/editor/index'
 import { isValidModelName, modelNameError, parseAttributeTypeConfig, type AttributeTypeConfig, type ConceptualType, type DateTimeKind, type NumericBits, type NumericKind, type OtherKind, type TextCharset, type TextStorage } from '@/domain/index'
-import { propertyTypeDefaults } from '@/domain/property-type-defaults'
+import { propertyTypeDefaults } from '@/features/diagram/model/property-type-defaults'
 
 type TypeSection = 'text' | 'numeric' | 'dateTime' | 'other'
 

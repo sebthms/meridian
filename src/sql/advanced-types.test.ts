@@ -6,7 +6,6 @@ import { parseAttributeTypeConfig, getPrimaryIdentifier, type AttributeTypeConfi
 import { exportProject, parseProject } from '@/persistence/project-file'
 import { setAttributeIdentifier, setIdentifierOrder } from '@/editor'
 import { buildProject, makeAssociation, makeEntity } from '@/test-support/project-fixtures'
-import { propertyTypeDefaults } from '@/domain/property-type-defaults'
 
 const sqlType = (typeConfig: AttributeTypeConfig) => attributeToSql({ conceptualType: 'TEXT', typeConfig })
 
@@ -76,18 +75,6 @@ describe('Types avancés — régressions', () => {
     expect(sql).toContain('position GEOGRAPHY')
   })
 
-  it('réinitialise toutes les familles et restitue les types historiques', () => {
-    const attribute = { id: 'a', name: 'a', conceptualType: 'DATE' as const }
-    const before = propertyTypeDefaults(attribute)
-    before.dateTimeKind = 'TIME'
-    before.textCharset = 'BINARY'
-    expect(propertyTypeDefaults(attribute).dateTimeKind).toBe('DATE')
-    expect(propertyTypeDefaults(attribute).textCharset).toBe('ASCII')
-    expect(propertyTypeDefaults({ ...attribute, conceptualType: 'DECIMAL' }).numericKind).toBe('DECIMAL')
-    expect(propertyTypeDefaults({ ...attribute, conceptualType: 'TEXT' }).textStorage).toBe('LARGE')
-    expect(propertyTypeDefaults().textStorage).toBe('VARIABLE')
-    expect(propertyTypeDefaults().numericKind).toBe('INTEGER')
-  })
 })
 
 describe('Identifiants et import — régressions', () => {

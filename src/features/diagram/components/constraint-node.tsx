@@ -1,11 +1,10 @@
 import { memo } from 'react'
-import { type NodeProps } from '@xyflow/react'
+import type { Node, NodeProps } from '@xyflow/react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
 import { cn } from '@/shared/utils/cn'
 import type { ConstraintNodeData } from '@/features/diagram/flow/project-adapter'
 
-function ConstraintNode({ data, selected }: NodeProps) {
-  const d = data as ConstraintNodeData
+function ConstraintNode({ data: d, selected }: NodeProps<Node<ConstraintNodeData>>) {
 
   return (
     <ConceptualNodeShell

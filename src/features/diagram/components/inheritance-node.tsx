@@ -1,12 +1,11 @@
 import { memo } from 'react'
-import { type NodeProps } from '@xyflow/react'
+import type { Node, NodeProps } from '@xyflow/react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
 import { cn } from '@/shared/utils/cn'
 import type { InheritanceNodeData } from '@/features/diagram/flow/project-adapter'
 import { inheritanceCoverageLabel, inheritanceExclusivityLabel } from '@/domain/index'
 
-function InheritanceNode({ data, selected }: NodeProps) {
-  const d = data as InheritanceNodeData
+function InheritanceNode({ data: d, selected }: NodeProps<Node<InheritanceNodeData>>) {
 
   return (
     <ConceptualNodeShell

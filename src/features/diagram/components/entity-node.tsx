@@ -1,5 +1,5 @@
 import { memo, useState } from 'react'
-import { type NodeProps } from '@xyflow/react'
+import type { Node, NodeProps } from '@xyflow/react'
 import { KeyRound } from 'lucide-react'
 import {
   DatabaseSchemaNode,
@@ -20,8 +20,7 @@ import { useProjectStore } from '@/store/project-store'
 import { renameEntity, deleteEntity, removeAttribute } from '@/editor/index'
 import { useRename } from '@/features/diagram/hooks/use-rename'
 
-function EntityNode({ data, selected }: NodeProps) {
-  const d = data as EntityNodeData
+function EntityNode({ data: d, selected }: NodeProps<Node<EntityNodeData>>) {
   const project = useProjectStore((s) => s.project)
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)

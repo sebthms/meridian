@@ -1,4 +1,4 @@
-import type { Attribute, DateTimeKind, NumericKind, OtherKind, TextCharset, TextStorage } from './attribute'
+import type { Attribute, DateTimeKind, NumericKind, OtherKind, TextCharset, TextStorage } from '../../../domain/attribute'
 
 export function propertyTypeDefaults(attribute?: Attribute) {
   const config = attribute?.typeConfig

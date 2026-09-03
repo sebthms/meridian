@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { type NodeProps } from '@xyflow/react'
+import type { Node, NodeProps } from '@xyflow/react'
 import { ScrollText } from 'lucide-react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
 import { cn } from '@/shared/utils/cn'
@@ -12,8 +12,7 @@ const LEVEL_BAR: Record<BusinessRuleNodeData['level'], string> = {
   error: 'bg-destructive',
 }
 
-function BusinessRuleNode({ data, selected }: NodeProps) {
-  const d = data as BusinessRuleNodeData
+function BusinessRuleNode({ data: d, selected }: NodeProps<Node<BusinessRuleNodeData>>) {
 
   return (
     <ConceptualNodeShell

@@ -1,5 +1,5 @@
 import { memo, useState } from 'react'
-import { type NodeProps } from '@xyflow/react'
+import type { Node, NodeProps } from '@xyflow/react'
 import { KeyRound } from 'lucide-react'
 import {
   DatabaseSchemaNode,
@@ -20,8 +20,7 @@ import { updateAssociationName, deleteAssociation, removeAssociationAttribute } 
 import { useRename } from '@/features/diagram/hooks/use-rename'
 import { PropertyRow } from './property-row'
 
-function AssociationNode({ data, selected }: NodeProps) {
-  const d = data as AssociationNodeData
+function AssociationNode({ data: d, selected }: NodeProps<Node<AssociationNodeData>>) {
   const isTable = (d.columns?.length ?? 0) > 0 && d.viewMode === 'MLD'
   const project = useProjectStore((s) => s.project)
   const apply = useProjectStore((s) => s.apply)

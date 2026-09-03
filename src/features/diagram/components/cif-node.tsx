@@ -1,12 +1,11 @@
 import { memo } from 'react'
-import { type NodeProps } from '@xyflow/react'
+import type { Node, NodeProps } from '@xyflow/react'
 import { ArrowRightLeft } from 'lucide-react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
 import { cn } from '@/shared/utils/cn'
 import type { CifNodeData } from '@/features/diagram/flow/project-adapter'
 
-function CifNode({ data, selected }: NodeProps) {
-  const d = data as CifNodeData
+function CifNode({ data: d, selected }: NodeProps<Node<CifNodeData>>) {
   const path = [d.sourceLabel || '…', d.targetLabel || '…'].join(' → ')
 
   return (

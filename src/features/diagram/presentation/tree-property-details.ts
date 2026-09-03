@@ -1,5 +1,5 @@
-import type { Attribute } from './attribute'
-import { getPrimaryIdentifier, type Entity } from './entity'
+import type { Attribute } from '../../../domain/attribute'
+import { getPrimaryIdentifier, type Entity } from '../../../domain/entity'
 import { attributeToSql } from '@/sql/model'
 
 export function treePropertyDetails(attribute: Attribute, entity?: Entity) {
