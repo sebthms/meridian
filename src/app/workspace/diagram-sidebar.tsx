@@ -26,12 +26,17 @@ import { sidebarLayout } from '@/shared/layout/panel-layout'
 import type { PanelView } from './panel-view'
 import { cn } from '@/shared/utils/cn'
 
-const navigation: Array<{ id: PanelView; label: string; description: string; icon: typeof FolderOpen }> = [
-  { id: 'issues', label: 'Validation', description: 'Problèmes et avertissements', icon: AlertCircle },
-  { id: 'projects', label: 'Diagrammes', description: 'Gérer vos modèles', icon: FolderOpen },
-  { id: 'tree', label: 'Arborescence', description: 'Entités et associations', icon: ListTree },
-  { id: 'sql', label: 'Script SQL', description: 'Prévisualiser et exporter', icon: Database },
-  { id: 'settings', label: 'Paramètres', description: 'Thème et données locales', icon: Settings },
+type NavEntry =
+  | { kind: 'item'; id: PanelView; label: string; description: string; icon: typeof FolderOpen }
+  | { kind: 'separator' }
+
+const navigation: NavEntry[] = [
+  { kind: 'item', id: 'tree', label: 'Arborescence', description: 'Entités et associations', icon: ListTree },
+  { kind: 'item', id: 'issues', label: 'Validation', description: 'Problèmes et avertissements', icon: AlertCircle },
+  { kind: 'separator' },
+  { kind: 'item', id: 'sql', label: 'Script SQL', description: 'Prévisualiser et exporter', icon: Database },
+  { kind: 'item', id: 'projects', label: 'Diagrammes', description: 'Gérer vos modèles', icon: FolderOpen },
+  { kind: 'item', id: 'settings', label: 'Paramètres', description: 'Thème et données locales', icon: Settings },
 ]
 
 export function DiagramSidebar({
@@ -117,29 +122,35 @@ export function DiagramSidebar({
           <div className="flex min-h-0 flex-1">
             <nav aria-label="Navigation des panneaux" className={sidebarLayout.navRail}>
               <div className="flex flex-col items-center gap-0.5">
-                {navigation.map(({ id, label, description, icon: Icon }) => (
-                  <AppTooltip key={id} content={`${label} · ${description}`} side="right">
-                    <button
-                      type="button"
-                      data-active={panelView === id ? true : undefined}
-                      onClick={() => selectPanel(id)}
-                      aria-label={label}
-                      aria-current={panelView === id ? 'page' : undefined}
-                      className={sidebarLayout.navButton}
-                    >
-                      <Icon className="size-4" aria-hidden />
-                      {id === 'issues' && hasErrors && (
-                        <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="Erreurs bloquantes" />
-                      )}
-                      {id === 'issues' && !hasErrors && hasWarnings && (
-                        <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-label="Avertissements" />
-                      )}
-                      {id === 'sql' && hasErrors && (
-                        <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="SQL bloqué par des erreurs" />
-                      )}
-                    </button>
-                  </AppTooltip>
-                ))}
+                {navigation.map((entry, index) => {
+                  if (entry.kind === 'separator') {
+                    return <div key={`sep-${index}`} className="my-1 h-px w-5 bg-border" aria-hidden />
+                  }
+                  const { id, label, description, icon: Icon } = entry
+                  return (
+                    <AppTooltip key={id} content={`${label} · ${description}`} side="right">
+                      <button
+                        type="button"
+                        data-active={panelView === id ? true : undefined}
+                        onClick={() => selectPanel(id)}
+                        aria-label={label}
+                        aria-current={panelView === id ? 'page' : undefined}
+                        className={sidebarLayout.navButton}
+                      >
+                        <Icon className="size-4" aria-hidden />
+                        {id === 'issues' && hasErrors && (
+                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="Erreurs bloquantes" />
+                        )}
+                        {id === 'issues' && !hasErrors && hasWarnings && (
+                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-label="Avertissements" />
+                        )}
+                        {id === 'sql' && hasErrors && (
+                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="SQL bloqué par des erreurs" />
+                        )}
+                      </button>
+                    </AppTooltip>
+                  )
+                })}
               </div>
               <Tooltip>
                 <TooltipTrigger asChild>

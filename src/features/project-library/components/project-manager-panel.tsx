@@ -190,7 +190,19 @@ export function ProjectManagerPanel({
                     <AppTooltip content="Supprimer"><button type="button" aria-label="Supprimer" onClick={() => setDeleteId(deleteId === item.id ? null : item.id)} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button></AppTooltip>
                   </span>
                 </span>
-                {deleteId === item.id && <div className="absolute right-0 top-8 z-30 w-56"><ConfirmPopover message={<>Supprimer « {item.project.name} » ?</>} onCancel={() => setDeleteId(null)} onConfirm={() => { deleteProject(item.id); setDeleteId(null) }} confirmLabel="Supprimer" /></div>}
+                {deleteId === item.id && (
+                  <div className="absolute right-0 top-8 z-30">
+                    <ConfirmPopover
+                      message={<>Supprimer « {item.project.name} » ?</>}
+                      onCancel={() => setDeleteId(null)}
+                      onConfirm={() => {
+                        deleteProject(item.id)
+                        setDeleteId(null)
+                      }}
+                      confirmLabel="Supprimer"
+                    />
+                  </div>
+                )}
               </div>
             )
           })}

@@ -30,7 +30,11 @@ export function PropertyRow({ name, type, isIdentifier = false, nullable = false
           <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Modifier" onClick={(event) => { event.stopPropagation(); onEdit() }} className="nodrag nopan shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"><Pencil className="h-3 w-3" /></button></TooltipTrigger><TooltipContent>Modifier</TooltipContent></Tooltip>
         <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Supprimer" onClick={(event) => { event.stopPropagation(); setConfirming(true) }} className="nodrag nopan shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-3 w-3" /></button></TooltipTrigger><TooltipContent>Supprimer</TooltipContent></Tooltip>
       </span>
-      {confirming && <div className="nodrag nopan absolute right-1 top-7 z-20 w-44 text-[11px]"><ConfirmPopover message={<>Supprimer « {name} » ?</>} onCancel={() => setConfirming(false)} onConfirm={onDelete} confirmLabel="Supprimer" /></div>}
+      {confirming && (
+        <div className="nodrag nopan absolute right-1 top-7 z-20">
+          <ConfirmPopover message={<>Supprimer « {name} » ?</>} onCancel={() => setConfirming(false)} onConfirm={onDelete} confirmLabel="Supprimer" />
+        </div>
+      )}
     </div>
   )
 }

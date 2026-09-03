@@ -24,7 +24,7 @@ export function ClearProjectsButton({ onCleared, className, popoverPosition = 'a
         <TooltipContent side="top">Vider les données locales</TooltipContent>
       </Tooltip>
       {confirming && (
-        <div className={popoverPosition === 'below' ? 'absolute left-0 top-9 z-50 w-64' : 'absolute bottom-11 left-0 z-50 w-64'}>
+        <div className={popoverPosition === 'below' ? 'absolute left-0 top-9 z-50' : 'absolute bottom-11 left-0 z-50'}>
           <ConfirmPopover
             message="Vider tous les diagrammes ?"
             onCancel={() => setConfirming(false)}

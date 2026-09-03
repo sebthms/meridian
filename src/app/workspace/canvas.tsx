@@ -22,7 +22,9 @@ import {
   type Connection,
   type Edge,
   type Node,
+  type OnConnectStartParams,
 } from '@xyflow/react'
+import { ConnectionProvider } from '@/features/diagram/context/connection-context'
 import { useProjectStore } from '@/store/project-store'
 import { projectToNodes, projectToEdges } from '@/features/diagram/flow/project-adapter'
 import { generateMld } from '@/mld'
@@ -113,6 +115,7 @@ export function Canvas({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
+  const [connectionState, setConnectionState] = useState({ isConnecting: false, sourceNodeId: null as string | null })
   const [cardinalityTarget, setCardinalityTarget] = useState<{
     associationId: string
     participantIndex: number
@@ -173,16 +176,26 @@ export function Canvas({
     setEdges,
   ])
 
+  const endConnection = useCallback(() => {
+    setConnectionState({ isConnecting: false, sourceNodeId: null })
+  }, [])
+
+  const onConnectStart = useCallback((_: MouseEvent | TouchEvent, params: OnConnectStartParams) => {
+    setConnectionState({ isConnecting: true, sourceNodeId: params.nodeId })
+  }, [])
+
   const onConnect = useCallback(
     (connection: Connection) => {
+      endConnection()
       if (!connection.source || !connection.target) return
       apply(applyCanvasConnection(project, connection.source, connection.target))
     },
-    [project, apply],
+    [project, apply, endConnection],
   )
 
   return (
     <div className="relative h-full w-full">
+      <ConnectionProvider value={connectionState}>
       <ReactFlow
         colorMode={colorMode}
         nodes={nodes}
@@ -198,6 +211,8 @@ export function Canvas({
         onPaneClick={() => select(undefined)}
         onNodeDragStop={(_, node) => apply(applyNodeMove(project, node))}
         onConnect={onConnect}
+        onConnectStart={onConnectStart}
+        onConnectEnd={endConnection}
         connectionMode={ConnectionMode.Loose}
         selectionOnDrag
         deleteKeyCode={null}
@@ -243,11 +258,12 @@ export function Canvas({
           </div>
         </Panel>
       </ReactFlow>
+      </ConnectionProvider>
 
       <AddPropertyModal />
       <ConceptualEditModal />
       {confirmingSelectionDelete && (
-        <div className="absolute bottom-20 left-1/2 z-50 w-64 -translate-x-1/2">
+        <div className="absolute bottom-20 left-1/2 z-50 -translate-x-1/2">
           <ConfirmPopover message={`Supprimer les ${selectedNodes.length} éléments sélectionnés ?`} onCancel={() => setConfirmingSelectionDelete(false)} onConfirm={confirmSelectionDelete} confirmLabel="Supprimer" />
         </div>
       )}
