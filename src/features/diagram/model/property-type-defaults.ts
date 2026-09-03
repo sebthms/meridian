@@ -1,8 +1,10 @@
 import type { Attribute, DateTimeKind, NumericKind, OtherKind, TextCharset, TextStorage } from '../../../domain/attribute'
 
+export type TypeSection = 'text' | 'numeric' | 'dateTime' | 'other'
+
 export function propertyTypeDefaults(attribute?: Attribute) {
   const config = attribute?.typeConfig
-  const section: 'text' | 'numeric' | 'dateTime' | 'other' = config?.text ? 'text'
+  const section: TypeSection = config?.text ? 'text'
     : config?.numeric ? 'numeric' : config?.dateTime ? 'dateTime' : config?.other ? 'other'
       : attribute?.conceptualType === 'INTEGER' || attribute?.conceptualType === 'DECIMAL' ? 'numeric'
         : attribute?.conceptualType === 'DATE' ? 'dateTime' : attribute?.conceptualType === 'BOOLEAN' ? 'other' : 'text'

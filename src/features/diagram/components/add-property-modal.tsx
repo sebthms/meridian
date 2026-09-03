@@ -6,11 +6,9 @@ import { Textarea } from '@/shared/ui/textarea'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Button } from '@/shared/ui/button'
 import { useProjectStore } from '@/store/project-store'
-import { addAttributeWithName, updateAttribute, addAssociationAttribute, updateAssociationAttribute, setAttributeIdentifier } from '@/editor/index'
-import { isValidModelName, modelNameError, parseAttributeTypeConfig, type AttributeTypeConfig, type ConceptualType, type DateTimeKind, type NumericBits, type NumericKind, type OtherKind, type TextCharset, type TextStorage } from '@/domain/index'
-import { propertyTypeDefaults } from '@/features/diagram/model/property-type-defaults'
-
-type TypeSection = 'text' | 'numeric' | 'dateTime' | 'other'
+import { type DateTimeKind, type NumericBits, type NumericKind, type OtherKind, type TextCharset, type TextStorage } from '@/domain/index'
+import { applyPropertySave, propertyNameFormatError } from '@/features/diagram/model/property-form'
+import { propertyTypeDefaults, type TypeSection } from '@/features/diagram/model/property-type-defaults'
 
 const radioClass = 'h-4 w-4 accent-primary'
 const inputClass = 'h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-ring/30'
@@ -91,44 +89,28 @@ export function AddPropertyModal() {
 
   if (!target) return null
 
-  const typeConfig: AttributeTypeConfig = section === 'text'
-    ? { text: { charset: textCharset, storage: textStorage, ...(textStorage !== 'LARGE' ? { length: textLength } : {}), ...(textCharset !== 'BINARY' && collation.trim() ? { collation: collation.trim() } : {}) } }
-    : section === 'numeric'
-      ? { numeric: { kind: numericKind, ...(numericKind === 'INTEGER' ? { bits: numericBits } : {}), ...(numericKind === 'DECIMAL' ? { precision, scale } : {}), ...(numericKind === 'REAL' ? { floating } : {}) } }
-      : section === 'dateTime'
-        ? { dateTime: { kind: dateTimeKind, ...(dateTimeKind === 'DATETIME' && timezone ? { timezone: true } : {}) } }
-        : { other: { kind: otherKind, ...(otherKind === 'FREE' && freeType.trim() ? { freeType: freeType.trim() } : {}) } }
-
-  const conceptualType: ConceptualType = section === 'text' ? 'TEXT' : section === 'numeric' ? (numericKind === 'INTEGER' || numericKind === 'COUNTER' ? 'INTEGER' : 'DECIMAL') : section === 'dateTime' ? 'DATE' : otherKind === 'BOOLEAN' ? 'BOOLEAN' : 'TEXT'
-  const nameFormatError = name.trim() && !isValidModelName(name.trim()) ? modelNameError('Le nom de la propriété') : null
+  const typeFields = { section, textCharset, textStorage, textLength, collation, numericKind, numericBits, precision, scale, floating, dateTimeKind, timezone, otherKind, freeType }
+  const nameFormatError = propertyNameFormatError(name)
 
   const save = () => {
-    const trimmedName = name.trim()
-    if (!trimmedName) return setError('Le nom est obligatoire.')
-    if (!isValidModelName(trimmedName)) return setError(modelNameError('Le nom de la propriété'))
-    let savedTypeConfig: AttributeTypeConfig | undefined
-    try {
-      // Editing a label must not narrow a legacy TEXT/NUMERIC column.
-      savedTypeConfig = parseAttributeTypeConfig(editedAttribute && !typeChanged ? editedAttribute.typeConfig : typeConfig)
-    } catch (cause) {
-      return setError(cause instanceof Error ? cause.message : 'Type invalide.')
-    }
-    const patch = { name: trimmedName, logicalName: logicalName.trim() || undefined, conceptualType, typeConfig: savedTypeConfig, nullable: identifier ? false : !notNull, unique: identifier ? false : unique, identifierOrder: identifier ? Math.max(1, keyOrder) : undefined, description: description.trim() || undefined }
-    let next: typeof project
-    let savedAttributeId = target.attributeId
-    if (target.attributeId) {
-      next = target.kind === 'entity' ? updateAttribute(project, target.id, target.attributeId, patch) : updateAssociationAttribute(project, target.id, target.attributeId, patch)
-      if (next === project && editedAttribute?.name.trim().toLowerCase() !== trimmedName.toLowerCase()) return setError('Une propriété portant ce nom existe déjà.')
-    } else {
-      const result = target.kind === 'entity' ? addAttributeWithName(project, target.id, trimmedName, conceptualType) : addAssociationAttribute(project, target.id, trimmedName, conceptualType)
-      if (!result.attributeId) return setError('Une propriété portant ce nom existe déjà.')
-      savedAttributeId = result.attributeId
-      next = target.kind === 'entity' ? updateAttribute(result.project, target.id, result.attributeId, patch) : updateAssociationAttribute(result.project, target.id, result.attributeId, patch)
-    }
-    if (target.kind === 'entity' && savedAttributeId) {
-      next = setAttributeIdentifier(next, target.id, savedAttributeId, identifier, keyOrder, editedIdentifier?.id)
-    }
-    apply(next); close()
+    const result = applyPropertySave({
+      project,
+      target,
+      name,
+      logicalName,
+      description,
+      identifier,
+      notNull,
+      unique,
+      keyOrder,
+      identifierId: editedIdentifier?.id,
+      typeChanged,
+      typeFields,
+      editedAttribute,
+    })
+    if (!result.ok) return setError(result.error)
+    apply(result.project)
+    close()
   }
 
   const showTextLength = textStorage !== 'LARGE'

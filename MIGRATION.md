@@ -12,7 +12,8 @@ Statut : **plan validé ; implémentation en cours sur `codex/architecture-refac
 | L3 | Terminé | 23 déplacements génériques, alias shadcn actualisés ; 270 tests, typecheck/build réussis, lint inchangé. Diagramme rechargé au navigateur. Import externe du test palette corrigé avant validation. |
 | L4 | Terminé | 45 déplacements ; 270 tests, typecheck, lint/build réussis. Templates régénérés sans différence. Le panneau validation est désormais un chunk distinct (3 116 octets ; 1 323 gzip), JS initial 696 411 octets. |
 | L5a | Terminé | Cycle domaine/SQL supprimé ; projections/types séparés, cinq `as any` supprimés, six composants de nœud typés. 286 tests dont 13 empreintes de projection ; typecheck/lint/build réussis. |
-| L5b-L8 | À exécuter | Formulaires, store, optimisation et clôture ci-dessous |
+| L5b | Terminé | Logique de sauvegarde extraite vers `property-form.ts` et `conceptual-form.ts`. Renommage sans changement de type conserve `typeConfig` historique. 300 tests, typecheck/lint/build en mémoire réussis. Modales : mêmes props, textes et état local. |
+| L6-L8 | À exécuter | Store testable, mesures de performance et clôture ci-dessous |
 
 Ce fichier est la liste de migration prévue, pas le compte rendu d'une migration déjà exécutée. À chaque lot livré, son statut, ses fichiers réellement modifiés et ses résultats de vérification seront renseignés ici. Tout écart significatif au plan sera signalé avant exécution.
 

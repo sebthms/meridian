@@ -6,12 +6,7 @@ import { Textarea } from '@/shared/ui/textarea'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Button } from '@/shared/ui/button'
 import { useProjectStore } from '@/store/project-store'
-import {
-  updateInheritance,
-  updateConstraint,
-  updateCif,
-  updateBusinessRule,
-} from '@/editor/index'
+import { applyConceptualSave } from '@/features/diagram/model/conceptual-form'
 import {
   BUSINESS_RULE_LEVEL_LABEL,
   BUSINESS_RULE_LEVELS,
@@ -22,13 +17,10 @@ import {
   findFunctionalAssociation,
   inheritanceCoverageLabel,
   inheritanceExclusivityLabel,
-  isValidModelName,
-  modelNameError,
   type BusinessRuleLevel,
   type InheritanceCoverage,
   type InheritanceExclusivity,
   type ModelConstraintKind,
-  type Project,
 } from '@/domain/index'
 
 const radioClass = 'h-4 w-4 accent-primary'
@@ -137,36 +129,24 @@ export function ConceptualEditModal() {
     : 'Modifier la règle métier'
 
   const save = () => {
-    const trimmedName = name.trim()
-    if (!trimmedName) return setError('Le nom est obligatoire.')
-    if (!isValidModelName(trimmedName)) return setError(modelNameError('Le nom'))
-    let next: Project
-    if (target.kind === 'inheritance') {
-      next = updateInheritance(project, target.id, {
-        name: trimmedName,
-        parentEntityId,
-        childEntityIds: childEntityIds.filter((id) => id !== parentEntityId),
-        coverage,
-        exclusivity,
-      })
-    } else if (target.kind === 'constraint') {
-      next = updateConstraint(project, target.id, { name: trimmedName, description: description.trim(), kind, targetIds })
-    } else if (target.kind === 'cif') {
-      next = updateCif(project, target.id, {
-        name: trimmedName,
-        description: description.trim(),
-        sourceEntityId,
-        targetEntityId,
-        associationId: associationId || functionalAssociation?.id,
-      })
-    } else {
-      if (!description.trim()) return setError('La description est obligatoire.')
-      next = updateBusinessRule(project, target.id, { name: trimmedName, description: description.trim(), level, targetIds })
-    }
-    if (next === project && trimmedName !== (inheritance ?? constraint ?? cif ?? rule)?.name) {
-      return setError('Un objet du même type porte déjà ce nom.')
-    }
-    apply(next)
+    const result = applyConceptualSave({
+      project,
+      target,
+      name,
+      description,
+      parentEntityId,
+      childEntityIds,
+      coverage,
+      exclusivity,
+      kind,
+      targetIds,
+      sourceEntityId,
+      targetEntityId,
+      associationId,
+      level,
+    })
+    if (!result.ok) return setError(result.error)
+    apply(result.project)
     close()
   }
 
