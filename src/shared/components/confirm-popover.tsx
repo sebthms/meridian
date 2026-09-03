@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Check, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Popover, PopoverAnchor, PopoverContent } from '@/shared/ui/popover'
 import { cn } from '@/shared/utils/cn'
 
@@ -19,6 +20,9 @@ export function ConfirmPopover({
   confirmLabel?: string
   children?: ReactNode
 }) {
+  const { t } = useTranslation()
+  const cancelLabel = t('common.cancel')
+  const resolvedConfirmLabel = confirmLabel === 'Confirmer' || confirmLabel === 'Confirm' ? t('common.confirm') : confirmLabel
   return (
     <Popover open>
       <PopoverAnchor asChild>
@@ -35,7 +39,7 @@ export function ConfirmPopover({
           <div className="flex shrink-0 items-center gap-0.5">
             <button
               type="button"
-              aria-label="Annuler"
+              aria-label={cancelLabel}
               onClick={onCancel}
               className={cn(iconButtonClass, 'text-muted-foreground hover:bg-accent hover:text-foreground')}
             >
@@ -43,7 +47,7 @@ export function ConfirmPopover({
             </button>
             <button
               type="button"
-              aria-label={confirmLabel}
+              aria-label={resolvedConfirmLabel}
               onClick={onConfirm}
               className={cn(iconButtonClass, 'bg-destructive text-destructive-foreground hover:bg-destructive/90')}
             >

@@ -1,8 +1,10 @@
 /**
- * Génère src/features/project-library/templates/projects.json — modèles MCD pédagogiques, sans FK dans le MCD.
+ * Génère src/features/project-library/templates/projects.fr.json et projects.en.json
+ * ainsi que catalog.json — modèles MCD pédagogiques, sans FK dans le MCD.
  * Exécuter : node scripts/build-templates.mjs
  */
 import fs from 'node:fs'
+import { localizeProjects } from './template-localize-en.mjs'
 
 const C01 = { min: 0, max: 1 }
 const C11 = { min: 1, max: 1 }
@@ -353,5 +355,10 @@ const projects = {
   rh,
 }
 
-fs.writeFileSync('src/features/project-library/templates/projects.json', `${JSON.stringify(projects, null, 2)}\n`)
-console.log(`Wrote ${Object.keys(projects).length} templates`)
+const outDir = 'src/features/project-library/templates'
+const catalog = Object.keys(projects).map((id) => ({ id }))
+
+fs.writeFileSync(`${outDir}/projects.fr.json`, `${JSON.stringify(projects, null, 2)}\n`)
+fs.writeFileSync(`${outDir}/projects.en.json`, `${JSON.stringify(localizeProjects(projects), null, 2)}\n`)
+fs.writeFileSync(`${outDir}/catalog.json`, `${JSON.stringify(catalog, null, 2)}\n`)
+console.log(`Wrote ${Object.keys(projects).length} templates (fr + en) and catalog`)

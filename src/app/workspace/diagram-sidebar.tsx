@@ -25,19 +25,12 @@ import { PanelContent } from './panel-content'
 import { sidebarLayout } from '@/shared/layout/panel-layout'
 import type { PanelView } from './panel-view'
 import { cn } from '@/shared/utils/cn'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type NavEntry =
   | { kind: 'item'; id: PanelView; label: string; description: string; icon: typeof FolderOpen }
   | { kind: 'separator' }
-
-const navigation: NavEntry[] = [
-  { kind: 'item', id: 'tree', label: 'Arborescence', description: 'Entités et associations', icon: ListTree },
-  { kind: 'item', id: 'issues', label: 'Validation', description: 'Problèmes et avertissements', icon: AlertCircle },
-  { kind: 'separator' },
-  { kind: 'item', id: 'sql', label: 'Script SQL', description: 'Prévisualiser et exporter', icon: Database },
-  { kind: 'item', id: 'projects', label: 'Diagrammes', description: 'Gérer vos modèles', icon: FolderOpen },
-  { kind: 'item', id: 'settings', label: 'Paramètres', description: 'Thème et données locales', icon: Settings },
-]
 
 export function DiagramSidebar({
   panelView,
@@ -59,6 +52,16 @@ export function DiagramSidebar({
   const project = useProjectStore((state) => state.project)
   const issues = useProjectStore((state) => state.issues)
   const { open, isMobile } = useSidebar()
+  const { t } = useTranslation()
+
+  const navigation: NavEntry[] = useMemo(() => [
+    { kind: 'item', id: 'tree', label: t('nav.tree'), description: t('nav.treeDesc'), icon: ListTree },
+    { kind: 'item', id: 'issues', label: t('nav.issues'), description: t('nav.issuesDesc'), icon: AlertCircle },
+    { kind: 'separator' },
+    { kind: 'item', id: 'sql', label: t('nav.sql'), description: t('nav.sqlDesc'), icon: Database },
+    { kind: 'item', id: 'projects', label: t('nav.projects'), description: t('nav.projectsDesc'), icon: FolderOpen },
+    { kind: 'item', id: 'settings', label: t('nav.settings'), description: t('nav.settingsDesc'), icon: Settings },
+  ], [t])
 
   const startResize = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -100,16 +103,15 @@ export function DiagramSidebar({
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold tracking-tight">
-                  Diagramme - <span className="text-muted-foreground">{project.name || 'Projet sans nom'}</span>
+                  {t('common.diagram')} - <span className="text-muted-foreground">{project.name || t('common.projectUntitled')}</span>
                 </p>
                 <p className="truncate text-[11px] text-muted-foreground">
-                  {project.entities.length} entité{project.entities.length > 1 ? 's' : ''} · {project.associations.length} association
-                  {project.associations.length > 1 ? 's' : ''}
+                  {t('common.entity', { count: project.entities.length })} · {t('common.association', { count: project.associations.length })}
                 </p>
               </div>
             </div>
-            <AppTooltip content="Fermer la barre latérale">
-              <SidebarTrigger className="size-8 shrink-0 rounded-lg" aria-label="Fermer la barre latérale">
+            <AppTooltip content={t('common.closeSidebar')}>
+              <SidebarTrigger className="size-8 shrink-0 rounded-lg" aria-label={t('common.closeSidebar')}>
                 <ChevronLeft className="size-4" />
               </SidebarTrigger>
             </AppTooltip>
@@ -120,7 +122,7 @@ export function DiagramSidebar({
 
         <SidebarContent className="min-h-0 flex-1 gap-0 overflow-hidden">
           <div className="flex min-h-0 flex-1">
-            <nav aria-label="Navigation des panneaux" className={sidebarLayout.navRail}>
+            <nav aria-label={t('nav.panelNav')} className={sidebarLayout.navRail}>
               <div className="flex flex-col items-center gap-0.5">
                 {navigation.map((entry, index) => {
                   if (entry.kind === 'separator') {
@@ -139,13 +141,13 @@ export function DiagramSidebar({
                       >
                         <Icon className="size-4" aria-hidden />
                         {id === 'issues' && hasErrors && (
-                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="Erreurs bloquantes" />
+                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label={t('nav.errorsBadge')} />
                         )}
                         {id === 'issues' && !hasErrors && hasWarnings && (
-                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-label="Avertissements" />
+                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-label={t('nav.warningsBadge')} />
                         )}
                         {id === 'sql' && hasErrors && (
-                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label="SQL bloqué par des erreurs" />
+                          <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-destructive" aria-label={t('nav.sqlBlockedBadge')} />
                         )}
                       </button>
                     </AppTooltip>
@@ -157,13 +159,13 @@ export function DiagramSidebar({
                   <button
                     type="button"
                     onClick={onToggleTheme}
-                    aria-label={colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'}
+                    aria-label={colorMode === 'dark' ? t('common.themeLight') : t('common.themeDark')}
                     className={cn(sidebarLayout.navButton, 'mt-auto')}
                   >
                     {colorMode === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right">{colorMode === 'dark' ? 'Thème clair' : 'Thème sombre'}</TooltipContent>
+                <TooltipContent side="right">{colorMode === 'dark' ? t('common.themeLightShort') : t('common.themeDarkShort')}</TooltipContent>
               </Tooltip>
             </nav>
 
@@ -183,7 +185,7 @@ export function DiagramSidebar({
       {open && !isMobile && (
         <div
           role="separator"
-          aria-label="Redimensionner la barre latérale"
+          aria-label={t('common.resizeSidebar')}
           aria-orientation="vertical"
           onPointerDown={startResize}
           className="pointer-events-auto absolute bottom-3 left-[var(--sidebar-width)] top-3 z-[95] w-2 -translate-x-1/2 cursor-ew-resize rounded-full transition-colors hover:bg-primary/30"
@@ -191,7 +193,7 @@ export function DiagramSidebar({
       )}
 
       {!open && (
-        <AppTooltip content="Ouvrir la barre latérale" side="right">
+        <AppTooltip content={t('common.openSidebar')} side="right">
           <button
             type="button"
             onClick={() => onOpenPanel('tree')}
@@ -199,7 +201,7 @@ export function DiagramSidebar({
               'pointer-events-auto absolute left-4 top-6 z-[85] flex size-10 items-center justify-center rounded-xl border border-border/70 bg-card/95 text-muted-foreground shadow-lg backdrop-blur transition-all hover:-translate-y-0.5 hover:text-foreground',
               isMobile && 'left-3 top-3',
             )}
-            aria-label="Ouvrir la barre latérale"
+            aria-label={t('common.openSidebar')}
           >
             <PanelLeftOpen className="size-4" aria-hidden />
           </button>

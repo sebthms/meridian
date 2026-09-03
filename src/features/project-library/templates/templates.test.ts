@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import catalog from './catalog.json'
-import projects from './projects.json'
+import projectsEn from './projects.en.json'
+import projectsFr from './projects.fr.json'
 import type { Project } from '@/domain/index'
 import { validateProject } from '@/merise/index'
 
 describe('bibliothèque de templates', () => {
-  it('contient un projet valide pour chaque entrée du catalogue', () => {
+  it.each([
+    ['fr', projectsFr],
+    ['en', projectsEn],
+  ] as const)('contient un projet valide pour chaque entrée du catalogue (%s)', (_locale, projects) => {
     const projectMap = projects as unknown as Record<string, Project>
 
     for (const template of catalog) {

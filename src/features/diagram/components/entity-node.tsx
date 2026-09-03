@@ -1,6 +1,7 @@
 import { memo, useState } from 'react'
 import type { Node, NodeProps } from '@xyflow/react'
 import { KeyRound } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   DatabaseSchemaNode,
   DatabaseSchemaNodeHeader,
@@ -21,6 +22,7 @@ import { renameEntity, deleteEntity, removeAttribute } from '@/editor/index'
 import { useRename } from '@/features/diagram/hooks/use-rename'
 
 function EntityNode({ data: d, selected }: NodeProps<Node<EntityNodeData>>) {
+  const { t } = useTranslation()
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
@@ -57,20 +59,20 @@ function EntityNode({ data: d, selected }: NodeProps<Node<EntityNodeData>>) {
           <NodeRenameField
             rename={rename}
             label={d.label}
-            emptyLabel="Sans nom"
+            emptyLabel={t('common.unnamed')}
             displayClassName="text-sm font-semibold text-foreground"
           />
           {!rename.editing && (
             <NodeHeaderToolbar
               onAddProperty={() => openAddProperty({ kind: 'entity', id: d.id })}
-              addLabel="Ajouter une propriété"
+              addLabel={t('entity.addProperty')}
               onDeleteRequest={() => setConfirmingDelete(true)}
-              deleteLabel="Supprimer l'entité"
+              deleteLabel={t('entity.deleteEntity')}
             />
           )}
           <NodeDeleteConfirm
             open={confirmingDelete}
-            message={<>Supprimer l'entité « {d.label} » ?</>}
+            message={t('entity.deleteConfirm', { name: d.label })}
             onCancel={() => setConfirmingDelete(false)}
             onConfirm={handleDelete}
           />

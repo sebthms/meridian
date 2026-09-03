@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { RotateCcw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '@/store/project-store'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { sidebarLayout } from '../../shared/layout/panel-layout'
@@ -22,6 +23,7 @@ export function PanelContent({
   colorMode?: 'light' | 'dark'
   onToggleTheme?: () => void
 }) {
+  const { t } = useTranslation()
   const resetIgnoredRules = useProjectStore((state) => state.resetIgnoredRules)
   const issues = useProjectStore((state) => state.issues)
   if (panelView === 'issues') {
@@ -33,25 +35,25 @@ export function PanelContent({
         <div className="flex items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="text-xs text-destructive font-bold bg-destructive/50 px-2 py-1 rounded-md">
-              {errorCount} erreur{errorCount > 1 ? 's' : ''}
+              {t('validation.error', { count: errorCount })}
             </span>
             <span className="text-xs text-yellow-500 font-bold bg-yellow-500/50 px-2 py-1 rounded-md">
-              {warningCount} avertissement{warningCount > 1 ? 's' : ''}
+              {t('validation.warning', { count: warningCount })}
             </span>
             <span className="text-xs text-blue-500 font-bold bg-blue-500/50 px-2 py-1 rounded-md">
-              {infoCount} information{infoCount > 1 ? 's' : ''}
+              {t('validation.info', { count: infoCount })}
             </span>
           </div>
           <Tooltip>
             <TooltipTrigger asChild>
-              <button type="button" aria-label="Réafficher les règles ignorées" onClick={resetIgnoredRules} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
+              <button type="button" aria-label={t('validation.restoreIgnored')} onClick={resetIgnoredRules} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
                 <RotateCcw className="h-3.5 w-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>Réafficher les règles ignorées</TooltipContent>
+            <TooltipContent>{t('validation.restoreIgnored')}</TooltipContent>
           </Tooltip>
         </div>
-        <Suspense fallback={<p className="p-4 text-sm text-muted-foreground">Chargement…</p>}>
+        <Suspense fallback={<p className="p-4 text-sm text-muted-foreground">{t('common.loading')}</p>}>
           <IssuesPanel />
         </Suspense>
       </div>

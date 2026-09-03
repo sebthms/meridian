@@ -1,5 +1,6 @@
 import { memo, useState } from 'react'
 import type { Node, NodeProps } from '@xyflow/react'
+import { useTranslation } from 'react-i18next'
 import { KeyRound } from 'lucide-react'
 import {
   DatabaseSchemaNode,
@@ -21,6 +22,7 @@ import { useRename } from '@/features/diagram/hooks/use-rename'
 import { PropertyRow } from './property-row'
 
 function AssociationNode({ data: d, selected }: NodeProps<Node<AssociationNodeData>>) {
+  const { t } = useTranslation()
   const isTable = (d.columns?.length ?? 0) > 0 && d.viewMode === 'MLD'
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
@@ -42,21 +44,21 @@ function AssociationNode({ data: d, selected }: NodeProps<Node<AssociationNodeDa
       <NodeRenameField
         rename={rename}
         label={d.label}
-        emptyLabel="Association"
+        emptyLabel={t('common.unnamed')}
         inputWidth="w-24"
         displayClassName={isTable ? 'text-sm font-semibold text-foreground' : 'text-xs font-semibold'}
       />
       {!rename.editing && (
         <NodeHeaderToolbar
           onAddProperty={() => openAddProperty({ kind: 'association', id: d.id })}
-          addLabel="Ajouter une propriété"
+          addLabel={t('entity.addProperty')}
           onDeleteRequest={() => setConfirmingDelete(true)}
-          deleteLabel="Supprimer l'association"
+          deleteLabel={t('association.deleteAssociation')}
         />
       )}
       <NodeDeleteConfirm
         open={confirmingDelete}
-        message={<>Supprimer l'association « {d.label} » ?</>}
+        message={t('association.deleteConfirm', { name: d.label })}
         onCancel={() => setConfirmingDelete(false)}
         onConfirm={handleDelete}
       />

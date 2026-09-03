@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Check, FilePlus, Filter, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { PanelShell } from '@/shared/components/panel-shell'
 import { sidebarLayout } from '@/shared/layout/panel-layout'
 import { useProjectStore } from '@/store/project-store'
 import { AppTooltip } from '@/shared/ui/tooltip'
 import { ConfirmPopover } from '@/shared/components/confirm-popover'
+import { getTemplateProjects } from '@/i18n/templates'
+import { useLocale } from '@/i18n/use-locale'
 import { cn } from '@/shared/utils/cn'
-import type { Project } from '@/domain/index'
 import templateCatalog from '@/features/project-library/templates/catalog.json'
-import templateProjects from '@/features/project-library/templates/projects.json'
 
-type TemplateOption = { id: string; label: string; category: string }
+type TemplateOption = { id: string }
 const templates = templateCatalog as TemplateOption[]
-const projectsByTemplate = templateProjects as unknown as Record<string, Project>
 
 export function ProjectManagerPanel({
   open,
@@ -25,6 +25,9 @@ export function ProjectManagerPanel({
   variant?: 'modal' | 'panel'
   embedded?: boolean
 }) {
+  const { t } = useTranslation()
+  const { locale } = useLocale()
+  const projectsByTemplate = useMemo(() => getTemplateProjects(locale), [locale])
   const projects = useProjectStore((state) => state.projects)
   const activeProjectId = useProjectStore((state) => state.activeProjectId)
   const createProject = useProjectStore((state) => state.createProject)
@@ -67,6 +70,8 @@ export function ProjectManagerPanel({
     setInputValue('')
   }
 
+  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
+
   const content = (
     <div className={sidebarLayout.section}>
       <div className="flex items-center gap-1.5">
@@ -80,8 +85,8 @@ export function ProjectManagerPanel({
                 if (event.key === 'Enter') submitCreate()
                 if (event.key === 'Escape') cancelCreate()
               }}
-              placeholder="Nom du diagramme"
-              aria-label="Nom du nouveau diagramme"
+              placeholder={t('projects.newName')}
+              aria-label={t('projects.newNameAria')}
               className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs outline-none focus:border-primary"
             />
           ) : (
@@ -90,8 +95,8 @@ export function ProjectManagerPanel({
               <input
                 value={filter}
                 onChange={(event) => setFilter(event.target.value)}
-                placeholder="Filtrer"
-                aria-label="Filtrer les diagrammes"
+                placeholder={t('projects.filter')}
+                aria-label={t('projects.filterAria')}
                 className="h-8 w-full rounded-md border border-input bg-background pl-7 pr-2 text-xs outline-none focus:border-primary"
               />
             </>
@@ -99,14 +104,14 @@ export function ProjectManagerPanel({
         </div>
         {adding ? (
           <>
-            <AppTooltip content="Créer">
-              <button type="button" aria-label="Créer le diagramme" onClick={submitCreate} disabled={!inputValue.trim()} className="rounded-md p-1.5 text-success hover:bg-accent disabled:opacity-40">
+            <AppTooltip content={t('common.create')}>
+              <button type="button" aria-label={t('projects.createAria')} onClick={submitCreate} disabled={!inputValue.trim()} className="rounded-md p-1.5 text-success hover:bg-accent disabled:opacity-40">
                 <Check className="h-4 w-4" />
               </button>
             </AppTooltip>
             {projects.length > 0 && (
-              <AppTooltip content="Annuler">
-                <button type="button" aria-label="Annuler la création" onClick={cancelCreate} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent">
+              <AppTooltip content={t('common.cancel')}>
+                <button type="button" aria-label={t('projects.cancelCreateAria')} onClick={cancelCreate} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent">
                   <X className="h-4 w-4" />
                 </button>
               </AppTooltip>
@@ -114,11 +119,11 @@ export function ProjectManagerPanel({
           </>
         ) : (
           <>
-            <AppTooltip content="Tri : plus récents">
+            <AppTooltip content={t('projects.sortRecent')}>
               <span className="rounded-md p-1.5 text-muted-foreground"><Filter className="h-4 w-4" /></span>
             </AppTooltip>
-            <AppTooltip content="Nouveau">
-              <button type="button" aria-label="Nouveau diagramme" onClick={() => setAdding(true)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
+            <AppTooltip content={t('projects.newDiagram')}>
+              <button type="button" aria-label={t('projects.newDiagram')} onClick={() => setAdding(true)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
                 <Plus className="h-4 w-4" />
               </button>
             </AppTooltip>
@@ -127,7 +132,7 @@ export function ProjectManagerPanel({
       </div>
 
       {adding && (
-        <div className="space-y-1" role="listbox" aria-label="Modèle">
+        <div className="space-y-1" role="listbox" aria-label={t('projects.templateList')}>
           <button
             type="button"
             role="option"
@@ -139,13 +144,15 @@ export function ProjectManagerPanel({
             )}
           >
             <FilePlus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-            <span className="font-medium">Vide</span>
+            <span className="font-medium">{t('common.empty')}</span>
           </button>
           {templates.map((template) => {
             const templateProject = projectsByTemplate[template.id]
             const selected = selectedTemplate === template.id
             const entityCount = templateProject?.entities.length ?? 0
             const associationCount = templateProject?.associations.length ?? 0
+            const label = t(`templates.${template.id}.label`)
+            const category = t(`templates.${template.id}.category`)
             return (
               <button
                 key={template.id}
@@ -158,8 +165,12 @@ export function ProjectManagerPanel({
                   selected ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-accent/60',
                 )}
               >
-                <AppTooltip content={`${template.category} · ${entityCount} entités · ${associationCount} associations`}>
-                  <span className="min-w-0 flex-1 truncate font-medium">{template.label}</span>
+                <AppTooltip content={t('projects.templateMeta', {
+                  category,
+                  entities: t('common.entity', { count: entityCount }),
+                  associations: t('common.association', { count: associationCount }),
+                })}>
+                  <span className="min-w-0 flex-1 truncate font-medium">{label}</span>
                 </AppTooltip>
               </button>
             )
@@ -168,8 +179,8 @@ export function ProjectManagerPanel({
       )}
 
       {!adding && (
-        <div className="scrollbar-subtle max-h-[52vh] overflow-x-hidden overflow-y-auto pr-1" aria-label="Liste des diagrammes">
-          {visibleProjects.length === 0 && <p className="py-5 text-center text-xs text-muted-foreground">Aucun diagramme.</p>}
+        <div className="scrollbar-subtle max-h-[52vh] overflow-x-hidden overflow-y-auto pr-1" aria-label={t('projects.listAria')}>
+          {visibleProjects.length === 0 && <p className="py-5 text-center text-xs text-muted-foreground">{t('projects.noProjects')}</p>}
           {visibleProjects.map((item) => {
             const editing = editingId === item.id
             return (
@@ -180,26 +191,26 @@ export function ProjectManagerPanel({
                   <button type="button" onClick={() => { openProject(item.id); onClose() }} className={cn('min-w-0 flex-1 truncate text-left text-xs', item.id === activeProjectId ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-foreground')}>{item.project.name}</button>
                 )}
                 <span className="flex shrink-0 items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground transition-opacity duration-150 group-hover/project:opacity-0">{new Date(item.updatedAt).toLocaleDateString('fr-FR')}</span>
+                  <span className="text-[10px] text-muted-foreground transition-opacity duration-150 group-hover/project:opacity-0">{new Date(item.updatedAt).toLocaleDateString(dateLocale)}</span>
                   <span className="absolute right-0 z-20 flex items-center gap-0.5 rounded-md bg-card px-0.5 opacity-0 shadow-sm transition-opacity duration-150 group-hover/project:opacity-100">
                     {editing ? (
-                      <AppTooltip content="Valider"><button type="button" aria-label="Valider le renommage" onClick={() => { renameProject(item.id, editingName); setEditingId(null) }} className="rounded p-1 text-success hover:bg-accent"><Check className="h-3.5 w-3.5" /></button></AppTooltip>
+                      <AppTooltip content={t('common.validate')}><button type="button" aria-label={t('projects.renameAria')} onClick={() => { renameProject(item.id, editingName); setEditingId(null) }} className="rounded p-1 text-success hover:bg-accent"><Check className="h-3.5 w-3.5" /></button></AppTooltip>
                     ) : (
-                      <AppTooltip content="Renommer"><button type="button" aria-label="Renommer" onClick={() => { setEditingId(item.id); setEditingName(item.project.name) }} className="rounded p-1 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button></AppTooltip>
+                      <AppTooltip content={t('common.rename')}><button type="button" aria-label={t('common.rename')} onClick={() => { setEditingId(item.id); setEditingName(item.project.name) }} className="rounded p-1 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button></AppTooltip>
                     )}
-                    <AppTooltip content="Supprimer"><button type="button" aria-label="Supprimer" onClick={() => setDeleteId(deleteId === item.id ? null : item.id)} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button></AppTooltip>
+                    <AppTooltip content={t('common.delete')}><button type="button" aria-label={t('common.delete')} onClick={() => setDeleteId(deleteId === item.id ? null : item.id)} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button></AppTooltip>
                   </span>
                 </span>
                 {deleteId === item.id && (
                   <div className="absolute right-0 top-8 z-30">
                     <ConfirmPopover
-                      message={<>Supprimer « {item.project.name} » ?</>}
+                      message={t('projects.deleteConfirm', { name: item.project.name })}
                       onCancel={() => setDeleteId(null)}
                       onConfirm={() => {
                         deleteProject(item.id)
                         setDeleteId(null)
                       }}
-                      confirmLabel="Supprimer"
+                      confirmLabel={t('common.delete')}
                     />
                   </div>
                 )}
@@ -215,8 +226,8 @@ export function ProjectManagerPanel({
     <PanelShell
       open={open}
       onClose={onClose}
-      ariaLabel="Mes diagrammes"
-      title="Mes diagrammes"
+      ariaLabel={t('projects.title')}
+      title={t('projects.title')}
       variant={variant}
       embedded={embedded}
       modalClassName="max-w-md"

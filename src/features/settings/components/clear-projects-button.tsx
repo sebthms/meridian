@@ -1,38 +1,45 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ConfirmPopover } from '@/shared/components/confirm-popover'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { settingsFieldClass } from '@/features/settings/components/settings-row'
 import { useProjectStore } from '@/store/project-store'
 import { cn } from '@/shared/utils/cn'
 
-export function ClearProjectsButton({ onCleared, className, popoverPosition = 'above' }: { onCleared?: () => void; className?: string; popoverPosition?: 'above' | 'below' }) {
+export function ClearProjectsButton({ onCleared }: { onCleared?: () => void }) {
+  const { t } = useTranslation()
   const projects = useProjectStore((state) => state.projects)
   const clearAllProjects = useProjectStore((state) => state.clearAllProjects)
   const [confirming, setConfirming] = useState(false)
+  const disabled = projects.length === 0
 
   return (
-    <div className="relative flex w-full items-center gap-6">
-      <div className="text-xs text-muted-foreground">
-        <span className="text-xs text-muted-foreground whitespace-nowrap">Supprimer les diagrammes ?</span>
-      </div>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button type="button" aria-label="Vider les données locales" onClick={() => setConfirming((value) => !value)} disabled={projects.length === 0} className={cn('text-destructive', className)}>
-            <Trash2 className="h-4 w-4 text-destructive" aria-hidden />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top">Vider les données locales</TooltipContent>
-      </Tooltip>
+    <div className="relative">
+      <button
+        type="button"
+        id="clear-projects-button"
+        aria-label={t('settings.clearProjects')}
+        disabled={disabled}
+        onClick={() => setConfirming(true)}
+        className={cn(
+          settingsFieldClass,
+          'justify-between gap-3 px-3 text-xs hover:bg-destructive/5 hover:border-destructive/40 disabled:pointer-events-none disabled:opacity-40',
+        )}
+      >
+        <span className="truncate text-muted-foreground">{t('settings.clearPrompt')}</span>
+        <Trash2 className="size-4 shrink-0 text-destructive" aria-hidden />
+      </button>
       {confirming && (
-        <div className={popoverPosition === 'below' ? 'absolute left-0 top-9 z-50' : 'absolute bottom-11 left-0 z-50'}>
+        <div className="absolute left-0 right-0 top-[calc(100%+0.375rem)] z-50">
           <ConfirmPopover
-            message="Vider tous les diagrammes ?"
+            message={t('settings.clearConfirm')}
             onCancel={() => setConfirming(false)}
             onConfirm={() => {
               clearAllProjects()
               setConfirming(false)
               onCleared?.()
             }}
+            confirmLabel={t('common.delete')}
           />
         </div>
       )}
