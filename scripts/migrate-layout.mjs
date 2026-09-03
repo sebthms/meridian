@@ -47,7 +47,7 @@ for (const [from, original] of files) {
   const to = moves.get(from) ?? from
   let content = original
   if (stage === 'L4') {
-    content = content.replace(/import\s+(type\s+)?\{([^}]+)\}\s+from\s+(['"])@\/components\/panel\3/g, (_, typeOnly, names) =>
+    content = content.replace(/import\s+(type\s+)?\{([^}]+)\}\s+from\s+(['"])@\/components\/panel(?:\/index)?\3/g, (_, typeOnly, names) =>
       names.split(',').map((name) => name.trim()).filter(Boolean).map((name) => {
         const symbol = name.replace(/^type\s+/, '').split(/\s+as\s+/)[0]
         if (!panelExports[symbol]) throw new Error(`Unknown panel export: ${symbol}`)

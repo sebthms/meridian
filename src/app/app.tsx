@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react'
 import { useTheme } from '@/shared/theme/use-theme'
-import { Canvas } from '@/components/canvas/canvas'
-import { ProjectManagerPanel } from '@/components/panel/index'
-import type { PanelView } from '@/components/panel/index'
+import { Canvas } from '@/app/workspace/canvas'
+import { ProjectManagerPanel } from '@/features/project-library/components/project-manager-panel'
+import type { PanelView } from './workspace/panel-view'
 import { useProjectStore } from '@/store/project-store'
 
 export default function App() {

@@ -1,5 +1,5 @@
 /**
- * Génère src/templates/projects.json — modèles MCD pédagogiques, sans FK dans le MCD.
+ * Génère src/features/project-library/templates/projects.json — modèles MCD pédagogiques, sans FK dans le MCD.
  * Exécuter : node scripts/build-templates.mjs
  */
 import fs from 'node:fs'
@@ -353,5 +353,5 @@ const projects = {
   rh,
 }
 
-fs.writeFileSync('src/templates/projects.json', `${JSON.stringify(projects, null, 2)}\n`)
+fs.writeFileSync('src/features/project-library/templates/projects.json', `${JSON.stringify(projects, null, 2)}\n`)
 console.log(`Wrote ${Object.keys(projects).length} templates`)
