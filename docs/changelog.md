@@ -2,6 +2,12 @@
 
 Toutes les modifications du projet **MERISE Diagrams** (modélisateur MCD → MLD → SQL).
 
+## Unreleased — Architecture hybride
+
+- Découpage `app` / `features` / `shared` ; moteur `domain`, `editor`, `merise`, `mld`, `sql`, `store`, `persistence` conservé.
+- Formulaires extraits en fonctions pures ; fabrique de store injectable ; MLD généré une fois en vue MLD.
+- CI des pull requests (tests, lint, typecheck, build) sans déploiement. Documentation dans `docs/`.
+
 ## Unreleased — Concepts MERISE, templates et architecture UI
 
 - Héritage, contraintes, CIF et règles métier dans le domaine, le canvas, l’arbre, la persistance, la validation (E020–E028, BR001) et l’export MLD/SQL (commentaires, sans DDL inventé).

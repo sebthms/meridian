@@ -32,7 +32,13 @@ export default [
       // règles sémantiques de TypeScript (imports de types, types DOM, etc.).
       'no-undef': 'off',
       'no-unused-vars': 'off',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      // Suite compilateur React (set-state-in-effect, purity, …) : non activée.
+      // Elle n’était pas en vigueur avant la migration ; l’activer d’un coup
+      // exigerait des choix de dépendances d’effet, hors périmètre.
       'react-hooks/set-state-in-effect': 'off',
+      // 11 avertissements : exports annexes des primitives shadcn (buttonVariants, etc.).
       'react-refresh/only-export-components': 'warn',
     },
   },

@@ -1,4 +1,6 @@
-# La méthode MERISE — Règles et bonnes pratiques de conception
+# La méthode MERISE — référence pédagogique
+
+Ce fichier décrit la méthode, pas le comportement de l’éditeur. Usage de l’application : [functional.md](functional.md).
 
 ## Sommaire
 
