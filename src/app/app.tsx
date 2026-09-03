@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { useTheme } from '@/hooks/use-theme'
+import { useTheme } from '@/shared/theme/use-theme'
 import { Canvas } from '@/components/canvas/canvas'
 import { ProjectManagerPanel } from '@/components/panel/index'
 import type { PanelView } from '@/components/panel/index'

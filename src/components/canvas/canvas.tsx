@@ -42,7 +42,7 @@ import {
   updateCardinality,
 } from '@/editor/index'
 import { type Cardinality } from '@/domain/index'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 import EntityNode from './entity-node'
 import AssociationNode from './association-node'
 import AssociationEdge from './association-edge'
@@ -51,11 +51,11 @@ import ConstraintNode from './constraint-node'
 import CifNode from './cif-node'
 import BusinessRuleNode from './business-rule-node'
 import ConceptualEdge from './conceptual-edge'
-import { ConfirmPopover } from '@/components/shared/confirm-popover'
-import { SidebarProvider } from '@/components/ui/sidebar'
+import { ConfirmPopover } from '@/shared/components/confirm-popover'
+import { SidebarProvider } from '@/shared/ui/sidebar'
 import { DiagramSidebar } from './diagram-sidebar'
 import type { PanelView } from '@/components/panel/index'
-import { AppTooltip } from '@/components/ui/tooltip'
+import { AppTooltip } from '@/shared/ui/tooltip'
 
 const nodeTypes = {
   entity: EntityNode,

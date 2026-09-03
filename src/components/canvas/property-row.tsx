@@ -3,8 +3,8 @@ import { KeyRound, Pencil, Trash2 } from 'lucide-react'
 import type { ConceptualType } from '@/domain/index'
 import { GenericPropertyIcon, TypeLabel } from '@/components/canvas/icons/type-icon'
 import { PropertyConstraintIcons } from '@/components/canvas/property-constraint-icons'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { ConfirmPopover } from '@/components/shared/confirm-popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { ConfirmPopover } from '@/shared/components/confirm-popover'
 
 export function PropertyRow({ name, type, isIdentifier = false, nullable = false, unique = false, onEdit, onDelete }: {
   name: string

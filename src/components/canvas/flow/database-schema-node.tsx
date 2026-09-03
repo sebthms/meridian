@@ -5,7 +5,7 @@ import {
   BaseNodeContent,
   BaseNodeHeader,
 } from '@/components/canvas/flow/base-node'
-import { TableBody, TableRow, TableCell } from '@/components/ui/table'
+import { TableBody, TableRow, TableCell } from '@/shared/ui/table'
 
 export type DatabaseSchemaNodeHeaderProps = {
   children?: ReactNode

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { CheckCircle2, ChevronDown, ChevronRight, EyeOff } from 'lucide-react'
 import { useProjectStore } from '@/store/project-store'
-import { cn } from '@/lib/utils'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { cn } from '@/shared/utils/cn'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 const SEVERITY_STYLE: Record<string, { dot: string; label: string }> = {
   error: { dot: 'bg-destructive', label: 'Erreur' },

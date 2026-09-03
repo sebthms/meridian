@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 
 type ContentProps = React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 type TooltipDefaults = Pick<ContentProps, 'side' | 'align' | 'sideOffset' | 'className'>

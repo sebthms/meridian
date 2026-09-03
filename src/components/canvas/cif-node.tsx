@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { type NodeProps } from '@xyflow/react'
 import { ArrowRightLeft } from 'lucide-react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 import type { CifNodeData } from '@/editor/nodes/adapter'
 
 function CifNode({ data, selected }: NodeProps) {

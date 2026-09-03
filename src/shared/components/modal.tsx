@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
+import { cn } from '@/shared/utils/cn'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/shared/ui/tooltip'
 
 type ModalProps = {
   open: boolean

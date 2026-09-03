@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { type NodeProps } from '@xyflow/react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 import type { InheritanceNodeData } from '@/editor/nodes/adapter'
 import { inheritanceCoverageLabel, inheritanceExclusivityLabel } from '@/domain/index'
 

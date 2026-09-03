@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { type NodeProps } from '@xyflow/react'
 import { ScrollText } from 'lucide-react'
 import { ConceptualNodeShell } from './conceptual-node-shell'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 import type { BusinessRuleNodeData } from '@/editor/nodes/adapter'
 import { BUSINESS_RULE_LEVEL_LABEL } from '@/domain/index'
 

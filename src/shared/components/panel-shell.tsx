@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
-import { Modal } from '@/components/shared/modal'
+import { cn } from '@/shared/utils/cn'
+import { Modal } from '@/shared/components/modal'
 
 type PanelShellProps = {
   open: boolean

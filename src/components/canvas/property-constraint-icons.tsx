@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react'
 import { BadgeCheck, CheckCircle2, CircleOff } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { cn } from '@/shared/utils/cn'
 
 type PropertyConstraintIconsProps = {
   nullable?: boolean

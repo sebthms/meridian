@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Check, X } from 'lucide-react'
-import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Popover, PopoverAnchor, PopoverContent } from '@/shared/ui/popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function ConfirmPopover({
   message,

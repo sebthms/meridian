@@ -1,10 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Modal } from '@/components/shared/modal'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Button } from '@/components/ui/button'
+import { Modal } from '@/shared/components/modal'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { Textarea } from '@/shared/ui/textarea'
+import { Checkbox } from '@/shared/ui/checkbox'
+import { Button } from '@/shared/ui/button'
 import { useProjectStore } from '@/store/project-store'
 import {
   updateInheritance,

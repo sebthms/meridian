@@ -1,9 +1,9 @@
-import { PanelShell } from '@/components/panel/shell'
-import { sidebarLayout } from '@/components/panel/layout'
+import { PanelShell } from '@/shared/components/panel-shell'
+import { sidebarLayout } from '@/shared/layout/panel-layout'
 import { ClearProjectsButton } from '@/components/shared/clear-projects-button'
 import { PaletteSelect } from '@/components/panel/palette-select'
-import { useTheme } from '@/hooks/use-theme'
-import { Label } from '@/components/ui/label'
+import { useTheme } from '@/shared/theme/use-theme'
+import { Label } from '@/shared/ui/label'
 
 export function SettingsPanel({
   open,

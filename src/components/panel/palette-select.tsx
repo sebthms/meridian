@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Check, ChevronDown } from 'lucide-react'
-import { PALETTES, type PaletteId, type PalettePreview } from '@/lib/palettes'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
+import { PALETTES, type PaletteId, type PalettePreview } from '@/shared/theme/palettes'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import { cn } from '@/shared/utils/cn'
 
 function PaletteSwatches({ preview, size = 'sm' }: { preview: PalettePreview; size?: 'sm' | 'md' }) {
   const dot = size === 'md' ? 'size-4' : 'size-3'

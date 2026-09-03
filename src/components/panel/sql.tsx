@@ -4,9 +4,9 @@ import { generateMld } from '@/mld'
 import { generateSql } from '@/sql'
 import { downloadText } from '@/persistence'
 import { Check, Copy, Download } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { sidebarLayout } from './layout'
+import { sidebarLayout } from '../../shared/layout/panel-layout'
 
 export function SqlPanel() {
   const project = useProjectStore((s) => s.project)

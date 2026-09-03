@@ -18,11 +18,11 @@ import {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
-} from '@/components/ui/sidebar'
-import { AppTooltip, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+} from '@/shared/ui/sidebar'
+import { AppTooltip, Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useProjectStore } from '@/store/project-store'
 import { PanelContent, sidebarLayout, type PanelView } from '@/components/panel/index'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 
 const navigation: Array<{ id: PanelView; label: string; description: string; icon: typeof FolderOpen }> = [
   { id: 'issues', label: 'Validation', description: 'Problèmes et avertissements', icon: AlertCircle },

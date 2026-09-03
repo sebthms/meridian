@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
-import { ConfirmPopover } from '@/components/shared/confirm-popover'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ConfirmPopover } from '@/shared/components/confirm-popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useProjectStore } from '@/store/project-store'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 
 export function ClearProjectsButton({ onCleared, className, popoverPosition = 'above' }: { onCleared?: () => void; className?: string; popoverPosition?: 'above' | 'below' }) {
   const projects = useProjectStore((state) => state.projects)

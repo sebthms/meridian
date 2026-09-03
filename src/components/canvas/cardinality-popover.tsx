@@ -5,9 +5,9 @@ import {
   areCardinalitiesEqual,
   type Cardinality,
 } from '@/domain/index'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 import { X } from 'lucide-react'
-import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
+import { Popover, PopoverAnchor, PopoverContent } from '@/shared/ui/popover'
 
 const ONE_ONE: Cardinality = { min: 1, max: 1 }
 

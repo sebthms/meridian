@@ -1,5 +1,5 @@
 import { Pencil, Trash2 } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function ConceptualNodeToolbar({
   onEdit,

@@ -1,8 +1,8 @@
 import { Check, X } from 'lucide-react'
 import { isValidModelName, modelNameError } from '@/domain'
 import type { RenameState } from '@/hooks/use-rename'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { cn } from '@/shared/utils/cn'
 
 export function NodeRenameField({
   rename,

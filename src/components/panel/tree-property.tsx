@@ -1,7 +1,7 @@
 import { KeyRound, TableProperties } from 'lucide-react'
 import type { Attribute, Entity } from '@/domain'
 import { treePropertyDetails } from '@/domain/tree-property'
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils/cn';
 
 export function TreeProperty({ attribute, entity }: { attribute: Attribute; entity?: Entity }) {
   const details = treePropertyDetails(attribute, entity)

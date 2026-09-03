@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { getPalette, isPaletteId, PALETTES, resolvePaletteId } from '@/lib/palettes'
+import { getPalette, isPaletteId, PALETTES, resolvePaletteId } from '@/shared/theme/palettes'
 // @ts-expect-error — module ESM partagé avec le générateur CSS
-import { validatePaletteContrasts } from '../../scripts/palette-definitions.mjs'
+import { validatePaletteContrasts } from '../../../scripts/palette-definitions.mjs'
 
 describe('palettes', () => {
   it('expose 2 palettes pastel neutres', () => {

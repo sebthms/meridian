@@ -3,7 +3,7 @@ import { ArrowRightLeft, ChevronDown, ChevronRight, CircleDot, Database, GitFork
 import { CONSTRAINT_KIND_META, inheritanceMark } from '@/domain'
 import { cardinalityToString } from '@/domain'
 import { useProjectStore } from '@/store/project-store'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 import { TreeProperty } from './tree-property'
 
 function TreeToggle({ open, label, onClick, children }: { open: boolean; label: string; onClick: () => void; children: ReactNode }) {

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ConfirmPopover } from '@/components/shared/confirm-popover'
+import { ConfirmPopover } from '@/shared/components/confirm-popover'
 
 export function NodeDeleteConfirm({
   open,

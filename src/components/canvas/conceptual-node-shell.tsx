@@ -2,7 +2,7 @@ import { useState, type ReactElement, type ReactNode } from 'react'
 import { ConceptualHandles } from '@/components/canvas/nodes/conceptual-handles'
 import { NodeDeleteConfirm } from '@/components/canvas/nodes/node-delete-confirm'
 import { ConceptualNodeToolbar } from './conceptual-node-toolbar'
-import { AppTooltip } from '@/components/ui/tooltip'
+import { AppTooltip } from '@/shared/ui/tooltip'
 import type { ConceptualKind } from '@/domain'
 import { useProjectStore } from '@/store/project-store'
 import {

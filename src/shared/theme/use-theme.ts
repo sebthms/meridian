@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
-import { applyPalette, getInitialPalette, persistPalette, type PaletteId } from '@/lib/palettes'
-import { getInitialTheme, persistTheme, type Theme } from '@/lib/theme'
+import { applyPalette, getInitialPalette, persistPalette, type PaletteId } from '@/shared/theme/palettes'
+import { getInitialTheme, persistTheme, type Theme } from '@/shared/theme/theme'
 
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(() => getInitialTheme())

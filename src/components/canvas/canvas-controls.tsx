@@ -1,6 +1,6 @@
 import { Controls, ControlButton, useReactFlow, useStore, useStoreApi } from '@xyflow/react'
 import { Lock, Maximize, Minus, Plus, Unlock } from 'lucide-react'
-import { AppTooltip } from '@/components/ui/tooltip'
+import { AppTooltip } from '@/shared/ui/tooltip'
 
 /** React Flow actions, using the same accessible tooltips as the rest of the app. */
 export function CanvasControls() {

@@ -1,6 +1,6 @@
 import type { ConceptualType } from '@/domain'
 import { Binary, Calendar, Hash, Percent, TableProperties, Type } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 
 const TYPE_ICON: Record<ConceptualType, typeof Type> = {
   TEXT: Type,
