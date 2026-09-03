@@ -4,9 +4,9 @@ import { getPalette, isPaletteId, PALETTES, resolvePaletteId } from '@/shared/th
 import { validatePaletteContrasts } from '../../../scripts/palette-definitions.mjs'
 
 describe('palettes', () => {
-  it('expose 2 palettes pastel neutres', () => {
-    expect(PALETTES).toHaveLength(2)
-    expect(PALETTES.map((p) => p.id)).toEqual(['noisette', 'ardoise'])
+  it('expose 3 palettes pastel neutres', () => {
+    expect(PALETTES).toHaveLength(3)
+    expect(PALETTES.map((p) => p.id)).toEqual(['noisette', 'ardoise', 'lavande'])
     for (const palette of PALETTES) {
       expect(palette.preview.primary).toMatch(/^\d+ \d+% \d+%$/)
       expect(isPaletteId(palette.id)).toBe(true)

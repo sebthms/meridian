@@ -1,4 +1,4 @@
-export type PaletteId = 'noisette' | 'ardoise'
+export type PaletteId = 'noisette' | 'ardoise' | 'lavande'
 
 export type PalettePreview = {
   primary: string
@@ -25,6 +25,7 @@ const LEGACY_PALETTE_MAP: Record<string, PaletteId> = {
   rose: 'noisette',
   lin: 'ardoise',
   brume: 'ardoise',
+  sauge: 'lavande',
 }
 
 /** Nettoie d’anciennes surcharges inline avant d’activer une palette CSS. */
@@ -81,6 +82,11 @@ export const PALETTES: PaletteDefinition[] = [
     id: 'ardoise',
     label: 'Ardoise',
     preview: { primary: '215 22% 42%', secondary: '210 16% 68%', accent: '200 20% 55%' },
+  },
+  {
+    id: 'lavande',
+    label: 'Lavande',
+    preview: { primary: '272 24% 42%', secondary: '268 16% 68%', accent: '285 20% 52%' },
   },
 ]
 
