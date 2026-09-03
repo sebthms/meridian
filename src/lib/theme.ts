@@ -1,3 +1,5 @@
+import { applyPalette, getInitialPalette, type PaletteId } from './palettes'
+
 export type Theme = 'light' | 'dark'
 
 const STORAGE_KEY = 'merise-theme'
@@ -12,8 +14,9 @@ export function getInitialTheme(): Theme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-export function applyTheme(theme: Theme) {
+export function applyTheme(theme: Theme, palette: PaletteId = getInitialPalette()) {
   document.documentElement.classList.toggle('dark', theme === 'dark')
+  applyPalette(palette)
 }
 
 export function persistTheme(theme: Theme) {
@@ -25,5 +28,5 @@ export function persistTheme(theme: Theme) {
 }
 
 export function initTheme() {
-  applyTheme(getInitialTheme())
+  applyTheme(getInitialTheme(), getInitialPalette())
 }

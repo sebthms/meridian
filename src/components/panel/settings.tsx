@@ -1,35 +1,37 @@
 import { Moon, Sun } from 'lucide-react'
 import { PanelShell } from '@/components/panel/shell'
 import { ClearProjectsButton } from '@/components/shared/clear-projects-button'
+import { PaletteSelect } from '@/components/panel/palette-select'
+import { useTheme } from '@/hooks/use-theme'
+import { Label } from '@/components/ui/label'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function SettingsPanel({
   open,
   onClose,
-  colorMode,
-  onToggleTheme,
   variant = 'modal',
   embedded = false,
 }: {
   open: boolean
   onClose: () => void
-  colorMode: 'light' | 'dark'
-  onToggleTheme: () => void
   variant?: 'modal' | 'panel'
   embedded?: boolean
 }) {
+  const { theme, palette, setPalette, toggleTheme } = useTheme()
+
   const content = (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">Thème</p>
-        <Tooltip><TooltipTrigger asChild><button type="button" aria-label={colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'} onClick={onToggleTheme} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground">{colorMode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button></TooltipTrigger><TooltipContent>{colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'}</TooltipContent></Tooltip>
+    <section className="space-y-4">
+      <div className="w-full space-y-2">
+        <Label htmlFor="palette-select">Palette</Label>
+        <PaletteSelect value={palette} onChange={setPalette} />
       </div>
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">Vider les données ?</p>
+
+      <div className="flex w-full flex-col space-y-2">
+        <Label htmlFor="clear-projects-button">Vos données locales</Label>
         <ClearProjectsButton
           onCleared={onClose}
           popoverPosition="below"
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
+          className="w-full rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
         />
       </div>
     </section>

@@ -15,20 +15,35 @@ const IssuesPanel = lazy(() =>
 export function PanelContent({
   panelView,
   onClosePanel,
-  colorMode,
-  onToggleTheme,
 }: {
   panelView: PanelView
   onClosePanel: () => void
-  colorMode: 'light' | 'dark'
-  onToggleTheme: () => void
+  colorMode?: 'light' | 'dark'
+  onToggleTheme?: () => void
 }) {
   const resetIgnoredRules = useProjectStore((state) => state.resetIgnoredRules)
-
+  const issues = useProjectStore((state) => state.issues)
   if (panelView === 'issues') {
     return (
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex items-center justify-end px-4 pb-2 pt-1">
+        <div className="flex items-center justify-between pb-1 pt-1">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 ">
+              <span className="text-xs text-destructive">
+                {issues.filter((issue) => issue.severity === 'error').length} erreur{issues.filter((issue) => issue.severity === 'error').length > 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-yellow-500">
+                {issues.filter((issue) => issue.severity === 'warning').length} avertissement{issues.filter((issue) => issue.severity === 'warning').length > 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-blue-500">
+                {issues.filter((issue) => issue.severity === 'info').length} information{issues.filter((issue) => issue.severity === 'info').length > 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
           <Tooltip>
             <TooltipTrigger asChild>
               <button type="button" aria-label="Réafficher les règles ignorées" onClick={resetIgnoredRules} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
@@ -48,6 +63,6 @@ export function PanelContent({
   if (panelView === 'tree') return <ProjectTreePanel embedded />
   if (panelView === 'projects') return <ProjectManagerPanel open variant="panel" embedded onClose={onClosePanel} />
   if (panelView === 'sql') return <SqlPanel />
-  if (panelView === 'settings') return <SettingsPanel open variant="panel" embedded onClose={onClosePanel} colorMode={colorMode} onToggleTheme={onToggleTheme} />
+  if (panelView === 'settings') return <SettingsPanel open variant="panel" embedded onClose={onClosePanel} />
   return null
 }

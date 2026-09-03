@@ -1,18 +1,26 @@
 import { useCallback, useState } from 'react'
-import { applyTheme, getInitialTheme, persistTheme, type Theme } from '@/lib/theme'
+import { applyPalette, getInitialPalette, persistPalette, type PaletteId } from '@/lib/palettes'
+import { getInitialTheme, persistTheme, type Theme } from '@/lib/theme'
 
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(() => getInitialTheme())
+  const [palette, setPaletteState] = useState<PaletteId>(() => getInitialPalette())
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next)
-    applyTheme(next)
+    document.documentElement.classList.toggle('dark', next === 'dark')
     persistTheme(next)
+  }, [])
+
+  const setPalette = useCallback((next: PaletteId) => {
+    setPaletteState(next)
+    applyPalette(next)
+    persistPalette(next)
   }, [])
 
   const toggleTheme = useCallback(() => {
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }, [theme, setTheme])
 
-  return { theme, setTheme, toggleTheme }
+  return { theme, palette, setTheme, setPalette, toggleTheme }
 }

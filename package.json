@@ -12,6 +12,7 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "generate:palettes": "node scripts/generate-palettes-css.mjs",
     "lint": "eslint ."
   },
   "dependencies": {

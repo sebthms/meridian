@@ -150,7 +150,7 @@ export function DiagramSidebar({
         <SidebarFooter className="gap-2 p-3">
           <SidebarMenu>
             <SidebarMenuItem>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 justify-end">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <SidebarMenuButton type="button" onClick={onToggleTheme} aria-label={colorMode === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'} className="size-9 justify-center rounded-xl p-0 text-muted-foreground hover:text-foreground">
@@ -159,10 +159,7 @@ export function DiagramSidebar({
                   </TooltipTrigger>
                   <TooltipContent side="top">{colorMode === 'dark' ? 'Thème clair' : 'Thème sombre'}</TooltipContent>
                 </Tooltip>
-                <ClearProjectsButton
-                  onCleared={onClosePanel}
-                  className="inline-flex size-9 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-destructive disabled:opacity-40"
-                />
+                
               </div>
             </SidebarMenuItem>
           </SidebarMenu>

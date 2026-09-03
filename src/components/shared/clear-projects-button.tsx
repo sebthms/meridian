@@ -3,6 +3,8 @@ import { Trash2 } from 'lucide-react'
 import { ConfirmPopover } from '@/components/shared/confirm-popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useProjectStore } from '@/store/project-store'
+import { Label } from '../ui/label'
+import { cn } from '@/lib/utils'
 
 export function ClearProjectsButton({ onCleared, className, popoverPosition = 'above' }: { onCleared?: () => void; className?: string; popoverPosition?: 'above' | 'below' }) {
   const projects = useProjectStore((state) => state.projects)
@@ -10,7 +12,11 @@ export function ClearProjectsButton({ onCleared, className, popoverPosition = 'a
   const [confirming, setConfirming] = useState(false)
 
   return (
-    <div className="relative">
+    <div className="relative flex w-full justify-between gap-1">
+       <div className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground">Supprimer les diagrammes ?</span>
+            </div>
+            <div className="pr-4">
       <Tooltip>
         <TooltipTrigger asChild>
           <button
@@ -18,13 +24,15 @@ export function ClearProjectsButton({ onCleared, className, popoverPosition = 'a
             aria-label="Vider les données locales"
             onClick={() => setConfirming((value) => !value)}
             disabled={projects.length === 0}
-            className={className}
+            className={cn('text-destructive', className)}
           >
-            <Trash2 className="h-4 w-4" aria-hidden />
+           
+            <Trash2 className="h-4 w-4 text-destructive" aria-hidden />
           </button>
         </TooltipTrigger>
         <TooltipContent side="top">Vider les données locales</TooltipContent>
       </Tooltip>
+      </div>
       {confirming && (
         <div className={popoverPosition === 'below' ? 'absolute left-0 top-9 z-50 w-64' : 'absolute bottom-11 left-0 z-50 w-64'}>
           <ConfirmPopover

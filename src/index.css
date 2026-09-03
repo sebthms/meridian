@@ -1,95 +1,24 @@
+@import './styles/palettes.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Les trois couleurs de base : primaire, secondaire, accent. */
-    --base-primary: 231 84% 60%;
-    --base-secondary: 183 74% 38%;
-    --base-accent: 38 92% 50%;
-
-    /* Palette sémantique : les composants ne consomment jamais les bases directement. */
-    --background: 220 24% 97%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: var(--base-primary);
-    --primary-foreground: 0 0% 100%;
-    --secondary: 183 38% 92%;
-    --secondary-foreground: 183 74% 24%;
-    --muted: 220 18% 93%;
-    --muted-foreground: 220 12% 43%;
-    --accent: 38 100% 93%;
-    --accent-foreground: 28 80% 27%;
+    /* Sémantiques globaux — surfaces teintées par data-palette dans palettes.css */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --success: 160 72% 36%;
     --success-foreground: 0 0% 100%;
-    --warning: var(--base-accent);
-    --warning-foreground: 28 80% 27%;
-    --info: var(--base-secondary);
-    --info-foreground: 0 0% 100%;
-    --border: 220 16% 86%;
-    --input: 220 16% 82%;
-    --ring: var(--base-primary);
-    --canvas: 220 24% 97%;
-    --node: 0 0% 100%;
-    --node-header: 220 20% 95%;
-    --node-border: 220 16% 84%;
-    --selection: 231 84% 60%;
     --radius: 0.65rem;
-    --sidebar-background: 220 24% 98%;
-    --sidebar-foreground: 222 34% 19%;
-    --sidebar-primary: var(--base-primary);
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 231 100% 96%;
-    --sidebar-accent-foreground: 231 70% 35%;
-    --sidebar-border: 220 16% 88%;
-    --sidebar-ring: var(--base-primary);
   }
 
   .dark {
-    --background: 222 33% 9%;
-    --foreground: 220 20% 91%;
-    --card: 222 29% 13%;
-    --card-foreground: 220 20% 91%;
-    --popover: 222 29% 13%;
-    --popover-foreground: 220 20% 91%;
-    --primary: 231 90% 72%;
-    --primary-foreground: 231 45% 14%;
-    --secondary: 183 35% 21%;
-    --secondary-foreground: 183 65% 78%;
-    --muted: 222 22% 17%;
-    --muted-foreground: 220 13% 63%;
-    --accent: 33 44% 22%;
-    --accent-foreground: 38 95% 78%;
     --destructive: 0 70% 62%;
     --destructive-foreground: 0 0% 100%;
     --success: 160 61% 52%;
     --success-foreground: 160 45% 10%;
-    --warning: 38 92% 62%;
-    --warning-foreground: 28 70% 12%;
-    --info: 183 74% 55%;
-    --info-foreground: 183 45% 9%;
-    --border: 222 19% 25%;
-    --input: 222 19% 29%;
-    --ring: 231 90% 72%;
-    --canvas: 222 33% 9%;
-    --node: 222 29% 13%;
-    --node-header: 222 25% 17%;
-    --node-border: 222 19% 28%;
-    --selection: 231 90% 72%;
-    --sidebar-background: 222 30% 11%;
-    --sidebar-foreground: 220 20% 91%;
-    --sidebar-primary: 231 90% 72%;
-    --sidebar-primary-foreground: 231 45% 14%;
-    --sidebar-accent: 231 34% 22%;
-    --sidebar-accent-foreground: 231 100% 88%;
-    --sidebar-border: 222 19% 24%;
-    --sidebar-ring: 231 90% 72%;
   }
 }
 
@@ -100,6 +29,10 @@
   body {
     @apply bg-background text-foreground;
     background-color: hsl(var(--background));
+  }
+
+  .react-flow {
+    background-color: hsl(var(--canvas));
   }
 }
 

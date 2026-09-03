@@ -6,8 +6,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 const SEVERITY_STYLE: Record<string, { dot: string; label: string }> = {
   error: { dot: 'bg-destructive', label: 'Erreur' },
-  warning: { dot: 'bg-warning', label: 'Avertissement' },
-  info: { dot: 'bg-info', label: 'Info' },
+  warning: { dot: 'bg-yellow-500', label: 'Avertissement' },
+  info: { dot: 'bg-blue-500', label: 'Info' },
 }
 
 export function IssuesPanel() {
@@ -25,7 +25,7 @@ export function IssuesPanel() {
   }, new Map<string, typeof issues>())].map(([ruleId, ruleIssues]) => ({ ruleId, issues: ruleIssues, first: ruleIssues[0]! }))
 
   if (groups.length === 0) {
-    return <div className="flex items-center gap-2 p-4 text-sm text-success"><CheckCircle2 className="h-4 w-4" aria-hidden />Modèle valide</div>
+    return <div className="flex items-center gap-2 text-sm text-success"><CheckCircle2 className="h-4 w-4" aria-hidden />Modèle valide</div>
   }
 
   return <div className="divide-y divide-border">
@@ -34,7 +34,7 @@ export function IssuesPanel() {
       const style = SEVERITY_STYLE[first.severity] ?? SEVERITY_STYLE.info
       const affected = [...new Set(ruleIssues.flatMap((issue) => issue.targetIds))]
       return <section key={ruleId}>
-        <div className="flex items-center gap-2 px-4 py-3 hover:bg-accent/40">
+        <div className="flex items-center gap-2 py-1 hover:bg-accent/40">
           <span className={cn('h-2 w-2 shrink-0 rounded-full', style.dot)} aria-label={style.label} />
           <button type="button" onClick={() => setExpanded((current) => { const next = new Set(current); if (next.has(ruleId)) next.delete(ruleId); else next.add(ruleId); return next })} className="flex min-w-0 flex-1 items-center gap-1.5 text-left text-xs font-medium">
             {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
