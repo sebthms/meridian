@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Project } from '@/domain'
+import type { ConceptualKind, Project, ViewMode } from '@/domain'
 import { createProject as createEmptyProject, ensureAssociationPositions, normalizeProject } from '@/domain'
 import type { ValidationIssue } from '@/merise'
 import { validateProject } from '@/merise'
@@ -11,14 +11,13 @@ import {
   saveProjectToStorage,
   clearProjectStorage,
 } from '@/persistence'
-import type { ConceptualKind } from '@/editor/conceptual-kind'
 
 export type HistoryState = {
   past: Project[]
   future: Project[]
 }
 
-export type ViewMode = 'MCD' | 'UML' | 'MLD'
+export type { ViewMode } from '@/domain'
 export type SaveStatus = 'saved' | 'saving'
 
 type ProjectStore = {

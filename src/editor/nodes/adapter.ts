@@ -16,7 +16,7 @@ import {
   type BusinessRuleLevel,
 } from '@/domain'
 import { generateMld } from '@/mld'
-import type { ViewMode } from '@/store/project-store'
+import type { ViewMode } from '@/domain'
 
 export type EntityNodeData = {
   id: string
