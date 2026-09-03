@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createFunctionalDependencyConstraint, createInheritance, createModelConstraint, createBusinessRule } from '@/domain'
 import { generateMld, formatMld } from '@/mld'
 import { generateSql } from '@/sql'
-import { buildProject, makeAssociation, makeEntity } from '@/merise/rules/__tests__/helpers'
+import { buildProject, makeAssociation, makeEntity } from '@/test-support/project-fixtures'
 
 describe('Export conceptuel MLD/SQL', () => {
   it('n’ajoute aucune table ni FK pour l’héritage, la contrainte, la CIF ou la règle', () => {

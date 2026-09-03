@@ -56,55 +56,9 @@ pnpm preview       # prévisualiser le build
 | Tests         | Vitest |
 | Hébergement   | GitHub Pages |
 
-## Architecture
+## Documentation
 
-Le moteur métier est **indépendant de React Flow**. Le modèle vit dans `src/domain/`. Validator, MLD et SQL ne dépendent d’aucun composant React. Les nœuds sont dérivés via `src/editor/nodes/adapter.ts` ; les liaisons canvas passent par `src/editor/connect.ts`. Les commandes d’édition sont des fonctions pures `(Project) → Project`.
-
-Détail : `CONTEXT.md`.
-
-## Structure du projet
-
-```
-src/
-├── app/            Layout
-├── components/     canvas, panel, shared, ui
-├── domain/         modèle MCD (y compris héritage, CIF, contraintes, règles)
-├── merise/         validator + règles
-├── mld/            MCD → MLD
-├── sql/            PostgreSQL
-├── editor/         commandes, connect canvas, adapter
-├── store/          Zustand
-├── persistence/    localStorage + .merise.json
-└── templates/      modèles de départ
-```
-
-
-
-## Règles MERISE couvertes
-
-| Code | Règle | Sévérité |
-|------|-------|----------|
-| E001 | Entité sans nom | Erreur |
-| E002 | Entité sans identifiant | Erreur |
-| E003 | Attribut sans nom | Erreur |
-| E004 | Attribut dupliqué | Erreur |
-| E005 | Identifiant invalide | Erreur |
-| E006 | Association sans nom | Erreur |
-| E007 | Association mal connectée | Erreur |
-| E008 | Cardinalité invalide | Erreur |
-| E009 | Cardinalité incomplète | Erreur |
-| E010 | Référence orpheline | Erreur |
-| E011 | Type conceptuel invalide | Erreur |
-| E012 | Nom physique PostgreSQL dupliqué | Erreur |
-| W001 | Nom suspect | Warning |
-| W002 | Attribut potentiellement non atomique | Warning |
-| W003 | Structure répétitive suspecte | Warning |
-| W004 | Dépendance fonctionnelle suspecte | Warning |
-| W005 | Association ternaire (non supportée en MVP) | Warning |
-
-Le MVP couvre le noyau MERISE binaire. Les identifiants alternatifs sont traduits en contraintes `UNIQUE` dans le MLD/SQL. Les noms SQL sont normalisés de façon déterministe et les clés étrangères sont ajoutées après la création des tables, ce qui permet de gérer l'ordre des entités et les cycles.
-
-Héritage, contraintes, CIF (association fonctionnelle déjà présente) et règles métier sont dans le MCD. Hors scope : n-aires éditables, CIM, temporalité, MCT/MOT, autres dialectes SQL, reverse engineering.
+Index : [docs/README.md](docs/README.md). Fonctionnel : [docs/functional.md](docs/functional.md). Technique : [docs/technical.md](docs/technical.md). Historique : [docs/changelog.md](docs/changelog.md).
 
 ## Licence
 

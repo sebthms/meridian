@@ -1,6 +1,6 @@
-/** Source unique des 2 palettes pastel/neutres — importée par generate-palettes-css.mjs et les tests. */
+/** Source unique des palettes pastel/neutres — importée par generate-palettes-css.mjs et les tests. */
 
-/** @typedef {'noisette' | 'ardoise'} PaletteId */
+/** @typedef {'noisette' | 'ardoise' | 'lavande'} PaletteId */
 
 /** @typedef {{ id: PaletteId; label: string; preview: { primary: string; secondary: string; accent: string } }} PaletteMeta */
 
@@ -16,11 +16,17 @@ export const PALETTE_META = [
     label: 'Ardoise',
     preview: { primary: '215 22% 42%', secondary: '210 16% 68%', accent: '200 20% 55%' },
   },
+  {
+    id: 'lavande',
+    label: 'Lavande',
+    preview: { primary: '272 24% 42%', secondary: '268 16% 68%', accent: '285 20% 52%' },
+  },
 ]
 
 const NEAR_WHITE = '210 20% 98%'
 const NEAR_BLACK = '25 10% 12%'
 const NEAR_BLACK_COOL = '220 15% 12%'
+const NEAR_BLACK_LAVENDER = '275 12% 12%'
 
 /** @param {string} fg @param {string} bg */
 function contrastRatio(fg, bg) {
@@ -191,6 +197,86 @@ const PALETTE_TOKENS = {
       '--sidebar-ring': '215 18% 62%',
     },
   },
+  lavande: {
+    light: {
+      '--background': '272 14% 97%',
+      '--foreground': NEAR_BLACK_LAVENDER,
+      '--card': '272 12% 99%',
+      '--card-foreground': NEAR_BLACK_LAVENDER,
+      '--popover': '272 12% 99%',
+      '--popover-foreground': NEAR_BLACK_LAVENDER,
+      '--muted': '272 14% 94%',
+      '--muted-foreground': '275 8% 40%',
+      '--border': '272 12% 88%',
+      '--input': '272 12% 85%',
+      '--canvas': '272 14% 96%',
+      '--node': '272 12% 99%',
+      '--node-header': '272 16% 95%',
+      '--node-border': '272 12% 87%',
+      '--sidebar-background': '272 14% 98%',
+      '--sidebar-foreground': NEAR_BLACK_LAVENDER,
+      '--sidebar-border': '272 12% 89%',
+      '--base-primary': '272 24% 42%',
+      '--base-secondary': '268 16% 68%',
+      '--base-accent': '285 20% 52%',
+      '--primary': '272 24% 42%',
+      '--primary-foreground': NEAR_WHITE,
+      '--secondary': '272 14% 92%',
+      '--secondary-foreground': NEAR_BLACK_LAVENDER,
+      '--accent': '272 16% 93%',
+      '--accent-foreground': NEAR_BLACK_LAVENDER,
+      '--warning': '38 55% 48%',
+      '--warning-foreground': NEAR_WHITE,
+      '--info': '272 14% 92%',
+      '--info-foreground': '272 18% 32%',
+      '--ring': '272 24% 42%',
+      '--selection': '272 24% 42%',
+      '--sidebar-primary': '272 24% 42%',
+      '--sidebar-primary-foreground': NEAR_WHITE,
+      '--sidebar-accent': '272 16% 92%',
+      '--sidebar-accent-foreground': NEAR_BLACK_LAVENDER,
+      '--sidebar-ring': '272 24% 42%',
+    },
+    dark: {
+      '--background': '275 10% 10%',
+      '--foreground': '272 12% 92%',
+      '--card': '275 9% 13%',
+      '--card-foreground': '272 12% 92%',
+      '--popover': '275 9% 13%',
+      '--popover-foreground': '272 12% 92%',
+      '--muted': '275 8% 17%',
+      '--muted-foreground': '272 8% 62%',
+      '--border': '275 8% 22%',
+      '--input': '275 8% 26%',
+      '--canvas': '275 10% 9%',
+      '--node': '275 9% 13%',
+      '--node-header': '275 9% 16%',
+      '--node-border': '275 8% 24%',
+      '--sidebar-background': '275 9% 11%',
+      '--sidebar-foreground': '272 12% 92%',
+      '--sidebar-border': '275 8% 21%',
+      '--base-primary': '272 20% 60%',
+      '--base-secondary': '268 14% 54%',
+      '--base-accent': '285 18% 50%',
+      '--primary': '272 20% 60%',
+      '--primary-foreground': NEAR_BLACK_LAVENDER,
+      '--secondary': '275 8% 18%',
+      '--secondary-foreground': '272 12% 92%',
+      '--accent': '275 8% 18%',
+      '--accent-foreground': '272 12% 92%',
+      '--warning': '38 45% 55%',
+      '--warning-foreground': NEAR_BLACK,
+      '--info': '275 8% 18%',
+      '--info-foreground': '272 12% 72%',
+      '--ring': '272 20% 60%',
+      '--selection': '272 20% 60%',
+      '--sidebar-primary': '272 20% 60%',
+      '--sidebar-primary-foreground': NEAR_BLACK_LAVENDER,
+      '--sidebar-accent': '275 8% 18%',
+      '--sidebar-accent-foreground': '272 12% 92%',
+      '--sidebar-ring': '272 20% 60%',
+    },
+  },
 }
 
 /** @param {PaletteId} id @param {'light'|'dark'} mode */
@@ -208,6 +294,19 @@ function constraintTokens(id, mode) {
           '--constraint-unique': '22 38% 58%',
         }
   }
+  if (id === 'lavande') {
+    return mode === 'light'
+      ? {
+          '--constraint-null': '272 22% 50%',
+          '--constraint-required': '272 36% 40%',
+          '--constraint-unique': '285 40% 46%',
+        }
+      : {
+          '--constraint-null': '268 20% 62%',
+          '--constraint-required': '272 50% 68%',
+          '--constraint-unique': '285 44% 62%',
+        }
+  }
   return mode === 'light'
     ? {
         '--constraint-null': '215 22% 50%',
@@ -221,7 +320,7 @@ function constraintTokens(id, mode) {
       }
 }
 
-for (const id of ['noisette', 'ardoise']) {
+for (const id of ['noisette', 'ardoise', 'lavande']) {
   for (const mode of ['light', 'dark']) {
     Object.assign(PALETTE_TOKENS[id][mode], constraintTokens(id, mode))
   }
@@ -304,4 +403,5 @@ export const LEGACY_PALETTE_IDS = {
   rose: 'noisette',
   lin: 'ardoise',
   brume: 'ardoise',
+  sauge: 'lavande',
 }

@@ -14,7 +14,7 @@ import {
   normalizeProject,
   projectElementLabel,
 } from '@/domain'
-import { makeAssociation, makeEntity } from '@/merise/rules/__tests__/helpers'
+import { makeAssociation, makeEntity } from '@/test-support/project-fixtures'
 
 describe('Héritage', () => {
   it('crée un héritage total exclusif vide', () => {

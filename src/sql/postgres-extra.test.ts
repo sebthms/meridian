@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { generateMld } from '@/mld'
 import { generateSql } from './postgres'
-import { buildProject, makeEntity, makeAssociation } from '@/merise/rules/__tests__/helpers'
+import { buildProject, makeEntity, makeAssociation } from '@/test-support/project-fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────
 // Tests du générateur SQL PostgreSQL (§22, §25).

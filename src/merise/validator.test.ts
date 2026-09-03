@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { createProject } from '@/domain'
 import { validateProject } from './validator'
-import { buildProject, makeEntity } from './rules/__tests__/helpers'
+import { buildProject, makeEntity } from '@/test-support/project-fixtures'
 
 describe('MERISE structural validation', () => {
   it('accepts a valid entity', () => {

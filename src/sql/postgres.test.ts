@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { generateMld } from '@/mld'
 import { generateSql } from './postgres'
-import { buildProject, makeEntity, makeAssociation } from '@/merise/rules/__tests__/helpers'
+import { buildProject, makeEntity, makeAssociation } from '@/test-support/project-fixtures'
 
 describe('SQL generator (PostgreSQL)', () => {
   it('generates a CREATE TABLE from a simple entity', () => {
