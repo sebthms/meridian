@@ -58,7 +58,11 @@ pnpm preview       # prévisualiser le build
 
 ## Documentation
 
-Index : [docs/README.md](docs/README.md). Fonctionnel : [docs/functional.md](docs/functional.md). Technique : [docs/technical.md](docs/technical.md). Historique : [docs/changelog.md](docs/changelog.md).
+Index : 
+[docs/README.md](docs/README.md). 
+Fonctionnel : [docs/functional.md](docs/functional.md). 
+Technique : [docs/technical.md](docs/technical.md). 
+Historique : [docs/changelog.md](docs/changelog.md).
 
 ## Licence
 
