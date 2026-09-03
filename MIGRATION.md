@@ -14,7 +14,8 @@ Statut : **plan validé ; implémentation en cours sur `codex/architecture-refac
 | L5a | Terminé | Cycle domaine/SQL supprimé ; projections/types séparés, cinq `as any` supprimés, six composants de nœud typés. 286 tests dont 13 empreintes de projection ; typecheck/lint/build réussis. |
 | L5b | Terminé | Logique de sauvegarde extraite vers `property-form.ts` et `conceptual-form.ts`. Renommage sans changement de type conserve `typeConfig` historique. 300 tests, typecheck/lint/build en mémoire réussis. Modales : mêmes props, textes et état local. |
 | L6 | Terminé | Fabrique `createProjectStore` avec persistance, horloge et IDs injectables ; singleton `useProjectStore` et initialisation inchangés. D1/D2 caractérisés, non corrigés. 304 tests, typecheck/lint/build en mémoire réussis. |
-| L7-L8 | À exécuter | Mesures de performance et clôture ci-dessous |
+| L7 | Terminé | Mesure : JS initial 697 966 / 206 518 gzip, chunk validation 3 131 / 1 334 gzip, CSS 64 495 / 11 432 gzip. `generateMld` plus appelé hors vue MLD ; un seul MLD partagé nœuds/arêtes ; SQL non généré si erreurs. Abonnements nœuds via `getState`. 306 tests, empreintes inchangées. |
+| L8 | À exécuter | Garde-fous et documentation |
 
 Ce fichier est la liste de migration prévue, pas le compte rendu d'une migration déjà exécutée. À chaque lot livré, son statut, ses fichiers réellement modifiés et ses résultats de vérification seront renseignés ici. Tout écart significatif au plan sera signalé avant exécution.
 

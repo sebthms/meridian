@@ -1,6 +1,6 @@
 import { MarkerType, type Edge } from '@xyflow/react'
 import { isReflexive, cardinalityToString, normalizeProject, type Project, type ViewMode, type Cardinality } from '@/domain'
-import { generateMld } from '@/mld'
+import { generateMld, type MldModel } from '@/mld'
 import type { AssocEdgeData, ConceptualEdgeData } from './edge-types'
 
 export function projectToEdges(
@@ -11,11 +11,12 @@ export function projectToEdges(
     onPick: (associationId: string, participantIndex: number, cardinality: Cardinality) => void
     onClose: () => void
     openTarget: { associationId: string; participantIndex: number } | null
+    mld?: MldModel
   },
 ): Edge[] {
   const { viewMode } = opts
   const edges: Edge[] = []
-  const mld = viewMode === 'MLD' ? generateMld(project) : null
+  const mld = viewMode === 'MLD' ? (opts.mld ?? generateMld(project)) : null
 
   for (const association of project.associations) {
     const reflexive = isReflexive(association)

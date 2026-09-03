@@ -22,16 +22,17 @@ import { PropertyRow } from './property-row'
 
 function AssociationNode({ data: d, selected }: NodeProps<Node<AssociationNodeData>>) {
   const isTable = (d.columns?.length ?? 0) > 0 && d.viewMode === 'MLD'
-  const project = useProjectStore((s) => s.project)
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
-  const rename = useRename(d.label, (name) => apply(updateAssociationName(project, d.id, name)))
+  const rename = useRename(d.label, (name) => {
+    apply(updateAssociationName(useProjectStore.getState().project, d.id, name))
+  })
   const isUML = d.viewMode === 'UML'
 
   const handleDelete = () => {
-    apply(deleteAssociation(project, d.id))
+    apply(deleteAssociation(useProjectStore.getState().project, d.id))
     select(undefined)
     setConfirmingDelete(false)
   }
@@ -99,7 +100,7 @@ function AssociationNode({ data: d, selected }: NodeProps<Node<AssociationNodeDa
           {d.attributes && d.attributes.length > 0 && (
             <div className="mt-1 w-full space-y-0.5 border-t border-border/60 pt-1">
               {d.attributes.map((at) => (
-                <PropertyRow key={at.id} name={at.name} type={at.conceptualType} nullable={at.nullable} unique={at.unique} onEdit={() => openAddProperty({ kind: 'association', id: d.id, attributeId: at.id })} onDelete={() => apply(removeAssociationAttribute(project, d.id, at.id))} />
+                <PropertyRow key={at.id} name={at.name} type={at.conceptualType} nullable={at.nullable} unique={at.unique} onEdit={() => openAddProperty({ kind: 'association', id: d.id, attributeId: at.id })} onDelete={() => apply(removeAssociationAttribute(useProjectStore.getState().project, d.id, at.id))} />
               ))}
             </div>
           )}

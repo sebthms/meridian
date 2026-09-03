@@ -12,8 +12,8 @@ export function SqlPanel() {
   const project = useProjectStore((s) => s.project)
   const issues = useProjectStore((s) => s.issues)
   const errors = useMemo(() => issues.filter((issue) => issue.severity === 'error'), [issues])
-  const sql = useMemo(() => generateSql(generateMld(project)), [project])
   const canExport = errors.length === 0
+  const sql = useMemo(() => (canExport ? generateSql(generateMld(project)) : ''), [canExport, project])
   const [copied, setCopied] = useState(false)
 
   const copySql = async () => {

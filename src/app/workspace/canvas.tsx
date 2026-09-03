@@ -25,6 +25,7 @@ import {
 } from '@xyflow/react'
 import { useProjectStore } from '@/store/project-store'
 import { projectToNodes, projectToEdges } from '@/features/diagram/flow/project-adapter'
+import { generateMld } from '@/mld'
 import { AddPropertyModal } from '../../features/diagram/components/add-property-modal'
 import { ConceptualEditModal } from '../../features/diagram/components/conceptual-edit-modal'
 import { CanvasControls } from '../../features/diagram/components/canvas-controls'
@@ -104,8 +105,8 @@ export function Canvas({
   const apply = useProjectStore((s) => s.apply)
   const undo = useProjectStore((s) => s.undo)
   const redo = useProjectStore((s) => s.redo)
-  const past = useProjectStore((s) => s.past)
-  const future = useProjectStore((s) => s.future)
+  const canUndo = useProjectStore((s) => s.past.length > 0)
+  const canRedo = useProjectStore((s) => s.future.length > 0)
   const viewMode = useProjectStore((s) => s.viewMode)
   const setViewMode = useProjectStore((s) => s.setViewMode)
   const openEditConceptual = useProjectStore((s) => s.openEditConceptual)
@@ -149,10 +150,12 @@ export function Canvas({
 
   // nœuds/arêtes dérivés du modèle métier (adapter), jamais l'inverse.
   useEffect(() => {
-    setNodes(projectToNodes(project, { selectedId, viewMode }))
+    const mld = viewMode === 'MLD' ? generateMld(project) : undefined
+    setNodes(projectToNodes(project, { selectedId, viewMode, mld }))
     setEdges(
       projectToEdges(project, {
         viewMode,
+        mld,
         onOpen: (associationId, participantIndex) =>
           setCardinalityTarget({ associationId, participantIndex }),
         onPick: onPickCardinality,
@@ -235,8 +238,8 @@ export function Canvas({
             <DockButton title="Ajouter une CIF" onClick={() => apply(createCifCommand(project))}><ArrowRightLeft className="h-4 w-4" aria-hidden /></DockButton>
             <DockButton title="Ajouter une règle métier" onClick={() => apply(createBusinessRuleCommand(project))}><ScrollText className="h-4 w-4" aria-hidden /></DockButton>
             <DockSeparator />
-            <DockButton title="Annuler (Ctrl+Z)" onClick={undo} disabled={past.length === 0}><Undo2 className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Rétablir (Ctrl+Y)" onClick={redo} disabled={future.length === 0}><Redo2 className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Annuler (Ctrl+Z)" onClick={undo} disabled={!canUndo}><Undo2 className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title="Rétablir (Ctrl+Y)" onClick={redo} disabled={!canRedo}><Redo2 className="h-4 w-4" aria-hidden /></DockButton>
           </div>
         </Panel>
       </ReactFlow>

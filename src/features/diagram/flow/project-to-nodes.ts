@@ -1,6 +1,6 @@
 import type { Node } from '@xyflow/react'
 import { isIdentifierAttribute, isReflexive, associationMidpoint, inheritanceMark, CONSTRAINT_KIND_META, normalizeProject, type Project, type ViewMode } from '@/domain'
-import { generateMld } from '@/mld'
+import { generateMld, type MldModel } from '@/mld'
 import type { EntityNodeData, AssociationNodeData, InheritanceNodeData, ConstraintNodeData, CifNodeData, BusinessRuleNodeData } from './node-types'
 
 /**
@@ -11,13 +11,13 @@ import type { EntityNodeData, AssociationNodeData, InheritanceNodeData, Constrai
  */
 export function projectToNodes(
   project: Project,
-  opts: { selectedId?: string; viewMode: ViewMode },
+  opts: { selectedId?: string; viewMode: ViewMode; mld?: MldModel },
 ): Node[] {
   const { selectedId, viewMode } = opts
-  const mld = generateMld(project)
+  const mld = viewMode === 'MLD' ? (opts.mld ?? generateMld(project)) : null
 
   const entityNodes: Node[] = project.entities.map((e) => {
-    const rel = mld.relations.find((r) => r.sourceId === e.id)
+    const rel = mld?.relations.find((r) => r.sourceId === e.id)
     const foreignKeys =
       viewMode === 'MLD'
         ? (rel?.columns.filter((c) => c.isForeignKey) ?? []).map((c) => ({
@@ -57,7 +57,7 @@ export function projectToNodes(
   // En UML, on peut décider de cacher les nœuds d'association s'ils n'ont pas d'attributs.
   for (const a of project.associations) {
     const hasAttributes = a.attributes.length > 0
-    const hasAssociativeTable = mld.relations.some((relation) => relation.sourceId === a.id)
+    const hasAssociativeTable = mld?.relations.some((relation) => relation.sourceId === a.id) ?? false
 
     // Logique d'affichage du nœud d'association
     let shouldShow = true
@@ -85,7 +85,7 @@ export function projectToNodes(
         : storedPosition
     let columns: AssociationNodeData['columns']
 
-    if (viewMode === 'MLD') {
+    if (viewMode === 'MLD' && mld) {
       const rel = mld.relations.find((r) => r.sourceId === a.id)
       const reflexive = isReflexive(a)
       columns = (rel?.columns ?? []).map((c) => ({

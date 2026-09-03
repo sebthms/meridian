@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CheckCircle2, ChevronDown, ChevronRight, EyeOff } from 'lucide-react'
 import { useProjectStore } from '@/store/project-store'
 import { cn } from '@/shared/utils/cn'
@@ -17,12 +17,12 @@ export function IssuesPanel() {
   const ignoreRule = useProjectStore((s) => s.ignoreRule)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
-  const groups = [...issues.reduce((map, issue) => {
+  const groups = useMemo(() => [...issues.reduce((map, issue) => {
     const current = map.get(issue.ruleId) ?? []
     current.push(issue)
     map.set(issue.ruleId, current)
     return map
-  }, new Map<string, typeof issues>())].map(([ruleId, ruleIssues]) => ({ ruleId, issues: ruleIssues, first: ruleIssues[0]! }))
+  }, new Map<string, typeof issues>())].map(([ruleId, ruleIssues]) => ({ ruleId, issues: ruleIssues, first: ruleIssues[0]! })), [issues])
 
   if (groups.length === 0) {
     return <div className="flex items-center gap-2 text-sm text-success"><CheckCircle2 className="h-4 w-4" aria-hidden />Modèle valide</div>

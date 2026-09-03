@@ -36,7 +36,6 @@ export function ConceptualNodeShell({
   deleteLabel: string
   children: ReactElement
 }) {
-  const project = useProjectStore((state) => state.project)
   const apply = useProjectStore((state) => state.apply)
   const select = useProjectStore((state) => state.select)
   const openEdit = useProjectStore((state) => state.openEditConceptual)
@@ -57,7 +56,7 @@ export function ConceptualNodeShell({
         message={<>{deleteLabel} « {label} » ?</>}
         onCancel={() => setConfirmingDelete(false)}
         onConfirm={() => {
-          apply(DELETE[kind](project, id))
+          apply(DELETE[kind](useProjectStore.getState().project, id))
           select(undefined)
           setConfirmingDelete(false)
         }}

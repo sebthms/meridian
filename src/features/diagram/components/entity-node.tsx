@@ -21,7 +21,6 @@ import { renameEntity, deleteEntity, removeAttribute } from '@/editor/index'
 import { useRename } from '@/features/diagram/hooks/use-rename'
 
 function EntityNode({ data: d, selected }: NodeProps<Node<EntityNodeData>>) {
-  const project = useProjectStore((s) => s.project)
   const apply = useProjectStore((s) => s.apply)
   const select = useProjectStore((s) => s.select)
   const openAddProperty = useProjectStore((s) => s.openAddProperty)
@@ -31,12 +30,13 @@ function EntityNode({ data: d, selected }: NodeProps<Node<EntityNodeData>>) {
   const isMLD = d.viewMode === 'MLD'
 
   const rename = useRename(d.label, (name) => {
+    const project = useProjectStore.getState().project
     const next = renameEntity(project, d.id, name)
     if (next !== project) apply(next)
   })
 
   const handleDelete = () => {
-    apply(deleteEntity(project, d.id))
+    apply(deleteEntity(useProjectStore.getState().project, d.id))
     select(undefined)
     setConfirmingDelete(false)
   }
@@ -81,7 +81,7 @@ function EntityNode({ data: d, selected }: NodeProps<Node<EntityNodeData>>) {
         {d.attributes.map((a) => (
           <DatabaseSchemaTableRow key={a.id}>
             <DatabaseSchemaTableCell className="p-0">
-              <PropertyRow name={a.name} type={a.conceptualType as ConceptualType} isIdentifier={a.isIdentifier} nullable={a.nullable} unique={a.unique} onEdit={() => openAddProperty({ kind: 'entity', id: d.id, attributeId: a.id })} onDelete={() => apply(removeAttribute(project, d.id, a.id))} />
+              <PropertyRow name={a.name} type={a.conceptualType as ConceptualType} isIdentifier={a.isIdentifier} nullable={a.nullable} unique={a.unique} onEdit={() => openAddProperty({ kind: 'entity', id: d.id, attributeId: a.id })} onDelete={() => apply(removeAttribute(useProjectStore.getState().project, d.id, a.id))} />
             </DatabaseSchemaTableCell>
           </DatabaseSchemaTableRow>
         ))}
