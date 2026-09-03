@@ -1,8 +1,38 @@
 [
-  { "id": "blog", "label": "Blog", "category": "Contenu", "description": "Auteurs, rubriques, articles, commentaires et mots-clés" },
-  { "id": "boutique", "label": "Boutique", "category": "Commerce", "description": "Vendeurs, catalogue, clients et commandes" },
-  { "id": "crm", "label": "CRM", "category": "Vente", "description": "Entreprises, contacts, opportunités et activités" },
-  { "id": "bibliotheque", "label": "Bibliothèque", "category": "Service", "description": "Œuvres, exemplaires, adhérents et emprunts" },
-  { "id": "scolarite", "label": "Scolarité", "category": "Formation", "description": "Enseignants, cours, sessions et inscriptions" },
-  { "id": "rh", "label": "RH", "category": "Organisation", "description": "Personnes, salariés, stagiaires et services" }
+  {
+    "id": "blog"
+  },
+  {
+    "id": "boutique"
+  },
+  {
+    "id": "crm"
+  },
+  {
+    "id": "bibliotheque"
+  },
+  {
+    "id": "scolarite"
+  },
+  {
+    "id": "rh"
+  },
+  {
+    "id": "cinema"
+  },
+  {
+    "id": "hotel"
+  },
+  {
+    "id": "restaurant"
+  },
+  {
+    "id": "sante"
+  },
+  {
+    "id": "logistique"
+  },
+  {
+    "id": "evenement"
+  }
 ]

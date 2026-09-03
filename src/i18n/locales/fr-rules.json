@@ -1,0 +1,218 @@
+{
+  "MERISE-E001": {
+    "title": "Entité sans nom",
+    "explanation": "Donnez un nom métier à chaque entité."
+  },
+  "MERISE-E002": {
+    "title": "Entité sans identifiant",
+    "explanation": "Ajoutez au moins une propriété identifiante par entité."
+  },
+  "MERISE-E003": {
+    "title": "Attribut sans nom",
+    "explanation": "Chaque propriété doit avoir un nom."
+  },
+  "MERISE-E004": {
+    "title": "Attribut dupliqué",
+    "explanation": "Deux propriétés ne peuvent pas porter le même nom dans un même objet."
+  },
+  "MERISE-E005": {
+    "title": "Identifiant invalide",
+    "explanation": "Un identifiant doit référencer des propriétés existantes, sans doublon."
+  },
+  "MERISE-E006": {
+    "title": "Association sans nom",
+    "explanation": "Nommez l’association avec un verbe métier."
+  },
+  "MERISE-E007": {
+    "title": "Association mal connectée",
+    "explanation": "Reliez exactement deux entités existantes."
+  },
+  "MERISE-E008": {
+    "title": "Cardinalité invalide",
+    "explanation": "Utilisez 0,1 · 1,1 · 0,N ou 1,N."
+  },
+  "MERISE-E009": {
+    "title": "Association sans cardinalités complètes",
+    "explanation": "Renseignez une cardinalité à chaque extrémité."
+  },
+  "MERISE-E010": {
+    "title": "Référence vers entité supprimée",
+    "explanation": "Supprimez ou recâblez les liens vers des objets absents."
+  },
+  "MERISE-E011": {
+    "title": "Type conceptuel invalide",
+    "explanation": "Choisissez un type conceptuel pris en charge."
+  },
+  "MERISE-E012": {
+    "title": "Nom physique dupliqué",
+    "explanation": "Distinguez les noms qui deviennent identiques en SQL."
+  },
+  "MERISE-E020": {
+    "title": "Héritage sans parent valide",
+    "explanation": "Pointez une entité parente existante, distincte de ses enfants."
+  },
+  "MERISE-E021": {
+    "title": "Héritage — enfant invalide",
+    "explanation": "Chaque enfant doit être une entité existante, sans doublon."
+  },
+  "MERISE-E022": {
+    "title": "Cycle d’héritage",
+    "explanation": "Un héritage ne doit pas former de boucle."
+  },
+  "MERISE-E023": {
+    "title": "Contrainte — référence invalide",
+    "explanation": "La contrainte ne doit viser que des objets présents dans le diagramme."
+  },
+  "MERISE-E024": {
+    "title": "Contrainte sans nom",
+    "explanation": "Nommez chaque contrainte d’intégrité."
+  },
+  "MERISE-E025": {
+    "title": "CIF — entités invalides",
+    "explanation": "Une CIF relie deux entités distinctes et existantes."
+  },
+  "MERISE-E026": {
+    "title": "CIF — dépendance fonctionnelle absente",
+    "explanation": "Reliez d’abord les entités par une association avec cardinalité max 1 côté cible."
+  },
+  "MERISE-E027": {
+    "title": "Règle métier incomplète",
+    "explanation": "Renseignez le nom et la description de la règle métier."
+  },
+  "MERISE-E028": {
+    "title": "Règle métier — référence invalide",
+    "explanation": "La règle métier ne doit viser que des objets présents dans le diagramme."
+  },
+  "MERISE-BR001": {
+    "title": "Règle métier",
+    "explanation": "Règle métier documentée sur le modèle."
+  },
+  "MERISE-W001": {
+    "title": "Nom peu explicite",
+    "explanation": "Préférez un nom métier clair, en majuscules pour les entités et verbe pour les associations."
+  },
+  "MERISE-W002": {
+    "title": "Attribut potentiellement non atomique",
+    "explanation": "Un attribut ne devrait contenir qu’une seule information."
+  },
+  "MERISE-W003": {
+    "title": "Structure répétitive suspecte",
+    "explanation": "Des suffixes _1, _2… suggèrent plutôt une entité séparée."
+  },
+  "MERISE-W004": {
+    "title": "Dépendance fonctionnelle suspecte",
+    "explanation": "Cette propriété semble dépendre d’une autre que de l’identifiant."
+  },
+  "MERISE-W005": {
+    "title": "Association ternaire ou de dimension supérieure",
+    "explanation": "Décomposez en entité intermédiaire et associations binaires."
+  },
+  "MERISE-W016": {
+    "title": "Identifiant potentiellement instable",
+    "explanation": "Préférez une clé technique stable plutôt qu’un nom, e-mail ou adresse."
+  },
+  "MERISE-W017": {
+    "title": "Entité au pluriel",
+    "explanation": "En MERISE, une entité se nomme au singulier (CLIENT, pas CLIENTS)."
+  },
+  "MERISE-W019": {
+    "title": "Entité sans propriété descriptive",
+    "explanation": "Ajoutez des propriétés métier au-delà de l’identifiant."
+  },
+  "MERISE-W020": {
+    "title": "Redondance entre entités liées",
+    "explanation": "Évitez de dupliquer une propriété déjà portée par une entité associée."
+  },
+  "MERISE-W022": {
+    "title": "Relation 1,1 des deux côtés",
+    "explanation": "Vérifiez si les deux entités doivent fusionner ou recevoir une clé étrangère."
+  },
+  "MERISE-W025": {
+    "title": "Identifiant booléen",
+    "explanation": "Un booléen ne distingue que deux occurrences."
+  },
+  "MERISE-E013": {
+    "title": "ID interne vide ou dupliqué",
+    "explanation": "Chaque objet doit avoir un identifiant technique unique."
+  },
+  "MERISE-E014": {
+    "title": "Identifiant principal ambigu ou absent",
+    "explanation": "Un seul identifiant principal par entité."
+  },
+  "MERISE-E015": {
+    "title": "Propriété identifiante nullable",
+    "explanation": "Une composante d’identifiant ne peut pas être nullable."
+  },
+  "MERISE-E016": {
+    "title": "Configuration de type invalide",
+    "explanation": "Corrigez la configuration détaillée du type dans le formulaire."
+  },
+  "MERISE-E017": {
+    "title": "Famille de type incohérente",
+    "explanation": "Resélectionnez le type pour resynchroniser le résumé et la configuration."
+  },
+  "MERISE-E018": {
+    "title": "Collision de colonnes SQL",
+    "explanation": "Renommez les propriétés qui produisent la même colonne en SQL."
+  },
+  "MERISE-E019": {
+    "title": "Référence SQL invalide",
+    "explanation": "Vérifiez les identifiants et types des clés référencées."
+  },
+  "MERISE-W006": {
+    "title": "Identifiant redondant ou non minimal",
+    "explanation": "Gardez des identifiants minimaux, sans répéter une clé déjà unique."
+  },
+  "MERISE-W007": {
+    "title": "Rôles réflexifs ambigus",
+    "explanation": "Nommez les rôles dans une association réflexive."
+  },
+  "MERISE-W008": {
+    "title": "Association potentiellement dupliquée",
+    "explanation": "Vérifiez si ce lien est vraiment distinct d’un autre identique."
+  },
+  "MERISE-W009": {
+    "title": "Clé étrangère possiblement saisie dans le MCD",
+    "explanation": "Modélisez le lien par une association ; la FK apparaît au MLD."
+  },
+  "MERISE-W010": {
+    "title": "Donnée calculée potentiellement redondante",
+    "explanation": "Une propriété calculable n’a pas sa place dans le MCD, sauf instantané historique."
+  },
+  "MERISE-W011": {
+    "title": "Dépendance des propriétés d’association à vérifier",
+    "explanation": "Vérifiez si ces propriétés décrivent l’entité ou le lien."
+  },
+  "MERISE-W012": {
+    "title": "Clé fondée sur un nombre approché",
+    "explanation": "Évitez les flottants dans une clé ou un identifiant."
+  },
+  "MERISE-W013": {
+    "title": "Domaine partiellement traduit en SQL",
+    "explanation": "Le SQL généré n’impose pas tout le domaine choisi."
+  },
+  "MERISE-W014": {
+    "title": "Collection dans une propriété",
+    "explanation": "Un tableau peut cacher une entité liée à modéliser."
+  },
+  "MERISE-W015": {
+    "title": "Propriété obligatoire d’un lien facultatif",
+    "explanation": "NOT NULL sur le lien peut devenir obligatoire même sans occurrence."
+  },
+  "MERISE-I001": {
+    "title": "Dépendances de la clé composée à documenter",
+    "explanation": "Vérifiez manuellement la 2FN et la 3FN pour cette clé composée."
+  },
+  "MERISE-I002": {
+    "title": "Participation minimale non garantie par le SQL",
+    "explanation": "Le SQL seul ne garantit pas l’existence d’un lien obligatoire côté métier."
+  },
+  "MERISE-I003": {
+    "title": "Type libre à vérifier sur le serveur",
+    "explanation": "Confirmez que ce type PostgreSQL existe sur le serveur cible."
+  },
+  "MERISE-I004": {
+    "title": "Entité isolée",
+    "explanation": "Cette entité n’est reliée à aucune association du diagramme."
+  }
+}

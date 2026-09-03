@@ -12,6 +12,7 @@ import {
   Undo2,
 } from 'lucide-react'
 import { useCallback, useEffect, useState, type ComponentProps, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ReactFlow,
   Background,
@@ -101,6 +102,7 @@ export function Canvas({
   panelView?: PanelView | null
   onClosePanel: () => void
 }) {
+  const { t } = useTranslation()
   const project = useProjectStore((s) => s.project)
   const selectedId = useProjectStore((s) => s.selectedElementId)
   const select = useProjectStore((s) => s.select)
@@ -240,21 +242,21 @@ export function Canvas({
         <Panel position="bottom-center" className="!m-4 max-w-[calc(100vw-2rem)]">
           <div className="flex flex-wrap items-center justify-center gap-1 rounded-xl border border-border/60 bg-card/90 p-1 shadow-lg backdrop-blur">
             <div className="flex items-center gap-0.5 rounded-lg bg-muted/50 p-0.5">
-              <DockButton title="Modèle conceptuel (MCD)" aria-label="Modèle conceptuel (MCD)" onClick={() => setViewMode('MCD')} className={cn(viewMode === 'MCD' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Network className="h-4 w-4" aria-hidden /></DockButton>
-              <DockButton title="Vue UML" aria-label="Vue UML" onClick={() => setViewMode('UML')} className={cn(viewMode === 'UML' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Box className="h-4 w-4" aria-hidden /></DockButton>
-              <DockButton title="Modèle logique (MLD)" aria-label="Modèle logique (MLD)" onClick={() => setViewMode('MLD')} className={cn(viewMode === 'MLD' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Database className="h-4 w-4" aria-hidden /></DockButton>
+              <DockButton title={t('dock.mcd')} aria-label={t('dock.mcd')} onClick={() => setViewMode('MCD')} className={cn(viewMode === 'MCD' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Network className="h-4 w-4" aria-hidden /></DockButton>
+              <DockButton title={t('dock.uml')} aria-label={t('dock.uml')} onClick={() => setViewMode('UML')} className={cn(viewMode === 'UML' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Box className="h-4 w-4" aria-hidden /></DockButton>
+              <DockButton title={t('dock.mld')} aria-label={t('dock.mld')} onClick={() => setViewMode('MLD')} className={cn(viewMode === 'MLD' ? 'rounded-md bg-background text-foreground shadow-sm' : 'text-muted-foreground')}><Database className="h-4 w-4" aria-hidden /></DockButton>
             </div>
 
             <DockSeparator />
-            <DockButton title="Ajouter une entité" onClick={() => apply(createEntityCommand(project))}><Plus className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Ajouter une association" onClick={() => apply(createAssociationCommand(project))}><Link2 className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Ajouter un héritage" onClick={() => apply(createInheritanceCommand(project))}><GitFork className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Ajouter une contrainte" onClick={() => apply(createConstraintCommand(project))}><ShieldAlert className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Ajouter une CIF" onClick={() => apply(createCifCommand(project))}><ArrowRightLeft className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Ajouter une règle métier" onClick={() => apply(createBusinessRuleCommand(project))}><ScrollText className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.addEntity')} onClick={() => apply(createEntityCommand(project))}><Plus className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.addAssociation')} onClick={() => apply(createAssociationCommand(project))}><Link2 className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.addInheritance')} onClick={() => apply(createInheritanceCommand(project))}><GitFork className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.addConstraint')} onClick={() => apply(createConstraintCommand(project))}><ShieldAlert className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.addCif')} onClick={() => apply(createCifCommand(project))}><ArrowRightLeft className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.addBusinessRule')} onClick={() => apply(createBusinessRuleCommand(project))}><ScrollText className="h-4 w-4" aria-hidden /></DockButton>
             <DockSeparator />
-            <DockButton title="Annuler (Ctrl+Z)" onClick={undo} disabled={!canUndo}><Undo2 className="h-4 w-4" aria-hidden /></DockButton>
-            <DockButton title="Rétablir (Ctrl+Y)" onClick={redo} disabled={!canRedo}><Redo2 className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.undo')} onClick={undo} disabled={!canUndo}><Undo2 className="h-4 w-4" aria-hidden /></DockButton>
+            <DockButton title={t('dock.redo')} onClick={redo} disabled={!canRedo}><Redo2 className="h-4 w-4" aria-hidden /></DockButton>
           </div>
         </Panel>
       </ReactFlow>
@@ -264,7 +266,7 @@ export function Canvas({
       <ConceptualEditModal />
       {confirmingSelectionDelete && (
         <div className="absolute bottom-20 left-1/2 z-50 -translate-x-1/2">
-          <ConfirmPopover message={`Supprimer les ${selectedNodes.length} éléments sélectionnés ?`} onCancel={() => setConfirmingSelectionDelete(false)} onConfirm={confirmSelectionDelete} confirmLabel="Supprimer" />
+          <ConfirmPopover message={t('dock.deleteSelection', { count: selectedNodes.length })} onCancel={() => setConfirmingSelectionDelete(false)} onConfirm={confirmSelectionDelete} confirmLabel={t('common.delete')} />
         </div>
       )}
     </div>

@@ -1,0 +1,6689 @@
+{
+  "blog": {
+    "version": 1,
+    "name": "Blog",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "blog_cif_article",
+        "name": "CIF_ARTICLE",
+        "sourceEntityId": "blog_auteur",
+        "targetEntityId": "blog_article",
+        "description": "Chaque article n’a qu’un auteur (max cible = 1).",
+        "associationId": "blog_redige",
+        "position": {
+          "x": 250,
+          "y": 20
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "blog_br_publi",
+        "name": "DATE_PUBLICATION",
+        "description": "Un article publié doit avoir une date de publication.",
+        "level": "warning",
+        "targetIds": [
+          "blog_article"
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "blog_auteur",
+        "name": "AUTEUR",
+        "attributes": [
+          {
+            "id": "ba_id",
+            "name": "id_auteur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ba_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ba_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ba_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "ba_bio",
+            "name": "biographie",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "LARGE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_auteur_pk",
+            "attributeIds": [
+              "ba_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "blog_rubrique",
+        "name": "RUBRIQUE",
+        "attributes": [
+          {
+            "id": "br_id",
+            "name": "id_rubrique",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "br_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "br_slug",
+            "name": "slug",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_rubrique_pk",
+            "attributeIds": [
+              "br_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "blog_article",
+        "name": "ARTICLE",
+        "attributes": [
+          {
+            "id": "bt_id",
+            "name": "id_article",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "bt_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 180
+              }
+            }
+          },
+          {
+            "id": "bt_slug",
+            "name": "slug",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 180
+              }
+            }
+          },
+          {
+            "id": "bt_resume",
+            "name": "resume",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 500
+              }
+            }
+          },
+          {
+            "id": "bt_contenu",
+            "name": "contenu",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "LARGE"
+              }
+            }
+          },
+          {
+            "id": "bt_publie",
+            "name": "publie",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          },
+          {
+            "id": "bt_date",
+            "name": "publie_le",
+            "conceptualType": "DATE",
+            "nullable": true,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_article_pk",
+            "attributeIds": [
+              "bt_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "blog_commentaire",
+        "name": "COMMENTAIRE",
+        "attributes": [
+          {
+            "id": "bc_id",
+            "name": "id_commentaire",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "bc_texte",
+            "name": "contenu",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "LARGE"
+              }
+            }
+          },
+          {
+            "id": "bc_date",
+            "name": "poste_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "bc_visible",
+            "name": "visible",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_commentaire_pk",
+            "attributeIds": [
+              "bc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 420
+        }
+      },
+      {
+        "id": "blog_motcle",
+        "name": "MOT_CLE",
+        "attributes": [
+          {
+            "id": "bm_id",
+            "name": "id_mot_cle",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "bm_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 60
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_motcle_pk",
+            "attributeIds": [
+              "bm_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 220
+        }
+      },
+      {
+        "id": "blog_abonne",
+        "name": "ABONNE",
+        "attributes": [
+          {
+            "id": "bo_id",
+            "name": "id_abonne",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "bo_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "bo_actif",
+            "name": "actif",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "blog_abonne_pk",
+            "attributeIds": [
+              "bo_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 480
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "blog_redige",
+        "name": "REDIGE",
+        "participants": [
+          {
+            "entityId": "blog_auteur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "blog_classe",
+        "name": "CLASSE",
+        "participants": [
+          {
+            "entityId": "blog_rubrique",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 260
+        }
+      },
+      {
+        "id": "blog_commente",
+        "name": "COMMENTE",
+        "participants": [
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_commentaire",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 270
+        }
+      },
+      {
+        "id": "blog_signe",
+        "name": "SIGNE",
+        "participants": [
+          {
+            "entityId": "blog_auteur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_commentaire",
+            "cardinality": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 420
+        }
+      },
+      {
+        "id": "blog_etiquete",
+        "name": "ETIQUETE",
+        "participants": [
+          {
+            "entityId": "blog_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_motcle",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 160
+        }
+      },
+      {
+        "id": "blog_sabonne",
+        "name": "SABONNE",
+        "participants": [
+          {
+            "entityId": "blog_abonne",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "blog_rubrique",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "bs_date",
+            "name": "abonne_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 250,
+          "y": 480
+        }
+      }
+    ]
+  },
+  "boutique": {
+    "version": 1,
+    "name": "Boutique",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "shop_cif_commande",
+        "name": "CIF_COMMANDE",
+        "sourceEntityId": "shop_client",
+        "targetEntityId": "shop_commande",
+        "description": "Chaque commande n’a qu’un client (max cible = 1).",
+        "associationId": "shop_passe",
+        "position": {
+          "x": 250,
+          "y": 330
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "shop_br_stock",
+        "name": "STOCK_POSITIF",
+        "description": "La quantité commandée ne peut pas dépasser le stock du produit.",
+        "level": "warning",
+        "targetIds": [
+          "shop_contient",
+          "shop_produit"
+        ],
+        "position": {
+          "x": 620,
+          "y": 250
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "shop_vendeur",
+        "name": "VENDEUR",
+        "attributes": [
+          {
+            "id": "sv_id",
+            "name": "id_vendeur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sv_nom",
+            "name": "raison_sociale",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "sv_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_vendeur_pk",
+            "attributeIds": [
+              "sv_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "shop_client",
+        "name": "CLIENT",
+        "attributes": [
+          {
+            "id": "sc_id",
+            "name": "id_client",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sc_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "sc_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "sc_inscrit",
+            "name": "inscrit_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_client_pk",
+            "attributeIds": [
+              "sc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 400
+        }
+      },
+      {
+        "id": "shop_produit",
+        "name": "PRODUIT",
+        "attributes": [
+          {
+            "id": "sp_id",
+            "name": "id_produit",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sp_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "sp_sku",
+            "name": "sku",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "sp_prix",
+            "name": "prix",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "sp_stock",
+            "name": "stock",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "sp_actif",
+            "name": "actif",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_produit_pk",
+            "attributeIds": [
+              "sp_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "shop_commande",
+        "name": "COMMANDE",
+        "attributes": [
+          {
+            "id": "so_id",
+            "name": "id_commande",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "so_ref",
+            "name": "reference",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          },
+          {
+            "id": "so_date",
+            "name": "passee_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "so_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_commande_pk",
+            "attributeIds": [
+              "so_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 400
+        }
+      },
+      {
+        "id": "shop_categorie",
+        "name": "CATEGORIE",
+        "attributes": [
+          {
+            "id": "sg_id",
+            "name": "id_categorie",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sg_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 60
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "shop_categorie_pk",
+            "attributeIds": [
+              "sg_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "shop_publie",
+        "name": "PUBLIE",
+        "participants": [
+          {
+            "entityId": "shop_vendeur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "shop_produit",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "shop_passe",
+        "name": "PASSE",
+        "participants": [
+          {
+            "entityId": "shop_client",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "shop_commande",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 400
+        }
+      },
+      {
+        "id": "shop_classe",
+        "name": "CLASSE",
+        "participants": [
+          {
+            "entityId": "shop_categorie",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "shop_produit",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 80
+        }
+      },
+      {
+        "id": "shop_contient",
+        "name": "CONTIENT",
+        "participants": [
+          {
+            "entityId": "shop_commande",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "shop_produit",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "sl_qty",
+            "name": "quantite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "sl_prix",
+            "name": "prix_unitaire",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 250
+        }
+      }
+    ]
+  },
+  "crm": {
+    "version": 1,
+    "name": "CRM",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "crm_cif_opp",
+        "name": "CIF_OPPORTUNITE",
+        "sourceEntityId": "crm_entreprise",
+        "targetEntityId": "crm_opportunite",
+        "description": "Chaque opportunité n’a qu’une entreprise (max cible = 1).",
+        "associationId": "crm_porte",
+        "position": {
+          "x": 250,
+          "y": 200
+        }
+      }
+    ],
+    "businessRules": [],
+    "entities": [
+      {
+        "id": "crm_entreprise",
+        "name": "ENTREPRISE",
+        "attributes": [
+          {
+            "id": "ce_id",
+            "name": "id_entreprise",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ce_nom",
+            "name": "raison_sociale",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "ce_siret",
+            "name": "siret",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 14
+              }
+            }
+          },
+          {
+            "id": "ce_secteur",
+            "name": "secteur",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_entreprise_pk",
+            "attributeIds": [
+              "ce_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "crm_contact",
+        "name": "CONTACT",
+        "attributes": [
+          {
+            "id": "cc_id",
+            "name": "id_contact",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cc_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "cc_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "cc_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "cc_fonction",
+            "name": "fonction",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_contact_pk",
+            "attributeIds": [
+              "cc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "crm_commercial",
+        "name": "COMMERCIAL",
+        "attributes": [
+          {
+            "id": "cm_id",
+            "name": "id_commercial",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cm_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "cm_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_commercial_pk",
+            "attributeIds": [
+              "cm_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 400
+        }
+      },
+      {
+        "id": "crm_opportunite",
+        "name": "OPPORTUNITE",
+        "attributes": [
+          {
+            "id": "co_id",
+            "name": "id_opportunite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "co_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "co_montant",
+            "name": "montant",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "co_etape",
+            "name": "etape",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "co_echeance",
+            "name": "echeance",
+            "conceptualType": "DATE",
+            "nullable": true,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_opportunite_pk",
+            "attributeIds": [
+              "co_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 400
+        }
+      },
+      {
+        "id": "crm_activite",
+        "name": "ACTIVITE",
+        "attributes": [
+          {
+            "id": "ca_id",
+            "name": "id_activite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ca_objet",
+            "name": "objet",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "ca_type",
+            "name": "type_activite",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "ca_date",
+            "name": "planifiee_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "ca_fait",
+            "name": "terminee",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_activite_pk",
+            "attributeIds": [
+              "ca_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 240
+        }
+      },
+      {
+        "id": "crm_devis",
+        "name": "DEVIS",
+        "attributes": [
+          {
+            "id": "cd_id",
+            "name": "id_devis",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cd_ref",
+            "name": "reference",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          },
+          {
+            "id": "cd_montant",
+            "name": "montant",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "cd_date",
+            "name": "emis_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "cd_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "crm_devis_pk",
+            "attributeIds": [
+              "cd_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 480
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "crm_regroupe",
+        "name": "REGROUPE",
+        "participants": [
+          {
+            "entityId": "crm_entreprise",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_contact",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "crm_porte",
+        "name": "PORTE_SUR",
+        "participants": [
+          {
+            "entityId": "crm_entreprise",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_opportunite",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 260
+        }
+      },
+      {
+        "id": "crm_pilote",
+        "name": "PILOTE",
+        "participants": [
+          {
+            "entityId": "crm_commercial",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_opportunite",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 400
+        }
+      },
+      {
+        "id": "crm_suit",
+        "name": "SUIT",
+        "participants": [
+          {
+            "entityId": "crm_contact",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_activite",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 140
+        }
+      },
+      {
+        "id": "crm_relie",
+        "name": "RELIE",
+        "participants": [
+          {
+            "entityId": "crm_opportunite",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_activite",
+            "cardinality": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 340
+        }
+      },
+      {
+        "id": "crm_propose",
+        "name": "PROPOSE",
+        "participants": [
+          {
+            "entityId": "crm_commercial",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_devis",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 480
+        }
+      },
+      {
+        "id": "crm_concerne_devis",
+        "name": "CONCERNE",
+        "participants": [
+          {
+            "entityId": "crm_entreprise",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "crm_devis",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 480
+        }
+      }
+    ]
+  },
+  "bibliotheque": {
+    "version": 1,
+    "name": "Bibliotheque",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "lib_cif_emprunt",
+        "name": "CIF_EMPRUNT",
+        "sourceEntityId": "lib_exemplaire",
+        "targetEntityId": "lib_emprunt",
+        "description": "Chaque emprunt n’a qu’un exemplaire (max cible = 1).",
+        "associationId": "lib_porte",
+        "position": {
+          "x": 590,
+          "y": 240
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "lib_br_retour",
+        "name": "RETOUR_COHERENT",
+        "description": "La date de retour prévue est postérieure à la date d’emprunt.",
+        "level": "warning",
+        "targetIds": [
+          "lib_emprunt"
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "lib_oeuvre",
+        "name": "OEUVRE",
+        "attributes": [
+          {
+            "id": "lo_id",
+            "name": "id_oeuvre",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lo_isbn",
+            "name": "isbn",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 17
+              }
+            }
+          },
+          {
+            "id": "lo_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 200
+              }
+            }
+          },
+          {
+            "id": "lo_annee",
+            "name": "annee_publication",
+            "conceptualType": "INTEGER",
+            "nullable": true,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_oeuvre_pk",
+            "attributeIds": [
+              "lo_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "lib_auteur",
+        "name": "AUTEUR",
+        "attributes": [
+          {
+            "id": "la_id",
+            "name": "id_auteur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "la_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "la_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_auteur_pk",
+            "attributeIds": [
+              "la_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "lib_exemplaire",
+        "name": "EXEMPLAIRE",
+        "attributes": [
+          {
+            "id": "lx_id",
+            "name": "id_exemplaire",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lx_cote",
+            "name": "cote",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "lx_etat",
+            "name": "etat",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_exemplaire_pk",
+            "attributeIds": [
+              "lx_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "lib_adherent",
+        "name": "ADHERENT",
+        "attributes": [
+          {
+            "id": "ld_id",
+            "name": "id_adherent",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ld_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ld_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "ld_fin",
+            "name": "adhesion_fin",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_adherent_pk",
+            "attributeIds": [
+              "ld_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "lib_emprunt",
+        "name": "EMPRUNT",
+        "attributes": [
+          {
+            "id": "le_id",
+            "name": "id_emprunt",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "le_debut",
+            "name": "emprunte_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "le_retour",
+            "name": "retour_prevu",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "le_rendu",
+            "name": "rendu_le",
+            "conceptualType": "DATE",
+            "nullable": true,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_emprunt_pk",
+            "attributeIds": [
+              "le_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 240
+        }
+      },
+      {
+        "id": "lib_editeur",
+        "name": "EDITEUR",
+        "attributes": [
+          {
+            "id": "lp_id",
+            "name": "id_editeur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lp_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "lp_pays",
+            "name": "pays",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 60
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "lib_editeur_pk",
+            "attributeIds": [
+              "lp_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "lib_ecrit",
+        "name": "ECRIT",
+        "participants": [
+          {
+            "entityId": "lib_auteur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_oeuvre",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "lib_publie",
+        "name": "PUBLIE",
+        "participants": [
+          {
+            "entityId": "lib_editeur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_oeuvre",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 80
+        }
+      },
+      {
+        "id": "lib_materialise",
+        "name": "MATERIALISE",
+        "participants": [
+          {
+            "entityId": "lib_oeuvre",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_exemplaire",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 80,
+          "y": 230
+        }
+      },
+      {
+        "id": "lib_emprunte",
+        "name": "EFFECTUE",
+        "participants": [
+          {
+            "entityId": "lib_adherent",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_emprunt",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      },
+      {
+        "id": "lib_porte",
+        "name": "PORTE_SUR",
+        "participants": [
+          {
+            "entityId": "lib_exemplaire",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "lib_emprunt",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 300
+        }
+      }
+    ]
+  },
+  "scolarite": {
+    "version": 1,
+    "name": "Scolarite",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "edu_cif_cours",
+        "name": "CIF_COURS",
+        "sourceEntityId": "edu_enseignant",
+        "targetEntityId": "edu_cours",
+        "description": "Chaque cours n’a qu’un enseignant responsable (max cible = 1).",
+        "associationId": "edu_enseigne",
+        "position": {
+          "x": 250,
+          "y": 20
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "edu_br_note",
+        "name": "NOTE_BORNEE",
+        "description": "Une note, si présente, est comprise entre 0 et 20.",
+        "level": "info",
+        "targetIds": [
+          "edu_inscrit"
+        ],
+        "position": {
+          "x": 80,
+          "y": 560
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "edu_enseignant",
+        "name": "ENSEIGNANT",
+        "attributes": [
+          {
+            "id": "ee_id",
+            "name": "id_enseignant",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ee_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ee_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ee_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_enseignant_pk",
+            "attributeIds": [
+              "ee_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "edu_etudiant",
+        "name": "ETUDIANT",
+        "attributes": [
+          {
+            "id": "et_id",
+            "name": "id_etudiant",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "et_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "et_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "et_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "et_promo",
+            "name": "promotion",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_etudiant_pk",
+            "attributeIds": [
+              "et_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 400
+        }
+      },
+      {
+        "id": "edu_cours",
+        "name": "COURS",
+        "attributes": [
+          {
+            "id": "ec_id",
+            "name": "id_cours",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ec_code",
+            "name": "code",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 16
+              }
+            }
+          },
+          {
+            "id": "ec_intitule",
+            "name": "intitule",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "ec_credits",
+            "name": "credits",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_cours_pk",
+            "attributeIds": [
+              "ec_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "edu_session",
+        "name": "SESSION",
+        "attributes": [
+          {
+            "id": "es_id",
+            "name": "id_session",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "es_annee",
+            "name": "annee",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "es_semestre",
+            "name": "semestre",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_session_pk",
+            "attributeIds": [
+              "es_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 400
+        }
+      },
+      {
+        "id": "edu_salle",
+        "name": "SALLE",
+        "attributes": [
+          {
+            "id": "er_id",
+            "name": "id_salle",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "er_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "er_capacite",
+            "name": "capacite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_salle_pk",
+            "attributeIds": [
+              "er_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      },
+      {
+        "id": "edu_examen",
+        "name": "EXAMEN",
+        "attributes": [
+          {
+            "id": "ex_id",
+            "name": "id_examen",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ex_date",
+            "name": "date_examen",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "ex_duree",
+            "name": "duree_min",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "ex_type",
+            "name": "type_examen",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "edu_examen_pk",
+            "attributeIds": [
+              "ex_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 400
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "edu_enseigne",
+        "name": "ENSEIGNE",
+        "participants": [
+          {
+            "entityId": "edu_enseignant",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_cours",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "edu_ouvre",
+        "name": "OUVRE",
+        "participants": [
+          {
+            "entityId": "edu_cours",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_session",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 240
+        }
+      },
+      {
+        "id": "edu_inscrit",
+        "name": "INSCRIT",
+        "participants": [
+          {
+            "entityId": "edu_etudiant",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_session",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "ei_note",
+            "name": "note",
+            "conceptualType": "DECIMAL",
+            "nullable": true,
+            "typeConfig": {
+              "numeric": {
+                "kind": "DECIMAL",
+                "precision": 4,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "ei_valide",
+            "name": "valide",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 250,
+          "y": 400
+        }
+      },
+      {
+        "id": "edu_accueille",
+        "name": "ACCUEILLE",
+        "participants": [
+          {
+            "entityId": "edu_salle",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_examen",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 240
+        }
+      },
+      {
+        "id": "edu_evaluer",
+        "name": "EVALUE",
+        "participants": [
+          {
+            "entityId": "edu_session",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "edu_examen",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "ev_coef",
+            "name": "coefficient",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "DECIMAL",
+                "precision": 3,
+                "scale": 1
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 590,
+          "y": 400
+        }
+      }
+    ]
+  },
+  "rh": {
+    "version": 1,
+    "name": "RH",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [
+      {
+        "id": "rh_herit",
+        "name": "SPECIALISATION",
+        "parentEntityId": "rh_personne",
+        "childEntityIds": [
+          "rh_salarie",
+          "rh_stagiaire"
+        ],
+        "coverage": "total",
+        "exclusivity": "exclusive",
+        "position": {
+          "x": 420,
+          "y": 220
+        }
+      }
+    ],
+    "constraints": [],
+    "cifs": [],
+    "businessRules": [
+      {
+        "id": "rh_br_exclu",
+        "name": "PARTITION",
+        "description": "Toute personne est soit salariée, soit stagiaire, jamais les deux.",
+        "level": "info",
+        "targetIds": [
+          "rh_herit"
+        ],
+        "position": {
+          "x": 620,
+          "y": 80
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "rh_personne",
+        "name": "PERSONNE",
+        "attributes": [
+          {
+            "id": "rp_id",
+            "name": "id_personne",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rp_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rp_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rp_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_personne_pk",
+            "attributeIds": [
+              "rp_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "rh_salarie",
+        "name": "SALARIE",
+        "attributes": [
+          {
+            "id": "rs_id",
+            "name": "id_salarie",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rs_matricule",
+            "name": "matricule",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 16
+              }
+            }
+          },
+          {
+            "id": "rs_embauche",
+            "name": "embauche_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_salarie_pk",
+            "attributeIds": [
+              "rs_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 320
+        }
+      },
+      {
+        "id": "rh_stagiaire",
+        "name": "STAGIAIRE",
+        "attributes": [
+          {
+            "id": "rt_id",
+            "name": "id_stagiaire",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rt_ecole",
+            "name": "ecole",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "rt_fin",
+            "name": "stage_fin",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_stagiaire_pk",
+            "attributeIds": [
+              "rt_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 320
+        }
+      },
+      {
+        "id": "rh_service",
+        "name": "SERVICE",
+        "attributes": [
+          {
+            "id": "rv_id",
+            "name": "id_service",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rv_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rv_code",
+            "name": "code",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 8
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_service_pk",
+            "attributeIds": [
+              "rv_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 520
+        }
+      },
+      {
+        "id": "rh_competence",
+        "name": "COMPETENCE",
+        "attributes": [
+          {
+            "id": "rc_id",
+            "name": "id_competence",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rc_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rc_domaine",
+            "name": "domaine",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 60
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rh_competence_pk",
+            "attributeIds": [
+              "rc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 520
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "rh_affecte",
+        "name": "AFFECTE",
+        "participants": [
+          {
+            "entityId": "rh_salarie",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rh_service",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 430
+        }
+      },
+      {
+        "id": "rh_accueille",
+        "name": "ACCUEILLE",
+        "participants": [
+          {
+            "entityId": "rh_service",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rh_stagiaire",
+            "cardinality": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 430
+        }
+      },
+      {
+        "id": "rh_possede",
+        "name": "POSSEDE",
+        "participants": [
+          {
+            "entityId": "rh_salarie",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rh_competence",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "rn_niveau",
+            "name": "niveau",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "rn_certifie",
+            "name": "certifie",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 250,
+          "y": 560
+        }
+      }
+    ]
+  },
+  "cinema": {
+    "version": 1,
+    "name": "Cinema",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "cin_cif_resa",
+        "name": "CIF_RESERVATION",
+        "sourceEntityId": "cin_spectateur",
+        "targetEntityId": "cin_reservation",
+        "description": "Chaque réservation n’a qu’un spectateur (max cible = 1).",
+        "associationId": "cin_effectue",
+        "position": {
+          "x": 590,
+          "y": 20
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "cin_br_places",
+        "name": "PLACES_POSITIVES",
+        "description": "Le nombre de places réservées est strictement positif.",
+        "level": "warning",
+        "targetIds": [
+          "cin_reservation"
+        ],
+        "position": {
+          "x": 920,
+          "y": 380
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "cin_cinema",
+        "name": "CINEMA",
+        "attributes": [
+          {
+            "id": "ci_id",
+            "name": "id_cinema",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ci_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "ci_ville",
+            "name": "ville",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ci_adresse",
+            "name": "adresse",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 200
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "cin_cinema_pk",
+            "attributeIds": [
+              "ci_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "cin_salle",
+        "name": "SALLE",
+        "attributes": [
+          {
+            "id": "cs_id",
+            "name": "id_salle",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cs_numero",
+            "name": "numero",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 10
+              }
+            }
+          },
+          {
+            "id": "cs_capacite",
+            "name": "capacite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "cs_pmr",
+            "name": "acces_pmr",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "cin_salle_pk",
+            "attributeIds": [
+              "cs_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "cin_film",
+        "name": "FILM",
+        "attributes": [
+          {
+            "id": "cf_id",
+            "name": "id_film",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cf_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 180
+              }
+            }
+          },
+          {
+            "id": "cf_duree",
+            "name": "duree_min",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "cf_classif",
+            "name": "classification",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 10
+              }
+            }
+          },
+          {
+            "id": "cf_synopsis",
+            "name": "synopsis",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "LARGE"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "cin_film_pk",
+            "attributeIds": [
+              "cf_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "cin_seance",
+        "name": "SEANCE",
+        "attributes": [
+          {
+            "id": "cn_id",
+            "name": "id_seance",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cn_debut",
+            "name": "debut",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "cn_fin",
+            "name": "fin",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "cn_prix",
+            "name": "prix_base",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "cin_seance_pk",
+            "attributeIds": [
+              "cn_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "cin_spectateur",
+        "name": "SPECTATEUR",
+        "attributes": [
+          {
+            "id": "sp_id",
+            "name": "id_spectateur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sp_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "sp_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "sp_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "cin_spectateur_pk",
+            "attributeIds": [
+              "sp_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      },
+      {
+        "id": "cin_reservation",
+        "name": "RESERVATION",
+        "attributes": [
+          {
+            "id": "cr_id",
+            "name": "id_reservation",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "cr_date",
+            "name": "reserve_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "cr_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          },
+          {
+            "id": "cr_places",
+            "name": "nb_places",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "cin_reservation_pk",
+            "attributeIds": [
+              "cr_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 380
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "cin_possede",
+        "name": "POSSEDE",
+        "participants": [
+          {
+            "entityId": "cin_cinema",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "cin_salle",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "cin_programme",
+        "name": "PROGRAMME",
+        "participants": [
+          {
+            "entityId": "cin_salle",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "cin_seance",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 230
+        }
+      },
+      {
+        "id": "cin_projette",
+        "name": "PROJETTE",
+        "participants": [
+          {
+            "entityId": "cin_film",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "cin_seance",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 380
+        }
+      },
+      {
+        "id": "cin_effectue",
+        "name": "EFFECTUE",
+        "participants": [
+          {
+            "entityId": "cin_spectateur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "cin_reservation",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 80
+        }
+      },
+      {
+        "id": "cin_concerne",
+        "name": "CONCERNE",
+        "participants": [
+          {
+            "entityId": "cin_seance",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "cin_reservation",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      }
+    ]
+  },
+  "hotel": {
+    "version": 1,
+    "name": "Hotel",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "hot_cif_resa",
+        "name": "CIF_RESERVATION",
+        "sourceEntityId": "hot_client",
+        "targetEntityId": "hot_reservation",
+        "description": "Chaque réservation n’a qu’un client (max cible = 1).",
+        "associationId": "hot_reserve",
+        "position": {
+          "x": 590,
+          "y": 330
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "hot_br_dates",
+        "name": "DATES_COHERENTES",
+        "description": "La date de départ est postérieure à la date d’arrivée.",
+        "level": "warning",
+        "targetIds": [
+          "hot_reservation"
+        ],
+        "position": {
+          "x": 920,
+          "y": 230
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "hot_hotel",
+        "name": "HOTEL",
+        "attributes": [
+          {
+            "id": "ho_id",
+            "name": "id_hotel",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ho_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "ho_ville",
+            "name": "ville",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ho_etoiles",
+            "name": "etoiles",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "hot_hotel_pk",
+            "attributeIds": [
+              "ho_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "hot_type_chambre",
+        "name": "TYPE_CHAMBRE",
+        "attributes": [
+          {
+            "id": "ht_id",
+            "name": "id_type",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ht_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ht_capacite",
+            "name": "capacite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "ht_prix_nuit",
+            "name": "prix_nuit",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "hot_type_chambre_pk",
+            "attributeIds": [
+              "ht_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "hot_chambre",
+        "name": "CHAMBRE",
+        "attributes": [
+          {
+            "id": "hc_id",
+            "name": "id_chambre",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "hc_numero",
+            "name": "numero",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 10
+              }
+            }
+          },
+          {
+            "id": "hc_etage",
+            "name": "etage",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "hot_chambre_pk",
+            "attributeIds": [
+              "hc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "hot_client",
+        "name": "CLIENT",
+        "attributes": [
+          {
+            "id": "hl_id",
+            "name": "id_client",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "hl_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "hl_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "hl_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          },
+          {
+            "id": "hl_tel",
+            "name": "telephone",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "hot_client_pk",
+            "attributeIds": [
+              "hl_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "hot_reservation",
+        "name": "RESERVATION",
+        "attributes": [
+          {
+            "id": "hr_id",
+            "name": "id_reservation",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "hr_arrivee",
+            "name": "arrivee",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "hr_depart",
+            "name": "depart",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "hr_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "hot_reservation_pk",
+            "attributeIds": [
+              "hr_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 230
+        }
+      },
+      {
+        "id": "hot_service",
+        "name": "SERVICE",
+        "attributes": [
+          {
+            "id": "hs_id",
+            "name": "id_service",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "hs_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "hs_tarif",
+            "name": "tarif",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "hot_service_pk",
+            "attributeIds": [
+              "hs_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 480
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "hot_heberge",
+        "name": "HEBERGE",
+        "participants": [
+          {
+            "entityId": "hot_hotel",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "hot_chambre",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 230
+        }
+      },
+      {
+        "id": "hot_classe",
+        "name": "CLASSE",
+        "participants": [
+          {
+            "entityId": "hot_type_chambre",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "hot_chambre",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "hot_reserve",
+        "name": "RESERVE",
+        "participants": [
+          {
+            "entityId": "hot_client",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "hot_reservation",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      },
+      {
+        "id": "hot_occupe",
+        "name": "OCCUPE",
+        "participants": [
+          {
+            "entityId": "hot_chambre",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "hot_reservation",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "hot_propose",
+        "name": "PROPOSE",
+        "participants": [
+          {
+            "entityId": "hot_hotel",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "hot_service",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "hot_souscrit",
+        "name": "SOUSCRIT",
+        "participants": [
+          {
+            "entityId": "hot_reservation",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "hot_service",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "hs_qte",
+            "name": "quantite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 590,
+          "y": 480
+        }
+      }
+    ]
+  },
+  "restaurant": {
+    "version": 1,
+    "name": "Restaurant",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "rest_cif_cmd",
+        "name": "CIF_COMMANDE",
+        "sourceEntityId": "rest_serveur",
+        "targetEntityId": "rest_commande",
+        "description": "Chaque commande n’a qu’un serveur (max cible = 1).",
+        "associationId": "rest_sert",
+        "position": {
+          "x": 420,
+          "y": 330
+        }
+      }
+    ],
+    "businessRules": [],
+    "entities": [
+      {
+        "id": "rest_resto",
+        "name": "RESTAURANT",
+        "attributes": [
+          {
+            "id": "rr_id",
+            "name": "id_restaurant",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rr_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "rr_adresse",
+            "name": "adresse",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 200
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rest_resto_pk",
+            "attributeIds": [
+              "rr_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "rest_table",
+        "name": "TABLE",
+        "attributes": [
+          {
+            "id": "rt_id",
+            "name": "id_table",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rt_numero",
+            "name": "numero",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 10
+              }
+            }
+          },
+          {
+            "id": "rt_places",
+            "name": "places",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rest_table_pk",
+            "attributeIds": [
+              "rt_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "rest_serveur",
+        "name": "SERVEUR",
+        "attributes": [
+          {
+            "id": "rv_id",
+            "name": "id_serveur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rv_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "rv_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rest_serveur_pk",
+            "attributeIds": [
+              "rv_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "rest_categorie",
+        "name": "CATEGORIE",
+        "attributes": [
+          {
+            "id": "rc_id",
+            "name": "id_categorie",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rc_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 60
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rest_categorie_pk",
+            "attributeIds": [
+              "rc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "rest_plat",
+        "name": "PLAT",
+        "attributes": [
+          {
+            "id": "rp_id",
+            "name": "id_plat",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "rp_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "rp_prix",
+            "name": "prix",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "rp_vegetarien",
+            "name": "vegetarien",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          },
+          {
+            "id": "rp_allergenes",
+            "name": "allergenes",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 200
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rest_plat_pk",
+            "attributeIds": [
+              "rp_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 80
+        }
+      },
+      {
+        "id": "rest_commande",
+        "name": "COMMANDE",
+        "attributes": [
+          {
+            "id": "ro_id",
+            "name": "id_commande",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ro_heure",
+            "name": "passee_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "ro_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "rest_commande_pk",
+            "attributeIds": [
+              "ro_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 380
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "rest_equipe",
+        "name": "EQUIPE",
+        "participants": [
+          {
+            "entityId": "rest_resto",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rest_table",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "rest_emploie",
+        "name": "EMPLOIE",
+        "participants": [
+          {
+            "entityId": "rest_resto",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rest_serveur",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 380
+        }
+      },
+      {
+        "id": "rest_classe",
+        "name": "CLASSE",
+        "participants": [
+          {
+            "entityId": "rest_categorie",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rest_plat",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 80
+        }
+      },
+      {
+        "id": "rest_sert",
+        "name": "SERT",
+        "participants": [
+          {
+            "entityId": "rest_serveur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rest_commande",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "rest_associe",
+        "name": "ASSOCIE",
+        "participants": [
+          {
+            "entityId": "rest_table",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rest_commande",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      },
+      {
+        "id": "rest_compose",
+        "name": "COMPOSE",
+        "participants": [
+          {
+            "entityId": "rest_commande",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "rest_plat",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "rl_qte",
+            "name": "quantite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "rl_note",
+            "name": "instruction",
+            "conceptualType": "TEXT",
+            "nullable": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 920,
+          "y": 230
+        }
+      }
+    ]
+  },
+  "sante": {
+    "version": 1,
+    "name": "Sante",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "san_cif_rdv",
+        "name": "CIF_RDV",
+        "sourceEntityId": "san_patient",
+        "targetEntityId": "san_rdv",
+        "description": "Chaque rendez-vous n’a qu’un patient (max cible = 1).",
+        "associationId": "san_planifie",
+        "position": {
+          "x": 590,
+          "y": 20
+        }
+      }
+    ],
+    "businessRules": [],
+    "entities": [
+      {
+        "id": "san_patient",
+        "name": "PATIENT",
+        "attributes": [
+          {
+            "id": "pa_id",
+            "name": "id_patient",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "pa_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "pa_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "pa_naissance",
+            "name": "date_naissance",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "pa_secu",
+            "name": "num_secu",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 15
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "san_patient_pk",
+            "attributeIds": [
+              "pa_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "san_medecin",
+        "name": "MEDECIN",
+        "attributes": [
+          {
+            "id": "me_id",
+            "name": "id_medecin",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "me_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "me_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "me_rpps",
+            "name": "num_rpps",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 11
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "san_medecin_pk",
+            "attributeIds": [
+              "me_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "san_specialite",
+        "name": "SPECIALITE",
+        "attributes": [
+          {
+            "id": "ss_id",
+            "name": "id_specialite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ss_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "san_specialite_pk",
+            "attributeIds": [
+              "ss_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "san_cabinet",
+        "name": "CABINET",
+        "attributes": [
+          {
+            "id": "sc_id",
+            "name": "id_cabinet",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sc_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "sc_adresse",
+            "name": "adresse",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 200
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "san_cabinet_pk",
+            "attributeIds": [
+              "sc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "san_rdv",
+        "name": "RENDEZ_VOUS",
+        "attributes": [
+          {
+            "id": "sr_id",
+            "name": "id_rdv",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "sr_debut",
+            "name": "debut",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "sr_motif",
+            "name": "motif",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 200
+              }
+            }
+          },
+          {
+            "id": "sr_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "san_rdv_pk",
+            "attributeIds": [
+              "sr_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 230
+        }
+      },
+      {
+        "id": "san_ordonnance",
+        "name": "ORDONNANCE",
+        "attributes": [
+          {
+            "id": "so_id",
+            "name": "id_ordonnance",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "so_date",
+            "name": "delivree_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "so_duree",
+            "name": "duree_jours",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "san_ordonnance_pk",
+            "attributeIds": [
+              "so_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 480
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "san_exerce",
+        "name": "EXERCE",
+        "participants": [
+          {
+            "entityId": "san_medecin",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "san_specialite",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 230
+        }
+      },
+      {
+        "id": "san_travaille",
+        "name": "TRAVAILLE",
+        "participants": [
+          {
+            "entityId": "san_medecin",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "san_cabinet",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 230
+        }
+      },
+      {
+        "id": "san_planifie",
+        "name": "PLANIFIE",
+        "participants": [
+          {
+            "entityId": "san_patient",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "san_rdv",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 80
+        }
+      },
+      {
+        "id": "san_assure",
+        "name": "ASSURE",
+        "participants": [
+          {
+            "entityId": "san_medecin",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "san_rdv",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      },
+      {
+        "id": "san_delivre",
+        "name": "DELIVRE",
+        "participants": [
+          {
+            "entityId": "san_medecin",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "san_ordonnance",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 920,
+          "y": 380
+        }
+      },
+      {
+        "id": "san_concerne",
+        "name": "CONCERNE",
+        "participants": [
+          {
+            "entityId": "san_patient",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "san_ordonnance",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 480
+        }
+      }
+    ]
+  },
+  "logistique": {
+    "version": 1,
+    "name": "Logistique",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "log_cif_cmd",
+        "name": "CIF_COMMANDE_ACHAT",
+        "sourceEntityId": "log_fournisseur",
+        "targetEntityId": "log_commande_achat",
+        "description": "Chaque commande d’achat n’a qu’un fournisseur (max cible = 1).",
+        "associationId": "log_passe",
+        "position": {
+          "x": 420,
+          "y": 330
+        }
+      }
+    ],
+    "businessRules": [],
+    "entities": [
+      {
+        "id": "log_entrepot",
+        "name": "ENTREPOT",
+        "attributes": [
+          {
+            "id": "le_id",
+            "name": "id_entrepot",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "le_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "le_ville",
+            "name": "ville",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "log_entrepot_pk",
+            "attributeIds": [
+              "le_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "log_fournisseur",
+        "name": "FOURNISSEUR",
+        "attributes": [
+          {
+            "id": "lf_id",
+            "name": "id_fournisseur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lf_nom",
+            "name": "raison_sociale",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "lf_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "log_fournisseur_pk",
+            "attributeIds": [
+              "lf_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "log_article",
+        "name": "STOCK_ITEM",
+        "attributes": [
+          {
+            "id": "la_id",
+            "name": "id_article",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "la_ref",
+            "name": "reference",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 40
+              }
+            }
+          },
+          {
+            "id": "la_libelle",
+            "name": "libelle",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 160
+              }
+            }
+          },
+          {
+            "id": "la_unite",
+            "name": "unite",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "log_article_pk",
+            "attributeIds": [
+              "la_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "log_commande_achat",
+        "name": "COMMANDE_ACHAT",
+        "attributes": [
+          {
+            "id": "lc_id",
+            "name": "id_commande",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lc_date",
+            "name": "passee_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATE"
+              }
+            }
+          },
+          {
+            "id": "lc_statut",
+            "name": "statut",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "log_commande_achat_pk",
+            "attributeIds": [
+              "lc_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "log_mouvement",
+        "name": "MOUVEMENT",
+        "attributes": [
+          {
+            "id": "lm_id",
+            "name": "id_mouvement",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "lm_date",
+            "name": "effectue_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "lm_type",
+            "name": "type_mouvement",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 20
+              }
+            }
+          },
+          {
+            "id": "lm_qte",
+            "name": "quantite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "log_mouvement_pk",
+            "attributeIds": [
+              "lm_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 230
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "log_approvisionne",
+        "name": "APPROVISIONNE",
+        "participants": [
+          {
+            "entityId": "log_fournisseur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "log_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "lap_delai",
+            "name": "delai_jours",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 250,
+          "y": 230
+        }
+      },
+      {
+        "id": "log_stocke",
+        "name": "STOCKE",
+        "participants": [
+          {
+            "entityId": "log_entrepot",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "log_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "lst_seuil",
+            "name": "seuil_alerte",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "lst_niveau",
+            "name": "niveau_stock",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "log_passe",
+        "name": "PASSE",
+        "participants": [
+          {
+            "entityId": "log_fournisseur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "log_commande_achat",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "log_detaille",
+        "name": "DETAILLE",
+        "participants": [
+          {
+            "entityId": "log_commande_achat",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "log_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "ld_qte",
+            "name": "quantite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          },
+          {
+            "id": "ld_prix",
+            "name": "prix_unitaire",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      },
+      {
+        "id": "log_enregistre",
+        "name": "ENREGISTRE",
+        "participants": [
+          {
+            "entityId": "log_entrepot",
+            "cardinality": {
+              "min": 1,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "log_mouvement",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "log_concerne_art",
+        "name": "CONCERNE",
+        "participants": [
+          {
+            "entityId": "log_article",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "log_mouvement",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 230
+        }
+      }
+    ]
+  },
+  "evenement": {
+    "version": 1,
+    "name": "Evenement",
+    "ignoredRules": [],
+    "ignoredIssueIds": [],
+    "inheritances": [],
+    "constraints": [],
+    "cifs": [
+      {
+        "id": "evt_cif_billet",
+        "name": "CIF_BILLET",
+        "sourceEntityId": "evt_participant",
+        "targetEntityId": "evt_billet",
+        "description": "Chaque billet n’a qu’un participant (max cible = 1).",
+        "associationId": "evt_delivre",
+        "position": {
+          "x": 760,
+          "y": 20
+        }
+      }
+    ],
+    "businessRules": [
+      {
+        "id": "evt_br_capacite",
+        "name": "CAPACITE_LIEU",
+        "description": "La capacité de l’événement ne dépasse pas celle du lieu.",
+        "level": "info",
+        "targetIds": [
+          "evt_evenement",
+          "evt_lieu"
+        ],
+        "position": {
+          "x": 920,
+          "y": 80
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "evt_evenement",
+        "name": "EVENEMENT",
+        "attributes": [
+          {
+            "id": "ev_id",
+            "name": "id_evenement",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ev_titre",
+            "name": "titre",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 180
+              }
+            }
+          },
+          {
+            "id": "ev_debut",
+            "name": "debut",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "ev_fin",
+            "name": "fin",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          },
+          {
+            "id": "ev_capacite",
+            "name": "capacite_max",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "evt_evenement_pk",
+            "attributeIds": [
+              "ev_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 80
+        }
+      },
+      {
+        "id": "evt_lieu",
+        "name": "LIEU",
+        "attributes": [
+          {
+            "id": "el_id",
+            "name": "id_lieu",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "el_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 120
+              }
+            }
+          },
+          {
+            "id": "el_ville",
+            "name": "ville",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "el_capacite",
+            "name": "capacite",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "INTEGER",
+                "bits": 32
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "evt_lieu_pk",
+            "attributeIds": [
+              "el_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 80
+        }
+      },
+      {
+        "id": "evt_organisateur",
+        "name": "ORGANISATEUR",
+        "attributes": [
+          {
+            "id": "eo_id",
+            "name": "id_organisateur",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "eo_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "eo_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "evt_organisateur_pk",
+            "attributeIds": [
+              "eo_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 80,
+          "y": 380
+        }
+      },
+      {
+        "id": "evt_participant",
+        "name": "PARTICIPANT",
+        "attributes": [
+          {
+            "id": "ep_id",
+            "name": "id_participant",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "ep_nom",
+            "name": "nom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ep_prenom",
+            "name": "prenom",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 80
+              }
+            }
+          },
+          {
+            "id": "ep_email",
+            "name": "email",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 254
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "evt_participant_pk",
+            "attributeIds": [
+              "ep_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 420,
+          "y": 380
+        }
+      },
+      {
+        "id": "evt_billet",
+        "name": "BILLET",
+        "attributes": [
+          {
+            "id": "eb_id",
+            "name": "id_billet",
+            "conceptualType": "INTEGER",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "COUNTER"
+              }
+            }
+          },
+          {
+            "id": "eb_code",
+            "name": "code",
+            "conceptualType": "TEXT",
+            "nullable": false,
+            "unique": true,
+            "typeConfig": {
+              "text": {
+                "charset": "UNICODE",
+                "storage": "VARIABLE",
+                "length": 32
+              }
+            }
+          },
+          {
+            "id": "eb_prix",
+            "name": "prix",
+            "conceptualType": "DECIMAL",
+            "nullable": false,
+            "typeConfig": {
+              "numeric": {
+                "kind": "MONEY",
+                "precision": 12,
+                "scale": 2
+              }
+            }
+          },
+          {
+            "id": "eb_utilise",
+            "name": "utilise",
+            "conceptualType": "BOOLEAN",
+            "nullable": false,
+            "typeConfig": {
+              "other": {
+                "kind": "BOOLEAN"
+              }
+            }
+          }
+        ],
+        "identifiers": [
+          {
+            "id": "evt_billet_pk",
+            "attributeIds": [
+              "eb_id"
+            ],
+            "isPrimary": true
+          }
+        ],
+        "position": {
+          "x": 760,
+          "y": 230
+        }
+      }
+    ],
+    "associations": [
+      {
+        "id": "evt_se_deroule",
+        "name": "SE_DEROULE",
+        "participants": [
+          {
+            "entityId": "evt_lieu",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "evt_evenement",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 80
+        }
+      },
+      {
+        "id": "evt_organise",
+        "name": "ORGANISE",
+        "participants": [
+          {
+            "entityId": "evt_organisateur",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "evt_evenement",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 250,
+          "y": 380
+        }
+      },
+      {
+        "id": "evt_inscrit",
+        "name": "INSCRIT",
+        "participants": [
+          {
+            "entityId": "evt_participant",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "evt_evenement",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "id": "ei_date",
+            "name": "inscrit_le",
+            "conceptualType": "DATE",
+            "nullable": false,
+            "typeConfig": {
+              "dateTime": {
+                "kind": "DATETIME",
+                "timezone": true
+              }
+            }
+          }
+        ],
+        "position": {
+          "x": 590,
+          "y": 380
+        }
+      },
+      {
+        "id": "evt_delivre",
+        "name": "DELIVRE",
+        "participants": [
+          {
+            "entityId": "evt_participant",
+            "cardinality": {
+              "min": 0,
+              "max": "N"
+            }
+          },
+          {
+            "entityId": "evt_billet",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 80
+        }
+      },
+      {
+        "id": "evt_valable",
+        "name": "VALIDE_POUR",
+        "participants": [
+          {
+            "entityId": "evt_billet",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          },
+          {
+            "entityId": "evt_evenement",
+            "cardinality": {
+              "min": 1,
+              "max": 1
+            }
+          }
+        ],
+        "attributes": [],
+        "position": {
+          "x": 590,
+          "y": 230
+        }
+      }
+    ]
+  }
+}

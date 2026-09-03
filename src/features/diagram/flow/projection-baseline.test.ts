@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { normalizeProject, type Project } from '@/domain'
 import { generateMld } from '@/mld'
 import { generateSql } from '@/sql'
-import templates from '@/features/project-library/templates/projects.json'
+import templates from '@/features/project-library/templates/projects.fr.json'
 import hashes from './projection-baseline.json'
 import { projectToEdges, projectToNodes } from './project-adapter'
 
