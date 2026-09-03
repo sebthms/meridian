@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateMld } from './generator'
-import { buildProject, makeEntity, makeAssociation } from '@/merise/rules/__tests__/helpers'
+import { buildProject, makeEntity, makeAssociation } from '@/test-support/project-fixtures'
 
 describe('MLD generator', () => {
   it('Rule 1: entity becomes a relation', () => {

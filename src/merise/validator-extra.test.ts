@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { validateProject, normalizeProject } from '@/merise'
-import { buildProject, makeEntity, makeAssociation } from './rules/__tests__/helpers'
+import { buildProject, makeEntity, makeAssociation } from '@/test-support/project-fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────
 // Tests des règles de validation (§10). Complète validator.test.ts en

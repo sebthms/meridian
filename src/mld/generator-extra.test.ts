@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateMld, formatMld } from '@/mld'
-import { buildProject, makeEntity, makeAssociation } from '@/merise/rules/__tests__/helpers'
+import { buildProject, makeEntity, makeAssociation } from '@/test-support/project-fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────
 // Tests des cas limites du générateur MLD (§14–§21).

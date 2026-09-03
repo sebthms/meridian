@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useProjectStore } from './project-store'
 import { createEntityCommand } from '@/editor'
+import { createProject } from '@/domain'
 
 // ─────────────────────────────────────────────────────────────────────────
 // Tests du store Zustand (§29) : création, undo/redo, validation temps réel,
@@ -8,11 +9,14 @@ import { createEntityCommand } from '@/editor'
 // no-op via try/catch, ce qui rend le store testable.)
 // ─────────────────────────────────────────────────────────────────────────
 
-describe('ProjectStore — cycle de vie', () => {
-  beforeEach(() => {
+beforeEach(() => {
     // état neuf à chaque test (pas de leakage entre tests)
     useProjectStore.setState({
-      project: useProjectStore.getState().project,
+      project: createProject(),
+      projects: [],
+      activeProjectId: null,
+      addPropertyTarget: null,
+      editConceptualTarget: null,
       past: [],
       future: [],
       issues: [],
@@ -20,7 +24,9 @@ describe('ProjectStore — cycle de vie', () => {
     })
     // on repart d'un projet vierge
     useProjectStore.getState().reset()
-  })
+})
+
+describe('ProjectStore — cycle de vie', () => {
 
   it('crée une entité via apply() puis la retrouve', () => {
     const store = useProjectStore.getState()

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createInheritance, createFunctionalDependencyConstraint, createBusinessRule, createModelConstraint } from '@/domain'
 import { validateProject } from './validator'
-import { buildProject, makeAssociation, makeEntity } from './rules/__tests__/helpers'
+import { buildProject, makeAssociation, makeEntity } from '@/test-support/project-fixtures'
 
 function twoEntities() {
   return [

@@ -5,7 +5,7 @@ import { generateMld } from '@/mld'
 import { parseAttributeTypeConfig, getPrimaryIdentifier, type AttributeTypeConfig } from '@/domain'
 import { exportProject, parseProject } from '@/persistence/project-file'
 import { setAttributeIdentifier, setIdentifierOrder } from '@/editor'
-import { buildProject, makeAssociation, makeEntity } from '@/merise/rules/__tests__/helpers'
+import { buildProject, makeAssociation, makeEntity } from '@/test-support/project-fixtures'
 import { propertyTypeDefaults } from '@/domain/property-type-defaults'
 
 const sqlType = (typeConfig: AttributeTypeConfig) => attributeToSql({ conceptualType: 'TEXT', typeConfig })
